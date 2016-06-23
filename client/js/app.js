@@ -11,6 +11,12 @@ fetch('/json/names.json')
   .then(json => { names = json })
   .then(updateUi)
 
+let blocks
+fetch('/json/blocks.json')
+  .then(response => response.json())
+  .then(json => { blocks = json })
+  .then(updateUi)
+
 input.addEventListener('input', updateUi)
 
 function updateUi () {
@@ -30,16 +36,29 @@ function clearChildren (node) {
 }
 
 function createCharDetails (char, template) {
-  const code = char.charCodeAt().toString(16).toUpperCase()
+  const code = char.codePointAt().toString(16).toUpperCase()
   const name = (names) ? names[code] || 'Unknown' : 'Loading...'
+  const block = getBlock(char, blocks)
   const bytes = [...new TextEncoder().encode(char)]
     .map(bytes => bytes.toString(16).toUpperCase())
     .join(' ')
 
   template.content.querySelector('.char--literal').textContent = char
   template.content.querySelector('.char--name').textContent = name
+  template.content.querySelector('.char--block').textContent = block
   template.content.querySelector('.char--code').textContent = code
   template.content.querySelector('.char--bytes').textContent = bytes
 
   return document.importNode(template.content, true)
+}
+
+function getBlock (char, blocks) {
+  if (!blocks) return 'Loading...'
+  const code = char.codePointAt()
+
+  for (let block of blocks) {
+    if (code >= block.start && code <= block.end) return block.name
+  }
+
+  return 'Unknown'
 }
