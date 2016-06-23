@@ -16,7 +16,7 @@ input.addEventListener('input', updateUi)
 function updateUi () {
   clearChildren(display)
 
-  for (const char of input.value) {
+  for (let char of input.value) {
     const details = createCharDetails(char, template)
 
     display.appendChild(details)
