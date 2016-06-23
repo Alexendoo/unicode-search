@@ -1,0 +1,33 @@
+body {
+  padding: 0;
+  margin: 0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.char--details:last-child {
+  border-bottom: 0;
+}
+
+.char--details {
+  padding: 16px;
+  border-bottom: 1px solid #aaa;
+  display: flex;
+  line-height: 1.6;
+}
+
+.char--details > * {
+  flex: none;
+  width: 50%;
+}
+
+.char--details .labels {
+  padding-right: 8px;
+  text-align: right;
+}
+
+.char--details .values {
+  padding-left: 8px;
+}

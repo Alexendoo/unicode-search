@@ -2,11 +2,36 @@
 <html>
   <head>
     <meta charset="utf-8">
+    <link rel="stylesheet" href="css/app.css">
     <title>Character information</title>
   </head>
   <body>
     <input id="chars" type="text" name="chars" value="">
     <main></main>
-    <script src="app.js"></script>
+    <template id="char--template">
+      <div class="char--details">
+        <div class="labels">
+          <div class="label">
+            Character
+          </div>
+          <div class="label">
+            Character name
+          </div>
+          <div class="label">
+            Code point
+          </div>
+          <div class="label">
+            UTF-8 bytes
+          </div>
+        </div>
+        <div class="values">
+          <div class="char--literal"></div>
+          <div class="char--name"></div>
+          <div class="char--code"></div>
+          <div class="char--bytes"></div>
+        </div>
+      </div>
+    </template>
+    <script src="js/app.js"></script>
   </body>
 </html>
