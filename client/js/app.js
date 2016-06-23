@@ -4,13 +4,16 @@
 const input = document.getElementById('chars')
 const template = document.getElementById('char--template')
 const display = document.querySelector('main')
-let names
 
+let names
 fetch('/json/names.json')
   .then(response => response.json())
   .then(json => { names = json })
+  .then(updateUi)
 
-input.addEventListener('input', event => {
+input.addEventListener('input', updateUi)
+
+function updateUi () {
   clearChildren(display)
 
   for (const char of input.value) {
@@ -18,25 +21,17 @@ input.addEventListener('input', event => {
 
     display.appendChild(details)
   }
-})
+}
 
-/**
- * Remove all child nodes from a node
- *
- * @param  {Node} node to remove children from
- *
- * @return {Node} resulting node
- */
 function clearChildren (node) {
   while (node.firstChild) {
     node.removeChild(node.firstChild)
   }
-  return node
 }
 
 function createCharDetails (char, template) {
   const code = char.charCodeAt().toString(16).toUpperCase()
-  const name = names[code]
+  const name = (names) ? names[code] || 'Unknown' : 'Loading...'
   const bytes = [...new TextEncoder().encode(char)]
     .map(bytes => bytes.toString(16).toUpperCase())
     .join(' ')
