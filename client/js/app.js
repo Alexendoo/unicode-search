@@ -19,6 +19,10 @@ fetch('/json/blocks.json')
 
 input.addEventListener('input', updateUi)
 
+if ('serviceWorker' in navigator) {
+  // navigator.serviceWorker.register('sw.js').catch(console.log.bind(console))
+}
+
 function updateUi () {
   clearChildren(display)
 
