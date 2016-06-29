@@ -40,7 +40,7 @@ function clearChildren (node) {
 }
 
 function createCharDetails (char, template) {
-  const code = char.codePointAt().toString(16).toUpperCase()
+  const code = char.codePointAt()
   const name = (names) ? names[code] || 'Unknown' : 'Loading...'
   const block = getBlock(char, blocks)
   const bytes = [...new TextEncoder().encode(char)]
