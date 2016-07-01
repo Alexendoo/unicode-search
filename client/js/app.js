@@ -6,13 +6,13 @@ const template = document.getElementById('char--template')
 const display = document.querySelector('main')
 
 let names
-fetch('/json/names.json')
+fetch('json/names.json')
   .then(response => response.json())
   .then(json => { names = json })
   .then(updateUi)
 
 let blocks
-fetch('/json/blocks.json')
+fetch('json/blocks.json')
   .then(response => response.json())
   .then(json => { blocks = json })
   .then(updateUi)
