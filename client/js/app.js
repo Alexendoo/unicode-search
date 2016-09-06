@@ -9,34 +9,93 @@ let names
 fetch('json/names.json')
   .then(response => response.json())
   .then(json => { names = json })
-  .then(updateUi)
+  .then(() => updateUi())
 
 let blocks
 fetch('json/blocks.json')
   .then(response => response.json())
   .then(json => { blocks = json })
-  .then(updateUi)
+  .then(() => updateUi())
 
-input.addEventListener('input', updateUi)
+input.addEventListener('input', () => updateUi())
+
+const fns = {
+
+  chars (limit, override) {
+    const inputValue = override || input.value
+    let count = 0
+    for (let char of inputValue) {
+      if (++count >= limit) {
+        insertLoadMore()
+        return
+      }
+      const details = createCharDetails(char, template)
+      display.appendChild(details)
+    }
+  },
+
+  name (limit) {
+    const inputValue = input.value.toUpperCase()
+    if (!inputValue) return
+
+    let count = 0
+    for (let codepoint in names) {
+      const name = names[codepoint]
+      if (name.includes(inputValue)) {
+        const details = createCharDetails(String.fromCodePoint(codepoint), template)
+        display.appendChild(details)
+        if (++count >= limit) {
+          insertLoadMore()
+          return
+        }
+      }
+    }
+  },
+
+  bytes (limit) {
+    const inputValue = input.value.replace(/\s/g, '')
+    if (!/^[0-9a-f]{2,}$/i.test(inputValue)) {
+      return
+    }
+    const bytes = Uint8Array.from(
+      inputValue
+        .match(/../g)
+        .map(byte => parseInt(byte, 16))
+    )
+    const decoder = new TextDecoder('utf-8')
+
+    fns.chars(limit, decoder.decode(bytes))
+  }
+
+}
+let fn = fns.chars
+
+forEach(
+  document.querySelectorAll('input[name=type]'),
+  radio => {
+    radio.addEventListener('change', event => {
+      fn = fns[event.target.value]
+      updateUi()
+    })
+  }
+)
 
 if ('serviceWorker' in navigator) {
-  // navigator.serviceWorker.register('sw.js').catch(console.log.bind(console))
+  // navigator.serviceWorker.register('sw.js')
 }
 
-function updateUi () {
+function updateUi (limit = 2) {
+  console.log(limit)
   clearChildren(display)
-
-  for (let char of input.value) {
-    const details = createCharDetails(char, template)
-
-    display.appendChild(details)
-  }
+  fn(limit)
 }
 
-function clearChildren (node) {
-  while (node.firstChild) {
-    node.removeChild(node.firstChild)
-  }
+function insertLoadMore () {
+  const button = document.createElement('button')
+  button.textContent = 'load more'
+  button.className = 'more'
+  button.addEventListener('click', () => updateUi(1000), true)
+  display.appendChild(button)
 }
 
 function createCharDetails (char, template) {
@@ -65,4 +124,17 @@ function getBlock (char, blocks) {
   }
 
   return 'Unknown'
+}
+
+// util functions
+
+function clearChildren (node) {
+  while (node.firstChild) {
+    node.removeChild(node.firstChild)
+  }
+  return node
+}
+
+function forEach (iterable, callback) {
+  return Array.prototype.forEach.call(iterable, callback)
 }

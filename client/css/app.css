@@ -50,3 +50,8 @@ main {
 .char--details .value {
   padding-left: 8px;
 }
+
+.more {
+  display: block;
+  margin: 32px auto;
+}
