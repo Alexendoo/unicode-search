@@ -34,41 +34,51 @@ body {
   flex: 1 0 0;
   display: block;
   padding: 14px 0;
+  margin-bottom: 16px;
   text-align: center;
-  transition: color 0.2s, background-color 0.1s;
+  color: #a7a7a7;
+  transition: color 0.2s, background-color 0.2s;
 }
 
-.types label:hover {
+.types label:hover, .types input:focus + label {
   color: #414141;
   background: #f9f9f9;
 }
 
-input[name="type"] {
-  display: none;
-}
-
-input[name="type"] + label {
-  color: #a7a7a7;
-}
-
-input[name="type"]:checked + label {
+.types input:checked + label {
   color: black;
+}
+
+.types input {
+  width: 0;
+  height: 0;
+  opacity: 0;
 }
 
 main {
   width: 100%;
 }
 
-.char--details:last-child {
-  border-bottom: 0;
-}
-
 .char--details {
-  padding: 16px;
-  border-bottom: 1px solid #aaa;
   display: flex;
   flex-wrap: wrap;
   line-height: 1.6;
+}
+
+.char--details::after {
+  display: block;
+  content: '';
+  width: 88px;
+  margin: 16px auto 13px;
+  border-bottom: 1px solid #aaa;
+}
+
+.char--details:last-of-type {
+  margin-bottom: 32px;
+}
+
+.char--details:last-of-type::after {
+  display: none;
 }
 
 .char--details > * {
@@ -90,4 +100,5 @@ main {
 .load-more {
   display: block;
   margin: 32px auto;
+  background: transparent;
 }
