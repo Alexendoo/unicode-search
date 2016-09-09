@@ -93,7 +93,7 @@ function updateUi (limit) {
 function insertLoadMore () {
   const button = document.createElement('button')
   button.textContent = 'load more'
-  button.className = 'more'
+  button.className = 'load-more'
   button.addEventListener('click', () => updateUi(1000), true)
   display.appendChild(button)
 }
