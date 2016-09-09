@@ -19,13 +19,13 @@ fetch('json/blocks.json')
 
 input.addEventListener('input', () => updateUi())
 
-const fns = {
+const populators = {
 
-  chars (limit, override) {
+  chars (limit = 50, override) {
     const inputValue = override || input.value
     let count = 0
     for (let char of inputValue) {
-      if (++count >= limit) {
+      if (++count > limit) {
         insertLoadMore()
         return
       }
@@ -34,25 +34,25 @@ const fns = {
     }
   },
 
-  name (limit) {
+  name (limit = 10) {
     const inputValue = input.value.toUpperCase()
-    if (!inputValue) return
+    if (!inputValue || !names) return
 
     let count = 0
     for (let codepoint in names) {
       const name = names[codepoint]
       if (name.includes(inputValue)) {
-        const details = createCharDetails(String.fromCodePoint(codepoint), template)
-        display.appendChild(details)
-        if (++count >= limit) {
+        if (++count > limit) {
           insertLoadMore()
           return
         }
+        const details = createCharDetails(String.fromCodePoint(codepoint), template)
+        display.appendChild(details)
       }
     }
   },
 
-  bytes (limit) {
+  bytes (limit = 50) {
     const inputValue = input.value.replace(/\s/g, '')
     if (!/^[0-9a-f]{2,}$/i.test(inputValue)) {
       return
@@ -64,17 +64,17 @@ const fns = {
     )
     const decoder = new TextDecoder('utf-8')
 
-    fns.chars(limit, decoder.decode(bytes))
+    populators.chars(limit, decoder.decode(bytes))
   }
 
 }
-let fn = fns.chars
+let populator = populators.chars
 
 forEach(
   document.querySelectorAll('input[name=type]'),
   radio => {
     radio.addEventListener('change', event => {
-      fn = fns[event.target.value]
+      populator = populators[event.target.value]
       updateUi()
     })
   }
@@ -84,10 +84,10 @@ if ('serviceWorker' in navigator) {
   // navigator.serviceWorker.register('sw.js')
 }
 
-function updateUi (limit = 2) {
+function updateUi (limit) {
   console.log(limit)
   clearChildren(display)
-  fn(limit)
+  populator(limit)
 }
 
 function insertLoadMore () {
