@@ -1,18 +1,31 @@
 /* eslint-env browser */
 'use strict'
 
+import 'core-js/es6/promise'
+import 'core-js/fn/array/from'
+import 'core-js/fn/string/code-point-at'
+import 'core-js/fn/string/from-code-point'
+import 'core-js/fn/string/includes'
+import 'core-js/fn/symbol'
+import 'core-js/fn/symbol/iterator'
+import 'whatwg-fetch'
+import Buffer from 'buffer'
+import TemplatePolyfill from 'template-polyfill'
+
+TemplatePolyfill()
+
 const input = document.getElementById('chars')
 const template = document.getElementById('char--template')
 const display = document.querySelector('main')
 
 let names
-fetch('json/names.json')
+fetch('names.json')
   .then(response => response.json())
   .then(json => { names = json })
   .then(() => updateUi())
 
 let blocks
-fetch('json/blocks.json')
+fetch('blocks.json')
   .then(response => response.json())
   .then(json => { blocks = json })
   .then(() => updateUi())
@@ -57,35 +70,31 @@ const populators = {
     if (!/^[0-9a-f]{2,}$/i.test(inputValue)) {
       return
     }
-    const bytes = Uint8Array.from(
+
+    const bytes = new Buffer.Buffer(
       inputValue
         .match(/../g)
         .map(byte => parseInt(byte, 16))
     )
-    const decoder = new TextDecoder('utf-8')
 
-    populators.chars(limit, decoder.decode(bytes))
+    populators.chars(limit, bytes.toString())
   }
 
 }
 let populator = populators.chars
 
-forEach(
-  document.querySelectorAll('input[name=type]'),
-  radio => {
-    radio.addEventListener('change', event => {
-      populator = populators[event.target.value]
-      updateUi()
-    })
-  }
-)
+for (const radio of document.querySelectorAll('input[name=type]')) {
+  radio.addEventListener('change', event => {
+    populator = populators[event.target.value]
+    updateUi()
+  })
+}
 
 if ('serviceWorker' in navigator) {
   // navigator.serviceWorker.register('sw.js')
 }
 
 function updateUi (limit) {
-  console.log(limit)
   clearChildren(display)
   populator(limit)
 }
@@ -102,7 +111,7 @@ function createCharDetails (char, template) {
   const code = char.codePointAt()
   const name = (names) ? names[code] || 'Unknown' : 'Loading...'
   const block = getBlock(char, blocks)
-  const bytes = [...new TextEncoder().encode(char)]
+  const bytes = [...new Buffer.Buffer(char)]
     .map(bytes => bytes.toString(16).toUpperCase())
     .join(' ')
 
@@ -126,15 +135,9 @@ function getBlock (char, blocks) {
   return 'Unknown'
 }
 
-// util functions
-
 function clearChildren (node) {
   while (node.firstChild) {
     node.removeChild(node.firstChild)
   }
   return node
-}
-
-function forEach (iterable, callback) {
-  return Array.prototype.forEach.call(iterable, callback)
 }
