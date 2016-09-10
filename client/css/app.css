@@ -14,7 +14,8 @@ body {
 }
 
 #chars {
-  width: 376px;
+  max-width: 376px;
+  width: calc(100% - 32px);
   margin: 32px 0 0;
   padding: 6px;
   font-size: 32px;
@@ -23,10 +24,11 @@ body {
 }
 
 .types {
+  max-width: 376px;
+  width: 100%;
   display: flex;
   flex-direction: row;
   justify-content: space-around;
-  width: 376px;
   font-size: 20px;
 }
 
@@ -95,6 +97,10 @@ main {
 
 .char--details .value {
   padding-left: 8px;
+}
+
+@media (max-width: 400px) {
+  /* collapse */
 }
 
 .load-more {
