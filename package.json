@@ -20,5 +20,9 @@
     "standard": "^7.1.2",
     "template-polyfill": "^2.0.0",
     "whatwg-fetch": "^1.0.0"
+  },
+  "scripts": {
+    "build": "gulp build",
+    "start": "gulp"
   }
 }
