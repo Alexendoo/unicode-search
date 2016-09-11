@@ -1,50 +1,58 @@
 /* eslint-env node */
-const rollup = require('rollup')
-const babel = require('rollup-plugin-babel')
-const nodeResolve = require('rollup-plugin-node-resolve')
-const commonjs = require('rollup-plugin-commonjs')
-const uglify = require('rollup-plugin-uglify')
+// const rollup = require('rollup')
+// const babel = require('rollup-plugin-babel')
+// const nodeResolve = require('rollup-plugin-node-resolve')
+// const commonjs = require('rollup-plugin-commonjs')
+// const uglify = require('rollup-plugin-uglify')
 const gulp = require('gulp')
 const htmlmin = require('gulp-htmlmin')
 const cleanCSS = require('gulp-clean-css')
 const concat = require('gulp-concat')
+const ts = require('gulp-typescript')
 
 gulp.task('default', ['build', 'watch'])
 
 gulp.task('build', ['build:js', 'build:html', 'build:css', 'build:json'])
 
 gulp.task('build:js', cb => {
-  const plugins = [
-    nodeResolve({
-      jsnext: true,
-      browser: true,
-      preferBuiltins: false
-    }),
-    commonjs(),
-    babel({
-      exclude: 'node_modules/**'
-    })
-  ]
+  cb()
+  // const plugins = [
+  //   nodeResolve({
+  //     jsnext: true,
+  //     browser: true,
+  //     preferBuiltins: false
+  //   }),
+  //   commonjs(),
+  //   babel({
+  //     exclude: 'node_modules/**'
+  //   })
+  // ]
 
-  if (process.env.NODE_ENV === 'prod') plugins.push(uglify())
+  // if (process.env.NODE_ENV === 'prod') plugins.push(uglify())
 
-  const index = rollup.rollup({
-    entry: 'src/js/index.js',
-    plugins
-  }).then(bundle => {
-    bundle.write({
-      dest: 'dist/index.js'
-    })
-  })
-  const worker = rollup.rollup({
-    entry: 'src/js/worker.js',
-    plugins
-  }).then(bundle => {
-    bundle.write({
-      dest: 'dist/worker.js'
-    })
-  })
-  return Promise.all([index, worker])
+  // const index = rollup.rollup({
+  //   entry: 'src/js/index.js',
+  //   plugins
+  // }).then(bundle => {
+  //   bundle.write({
+  //     dest: 'dist/index.js'
+  //   })
+  // })
+  // const worker = rollup.rollup({
+  //   entry: 'src/js/worker.js',
+  //   plugins
+  // }).then(bundle => {
+  //   bundle.write({
+  //     dest: 'dist/worker.js'
+  //   })
+  // })
+  // return Promise.all([index, worker])
+})
+
+gulp.task('build:ts', cb => {
+  gulp.src('src/js/*.ts')
+    .pipe(ts({}))
+    .pipe(gulp.dest('dist'))
 })
 
 gulp.task('build:html', () =>

@@ -1,4 +1,5 @@
 /* eslint-env worker */
+
 'use strict'
 
 let names
@@ -15,6 +16,8 @@ fetch('blocks.json')
 let input
 /** @type {String} */
 let type
+
+// TODO: track recieved and requested № entries in main thread
 
 let cache
 const initialisers = {
@@ -38,12 +41,27 @@ const initialisers = {
       }
     }
 
-    log('initialisers.chars', cache, input)
-  }
+    log('init chars', 'part', cache.part, 'full', cache.full)
+  },
+
+  name () {},
+
+  bytes () {}
 
 }
 
 onmessage = function ({data}) {
+  switch (data.action) {
+    case 'input':
+      receiveInput(data)
+      break
+    case 'tick':
+      receiveTick(data)
+      break
+  }
+}
+
+function receiveInput (data) {
   if (!data.type) return
   if (type !== data.type) {
     log('Δ type:', type, '→', data.type)
@@ -60,17 +78,30 @@ onmessage = function ({data}) {
   initialise()
 }
 
-function initialise () {
-  if (!type || !input) return
-  initialisers[type](input)
+// let timeoutID
+// function scheduleTimer () {
+//   clearTimeout(timeoutID)
+//   timeoutID = setTimeout(tick, 1000)
+// }
+
+function receiveTick (data) {
+  log('tick', data.upto)
 }
 
+function initialise () {
+  if (!type || !input) return
+  initialisers[type]()
+}
+
+/**
+ * Flush cache and clear main UI
+ */
 function clear () {
   cache = undefined
   self.postMessage({action: 'clear', type})
 }
 
-function sendElement (message) {
+function send (message) {
   self.postMessage({action: 'append', type, message})
 }
 

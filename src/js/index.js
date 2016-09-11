@@ -102,6 +102,7 @@ if ('serviceWorker' in navigator) {
 function updateUi (limit) {
   clearChildren(display)
   worker.postMessage({
+    action: 'input',
     input: input.value,
     type: populator.name
   })
