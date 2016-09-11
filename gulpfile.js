@@ -16,7 +16,7 @@ gulp.task('build', ['build:js', 'build:html', 'build:css', 'build:json'])
 let cache
 gulp.task('build:js', cb =>
   rollup.rollup({
-    entry: 'client/js/app.js',
+    entry: 'src/js/index.js',
     cache,
     plugins: [
       nodeResolve({
@@ -40,13 +40,13 @@ gulp.task('build:js', cb =>
 )
 
 gulp.task('build:html', () =>
-  gulp.src('client/index.html')
+  gulp.src('src/index.html')
     .pipe(htmlmin({collapseWhitespace: true}))
     .pipe(gulp.dest('dist'))
 )
 
 gulp.task('build:css', () =>
-  gulp.src(['client/css/normalize.css', 'client/css/app.css'])
+  gulp.src(['src/css/normalize.css', 'src/css/app.css'])
     .pipe(concat('bundle.css'))
     .pipe(cleanCSS({
       keepSpecialComments: 0
@@ -55,20 +55,20 @@ gulp.task('build:css', () =>
 )
 
 gulp.task('build:json', () =>
-  gulp.src('client/json/*.json')
+  gulp.src('src/json/*.json')
     .pipe(gulp.dest('dist'))
 )
 
 gulp.task('watch', ['watch:js', 'watch:html', 'watch:css'])
 
 gulp.task('watch:js', () => {
-  gulp.watch('client/js/*', ['build:js'])
+  gulp.watch('src/js/*', ['build:js'])
 })
 
 gulp.task('watch:html', () => {
-  gulp.watch('client/*.html', ['build:html'])
+  gulp.watch('src/*.html', ['build:html'])
 })
 
 gulp.task('watch:css', () => {
-  gulp.watch('client/css/*', ['build:css'])
+  gulp.watch('src/css/*', ['build:css'])
 })
