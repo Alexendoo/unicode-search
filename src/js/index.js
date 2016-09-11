@@ -91,8 +91,6 @@ for (const radio of document.querySelectorAll('input[name=type]')) {
 
 const worker = new Worker('worker.js')
 
-worker.postMessage('hello!')
-
 worker.onmessage = function ({data}) {
   console.log('💻', data)
 }

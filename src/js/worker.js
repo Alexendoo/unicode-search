@@ -1,30 +1,47 @@
 /* eslint-env worker */
-
-import 'whatwg-fetch'
+'use strict'
 
 let names
 fetch('names.json')
   .then(response => response.json())
   .then(json => { names = json })
-  .then(updateUi)
 
 let blocks
 fetch('blocks.json')
   .then(response => response.json())
   .then(json => { blocks = json })
-  .then(updateUi)
 
+/** @type {String} */
 let input
+/** @type {String} */
 let type
 
-const iterators = {
-  cache: undefined,
+let cache
+const initialisers = {
+
   chars () {
-    log('chars()', input)
-    sendElement(input)
+    const chars = [...input]
+    if (cache === undefined) {
+      cache = {
+        part: chars,
+        full: chars
+      }
+    } else if (arrayStartsWith(chars, cache.full)) {
+      const len = cache.full.length
+      cache.part.push(...chars.slice(len))
+      cache.full = chars
+    } else {
+      clear()
+      cache = {
+        part: chars,
+        full: chars
+      }
+    }
+
+    log('initialisers.chars', cache, input)
   }
+
 }
-let iterator
 
 onmessage = function ({data}) {
   if (!data.type) return
@@ -33,23 +50,39 @@ onmessage = function ({data}) {
     type = data.type
     clear()
   }
+  if (!data.input) {
+    clear()
+    return
+  }
 
-  iterator = iterators[type]
   input = data.input
-  updateUi()
+
+  initialise()
 }
 
-function updateUi () {
-  iterator()
+function initialise () {
+  if (!type || !input) return
+  initialisers[type](input)
 }
 
 function clear () {
-  iterators.cache = undefined
+  cache = undefined
   self.postMessage({action: 'clear', type})
 }
 
 function sendElement (message) {
   self.postMessage({action: 'append', type, message})
+}
+
+/**
+ * e.g. [1,2,3] starts with [1,2]
+ *
+ * @param {any[]} long
+ * @param {any[]} short
+ * @returns if long starts with short
+ */
+function arrayStartsWith (long, short) {
+  return short.every((v, i) => long[i] === v)
 }
 
 function log (...v) {
