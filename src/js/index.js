@@ -93,8 +93,8 @@ const worker = new Worker('worker.js')
 
 worker.postMessage('hello!')
 
-worker.onmessage = function (message) {
-  console.log('browser:', message.data)
+worker.onmessage = function ({data}) {
+  console.log('💻', data)
 }
 
 if ('serviceWorker' in navigator) {

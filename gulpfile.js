@@ -33,8 +33,7 @@ gulp.task('build:js', cb => {
     plugins
   }).then(bundle => {
     bundle.write({
-      dest: 'dist/index.js',
-      format: 'cjs'
+      dest: 'dist/index.js'
     })
   })
   const worker = rollup.rollup({
@@ -42,8 +41,7 @@ gulp.task('build:js', cb => {
     plugins
   }).then(bundle => {
     bundle.write({
-      dest: 'dist/worker.js',
-      format: 'cjs'
+      dest: 'dist/worker.js'
     })
   })
   return Promise.all([index, worker])
