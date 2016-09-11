@@ -19,7 +19,7 @@
     <label for="radio--bytes">bytes</label>
   </div>
   <main></main>
-  <template id="char--template">
+  <!--<template id="char--template">
     <div class="char--details">
       <div class="detail">
         <div class="label">Character</div>
@@ -42,6 +42,31 @@
         <div class="value char--bytes"></div>
       </div>
     </div>
+  </template>-->
+  <template id="char--template">
+    <table class="char--details">
+      <colgroup span="2"></colgroup>
+      <tr class="detail">
+        <td class="label">Character</td>
+        <td class="value char--literal"></td>
+      </tr>
+      <tr class="detail">
+        <td class="label">Character name</td>
+        <td class="value char--name"></td>
+      </tr>
+      <tr class="detail">
+        <td class="label">Unicde block</td>
+        <td class="value char--block"></td>
+      </tr>
+      <tr class="detail">
+        <td class="label">Code point</td>
+        <td class="value char--code"></td>
+      </tr>
+      <tr class="detail">
+        <td class="label">UTF-8 bytes</td>
+        <td class="value char--bytes"></td>
+      </tr>
+    </table>
   </template>
   <script src="bundle.js"></script>
 </body>
