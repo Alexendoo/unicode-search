@@ -66,7 +66,7 @@ gulp.task('watch:js', () => {
 })
 
 gulp.task('watch:html', () => {
-  gulp.watch('client/html/*', ['build:html'])
+  gulp.watch('client/*.html', ['build:html'])
 })
 
 gulp.task('watch:css', () => {
