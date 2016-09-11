@@ -13,35 +13,45 @@ gulp.task('default', ['build', 'watch'])
 
 gulp.task('build', ['build:js', 'build:html', 'build:css', 'build:json'])
 
-let cache
-gulp.task('build:js', cb =>
-  rollup.rollup({
+gulp.task('build:js', cb => {
+  const plugins = [
+    nodeResolve({
+      jsnext: true,
+      browser: true,
+      preferBuiltins: false
+    }),
+    commonjs(),
+    babel({
+      exclude: 'node_modules/**'
+    })
+  ]
+
+  if (process.env.NODE_ENV === 'prod') plugins.push(uglify())
+
+  const index = rollup.rollup({
     entry: 'src/js/index.js',
-    cache,
-    plugins: [
-      nodeResolve({
-        jsnext: true,
-        browser: true,
-        preferBuiltins: false
-      }),
-      commonjs(),
-      babel({
-        exclude: 'node_modules/**'
-      }),
-      uglify()
-    ]
+    plugins
   }).then(bundle => {
-    cache = bundle
     bundle.write({
-      dest: 'dist/bundle.js',
+      dest: 'dist/index.js',
       format: 'cjs'
     })
   })
-)
+  const worker = rollup.rollup({
+    entry: 'src/js/worker.js',
+    plugins
+  }).then(bundle => {
+    bundle.write({
+      dest: 'dist/worker.js',
+      format: 'cjs'
+    })
+  })
+  return Promise.all([index, worker])
+})
 
 gulp.task('build:html', () =>
   gulp.src('src/index.html')
-    .pipe(htmlmin({collapseWhitespace: true}))
+    .pipe(htmlmin({ collapseWhitespace: true }))
     .pipe(gulp.dest('dist'))
 )
 

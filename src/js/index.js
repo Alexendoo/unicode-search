@@ -1,6 +1,5 @@
 /* eslint-env browser */
 'use strict'
-
 import 'core-js/es6/promise'
 import 'core-js/fn/array/from'
 import 'core-js/fn/string/code-point-at'
@@ -90,12 +89,24 @@ for (const radio of document.querySelectorAll('input[name=type]')) {
   })
 }
 
+const worker = new Worker('worker.js')
+
+worker.postMessage('hello!')
+
+worker.onmessage = function (message) {
+  console.log('browser:', message.data)
+}
+
 if ('serviceWorker' in navigator) {
   // navigator.serviceWorker.register('sw.js')
 }
 
 function updateUi (limit) {
   clearChildren(display)
+  worker.postMessage({
+    input: input.value,
+    type: populator.name
+  })
   populator(limit)
 }
 
