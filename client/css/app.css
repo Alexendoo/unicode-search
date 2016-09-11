@@ -45,7 +45,7 @@ body {
 .types {
   max-width: 376px;
   width: 100%;
-  margin: 0 auto 16px;
+  margin: 0 auto;
   font-size: 20px;
 }
 
@@ -76,10 +76,12 @@ body {
 
 main {
   width: 100%;
+  padding: 16px;
 }
 
-.char--details {
+.char--details table {
   line-height: 1.6;
+  width: 100%;
 }
 
 .char--details::before {
@@ -98,10 +100,6 @@ main {
   margin-bottom: 32px;
 }
 
-.label, .value {
-  display: inline-block;
-}
-
 .label {
   width: 50%;
   padding-right: 8px;
@@ -115,7 +113,7 @@ main {
 
 @media (max-width: 400px) {
   .label {
-    width: 150px;
+    width: 1px;
   }
   .char--details::before {
     border-color: #ccc;
