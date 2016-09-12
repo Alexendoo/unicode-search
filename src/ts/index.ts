@@ -1,4 +1,6 @@
 /* eslint-env browser */
+/// <reference path="../../node_modules/typescript/lib/lib.es6.d.ts" />
+
 'use strict'
 import 'core-js/es6/promise'
 import 'core-js/fn/array/from'
@@ -13,9 +15,10 @@ import TemplatePolyfill from 'template-polyfill'
 
 TemplatePolyfill()
 
-const input = document.getElementById('chars')
+const input = document.getElementsByTagName('input')[0]
 const template = document.getElementById('char--template')
 const display = document.querySelector('main')
+
 
 let names
 fetch('names.json')
@@ -33,7 +36,7 @@ input.addEventListener('input', () => updateUi())
 
 const populators = {
 
-  chars (limit = 50, override) {
+  chars (limit = 50, override?: string) {
     const inputValue = override || input.value
     let count = 0
     for (let char of inputValue) {
@@ -99,7 +102,7 @@ if ('serviceWorker' in navigator) {
   // navigator.serviceWorker.register('sw.js')
 }
 
-function updateUi (limit) {
+function updateUi (limit?: number) {
   clearChildren(display)
   worker.postMessage({
     action: 'input',

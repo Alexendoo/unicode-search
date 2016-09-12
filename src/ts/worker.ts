@@ -1,16 +1,16 @@
 /* eslint-env worker */
+/// <reference path="../../node_modules/typescript/lib/lib.webworker.d.ts" />
+/// <reference path="../../node_modules/typescript/lib/lib.es7.d.ts" />
+/// <reference path="../../node_modules/typescript/lib/lib.es6.d.ts" />
 
 'use strict'
 
-let names
-fetch('names.json')
-  .then(response => response.json())
-  .then(json => { names = json })
+import * as Messages from './messages'
 
+let names
 let blocks
-fetch('blocks.json')
-  .then(response => response.json())
-  .then(json => { blocks = json })
+
+loadData()
 
 let input: string
 let type: string
@@ -21,7 +21,7 @@ let cache
 const initialisers = {
 
   chars () {
-    const chars = [...input]
+    const chars = Array.from(input)
     if (cache === undefined) {
       cache = {
         part: chars,
@@ -48,10 +48,10 @@ const initialisers = {
 
 }
 
-onmessage = function ({data}) {
+onmessage = function ({data}: {data: Messages.Message}) {
   switch (data.action) {
     case 'input':
-      receiveInput(data)
+      receiveInput(<Messages.inputMessage>data)
       break
     case 'tick':
       receiveTick(data)
@@ -59,7 +59,7 @@ onmessage = function ({data}) {
   }
 }
 
-function receiveInput (data) {
+function receiveInput (data: Messages.inputMessage) {
   if (!data.type) return
   if (type !== data.type) {
     log('Δ type:', type, '→', data.type)
@@ -117,4 +117,24 @@ function arrayStartsWith (long, short) {
 
 function log (...v) {
   if (console && console.log) console.log('⚙', ...v)
+}
+
+function loadData() {
+  const nameRequest = new XMLHttpRequest()
+  nameRequest.onreadystatechange = function() {
+    if (nameRequest.readyState === XMLHttpRequest.DONE && nameRequest.status === 200) {
+      names = JSON.parse(nameRequest.responseText)
+    }
+  }
+  nameRequest.open('GET', 'names.json')
+  nameRequest.send()
+
+  const blockRequest = new XMLHttpRequest()
+  blockRequest.onreadystatechange = function() {
+    if (blockRequest.readyState === XMLHttpRequest.DONE && blockRequest.status === 200) {
+      blocks = JSON.parse(blockRequest.responseText)
+    }
+  }
+  blockRequest.open('GET', 'blocks.json')
+  blockRequest.send()
 }
