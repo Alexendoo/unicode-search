@@ -6,6 +6,7 @@
   "license": "MIT",
   "devDependencies": {
     "buffer": "^4.9.1",
+    "core-js": "^2.4.1",
     "es6-promise": "^3.2.1",
     "gulp": "^3.9.1",
     "gulp-clean-css": "^2.0.12",
@@ -13,7 +14,10 @@
     "gulp-htmlmin": "^2.0.0",
     "gulp-rollup": "^2.4.0",
     "rollup": "^0.35.9",
+    "rollup-plugin-commonjs": "^4.1.0",
+    "rollup-plugin-node-resolve": "^2.0.0",
     "rollup-plugin-typescript": "^0.8.1",
+    "rollup-plugin-uglify": "^1.0.1",
     "standard": "^7.1.2",
     "template-polyfill": "^2.0.0",
     "whatwg-fetch": "^1.0.0"
