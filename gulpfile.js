@@ -26,9 +26,11 @@ const plugins = [
   commonjs()
 ]
 
+let browserCache
 gulp.task('build:ts:browser', () =>
   rollup.rollup({
-    entry: 'src/js/index.ts',
+    entry: 'src/ts/index.ts',
+    cache: browserCache,
     plugins
   }).then(bundle => {
     bundle.write({
@@ -37,9 +39,11 @@ gulp.task('build:ts:browser', () =>
   })
 )
 
+let workerCache
 gulp.task('build:ts:worker', () =>
   rollup.rollup({
-    entry: 'src/js/worker.ts',
+    entry: 'src/ts/worker.ts',
+    cache: workerCache,
     plugins
   }).then(bundle => {
     bundle.write({
@@ -71,7 +75,7 @@ gulp.task('build:json', () =>
 gulp.task('watch', ['watch:ts', 'watch:html', 'watch:css'])
 
 gulp.task('watch:ts', () => {
-  gulp.watch('src/js/*', ['build:js'])
+  gulp.watch('src/ts/*', ['build:ts'])
 })
 
 gulp.task('watch:html', () => {
