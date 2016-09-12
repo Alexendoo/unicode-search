@@ -12,10 +12,8 @@ fetch('blocks.json')
   .then(response => response.json())
   .then(json => { blocks = json })
 
-/** @type {String} */
-let input
-/** @type {String} */
-let type
+let input: string
+let type: string
 
 // TODO: track recieved and requested № entries in main thread
 
@@ -113,6 +111,7 @@ function send (message) {
  * @returns if long starts with short
  */
 function arrayStartsWith (long, short) {
+  console.log(long, short)
   return short.every((v, i) => long[i] === v)
 }
 

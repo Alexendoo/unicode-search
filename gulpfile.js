@@ -1,59 +1,52 @@
 /* eslint-env node */
-// const rollup = require('rollup')
-// const babel = require('rollup-plugin-babel')
-// const nodeResolve = require('rollup-plugin-node-resolve')
-// const commonjs = require('rollup-plugin-commonjs')
-// const uglify = require('rollup-plugin-uglify')
+'use strict'
+const rollup = require('rollup')
+const typescript = require('rollup-plugin-typescript')
+const nodeResolve = require('rollup-plugin-node-resolve')
+const commonjs = require('rollup-plugin-commonjs')
+const uglify = require('rollup-plugin-uglify')
 const gulp = require('gulp')
 const htmlmin = require('gulp-htmlmin')
 const cleanCSS = require('gulp-clean-css')
 const concat = require('gulp-concat')
-const ts = require('gulp-typescript')
 
 gulp.task('default', ['build', 'watch'])
 
-gulp.task('build', ['build:js', 'build:html', 'build:css', 'build:json'])
+gulp.task('build', ['build:ts', 'build:html', 'build:css', 'build:json'])
 
-gulp.task('build:js', cb => {
-  cb()
-  // const plugins = [
-  //   nodeResolve({
-  //     jsnext: true,
-  //     browser: true,
-  //     preferBuiltins: false
-  //   }),
-  //   commonjs(),
-  //   babel({
-  //     exclude: 'node_modules/**'
-  //   })
-  // ]
+gulp.task('build:ts', ['build:ts:worker', 'build:ts:browser'])
 
-  // if (process.env.NODE_ENV === 'prod') plugins.push(uglify())
+const plugins = [
+  typescript(),
+  nodeResolve({
+    jsnext: true,
+    browser: true,
+    preferBuiltins: false
+  }),
+  commonjs()
+]
 
-  // const index = rollup.rollup({
-  //   entry: 'src/js/index.js',
-  //   plugins
-  // }).then(bundle => {
-  //   bundle.write({
-  //     dest: 'dist/index.js'
-  //   })
-  // })
-  // const worker = rollup.rollup({
-  //   entry: 'src/js/worker.js',
-  //   plugins
-  // }).then(bundle => {
-  //   bundle.write({
-  //     dest: 'dist/worker.js'
-  //   })
-  // })
-  // return Promise.all([index, worker])
-})
+gulp.task('build:ts:browser', () =>
+  rollup.rollup({
+    entry: 'src/js/index.ts',
+    plugins
+  }).then(bundle => {
+    bundle.write({
+      dest: 'dist/index.js'
+    })
+  })
+)
 
-gulp.task('build:ts', cb => {
-  gulp.src('src/js/*.ts')
-    .pipe(ts({}))
-    .pipe(gulp.dest('dist'))
-})
+gulp.task('build:ts:worker', () =>
+  rollup.rollup({
+    entry: 'src/js/worker.ts',
+    plugins
+  }).then(bundle => {
+    bundle.write({
+      dest: 'dist/worker.js'
+    })
+  })
+)
 
 gulp.task('build:html', () =>
   gulp.src('src/index.html')
@@ -75,9 +68,9 @@ gulp.task('build:json', () =>
     .pipe(gulp.dest('dist'))
 )
 
-gulp.task('watch', ['watch:js', 'watch:html', 'watch:css'])
+gulp.task('watch', ['watch:ts', 'watch:html', 'watch:css'])
 
-gulp.task('watch:js', () => {
+gulp.task('watch:ts', () => {
   gulp.watch('src/js/*', ['build:js'])
 })
 
