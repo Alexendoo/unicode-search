@@ -13,7 +13,7 @@ let blocks
 loadData()
 
 let input: string
-let type: string
+let type: Messages.inputType
 
 // TODO: track recieved and requested № entries in main thread
 
@@ -54,7 +54,7 @@ onmessage = function ({data}: {data: Messages.Message}) {
       receiveInput(<Messages.inputMessage>data)
       break
     case 'tick':
-      receiveTick(data)
+      receiveTick(<Messages.tickMessage>data)
       break
   }
 }
