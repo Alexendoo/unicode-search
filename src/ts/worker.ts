@@ -19,10 +19,10 @@ let type: Messages.InputType
 onmessage = function ({data}: {data: Messages.Message}) {
   switch (data.action) {
     case 'input':
-      receiveInput(<Messages.InputMessage>data)
+      receiveInput(data as Messages.InputMessage)
       break
     case 'tick':
-      receiveTick(<Messages.TickMessage>data)
+      receiveTick(data as Messages.TickMessage)
       break
   }
 }
