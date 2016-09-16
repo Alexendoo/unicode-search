@@ -13,6 +13,8 @@ import 'whatwg-fetch'
 import Buffer from 'buffer'
 import TemplatePolyfill from 'template-polyfill'
 
+import { InputType } from './messages'
+
 TemplatePolyfill()
 
 const input = document.getElementsByTagName('input')[0]

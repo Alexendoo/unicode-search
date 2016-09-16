@@ -1,4 +1,5 @@
 export type Message = InputMessage|TickMessage|ClearMessage
+export type InputType = 'chars'|'name'|'bytes'
 
 export interface InputMessage {
   action: 'input'
@@ -13,8 +14,4 @@ export interface TickMessage {
 export interface ClearMessage {
   action: 'clear'
   type?: InputType
-}
-
-export enum InputType {
-  chars, name, bytes
 }
