@@ -1,6 +1,6 @@
 /// <reference path="../../../node_modules/typescript/lib/lib.webworker.d.ts" />
 
-import { ClearMessage, InputType } from '../messages'
+import { ClearMessage, DisplayMessage, InputType } from '../messages'
 
 export function sendClear(type: InputType) {
   const message: ClearMessage = {
@@ -12,5 +12,14 @@ export function sendClear(type: InputType) {
 }
 
 export function sendCharacter(input: string) {
+  const message: DisplayMessage = {
+    action: 'display',
+    block: 'one',
+    bytes: 'AA',
+    character: input,
+    codePoint: 1,
+    name: 'character'
+  }
 
+  self.postMessage(message)
 }
