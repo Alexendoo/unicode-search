@@ -1,5 +1,5 @@
-export type Message = InputMessage|TickMessage|ClearMessage
-export type InputType = 'chars'|'name'|'bytes'
+export type Message = InputMessage | TickMessage
+export type InputType = 'bytes' | 'chars' | 'name'
 
 export interface InputMessage {
   action: 'input'

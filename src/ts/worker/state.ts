@@ -11,11 +11,10 @@ interface INames {
 export abstract class State {
   public static names: Array<IBlock>
   public static blocks: INames
-  public static cache: any
 
-  static initialise () {
+  static initialise() {
     const nameRequest = new XMLHttpRequest()
-    nameRequest.onreadystatechange = function () {
+    nameRequest.onreadystatechange = function() {
       if (nameRequest.readyState === XMLHttpRequest.DONE && nameRequest.status === 200) {
         State.names = JSON.parse(nameRequest.responseText)
       }
@@ -24,7 +23,7 @@ export abstract class State {
     nameRequest.send()
 
     const blockRequest = new XMLHttpRequest()
-    blockRequest.onreadystatechange = function () {
+    blockRequest.onreadystatechange = function() {
       if (blockRequest.readyState === XMLHttpRequest.DONE && blockRequest.status === 200) {
         State.blocks = JSON.parse(blockRequest.responseText)
       }

@@ -8,7 +8,7 @@ State.initialise()
 
 // TODO: track recieved and requested № entries in main thread
 
-onmessage = function ({data}: {data: Messages.Message}) {
+onmessage = function ({data}: { data: Messages.Message }) {
   switch (data.action) {
     case 'input':
       receiveInput(data as Messages.InputMessage)
