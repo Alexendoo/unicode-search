@@ -1,5 +1,5 @@
 /* eslint-env browser */
-/// <reference path="../../node_modules/typescript/lib/lib.es6.d.ts" />
+/// <reference path="../../../node_modules/typescript/lib/lib.es6.d.ts" />
 
 'use strict'
 import 'core-js/es6/promise'
@@ -13,7 +13,7 @@ import 'whatwg-fetch'
 import Buffer from 'buffer'
 import TemplatePolyfill from 'template-polyfill'
 
-import { InputType } from './messages'
+import { InputType } from '../messages'
 
 TemplatePolyfill()
 

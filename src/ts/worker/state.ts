@@ -9,7 +9,7 @@ interface INames {
 }
 
 export abstract class State {
-  public static names: IBlock[]
+  public static names: Array<IBlock>
   public static blocks: INames
   public static cache: any
 

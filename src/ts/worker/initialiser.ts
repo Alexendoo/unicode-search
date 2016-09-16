@@ -1,7 +1,7 @@
-/// <reference path="../../node_modules/typescript/lib/lib.webworker.d.ts" />
+/// <reference path="../../../node_modules/typescript/lib/lib.webworker.d.ts" />
 
-import { InputType } from './messages'
-import { arrayStartsWith, log } from './util'
+import { InputType } from '../messages'
+import { arrayStartsWith, log } from '../util'
 import { State } from './state'
 
 export default class Initialiser {

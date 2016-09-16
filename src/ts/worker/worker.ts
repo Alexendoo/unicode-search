@@ -1,10 +1,8 @@
-/// <reference path="../../node_modules/typescript/lib/lib.webworker.d.ts" />
+/// <reference path="../../../node_modules/typescript/lib/lib.webworker.d.ts" />
 
-'use strict'
-
-import * as Messages from './messages'
+import * as Messages from '../messages'
 import Initialiser from './initialiser'
-import * as Util from './util'
+import * as Util from '../util'
 import { State } from './state'
 
 State.initialise()

@@ -29,7 +29,7 @@ const plugins = [
 let browserCache
 gulp.task('build:ts:browser', () =>
   rollup.rollup({
-    entry: 'src/ts/index.ts',
+    entry: 'src/ts/index/index.ts',
     cache: browserCache,
     plugins
   }).then(bundle => {
@@ -42,7 +42,7 @@ gulp.task('build:ts:browser', () =>
 let workerCache
 gulp.task('build:ts:worker', () =>
   rollup.rollup({
-    entry: 'src/ts/worker.ts',
+    entry: 'src/ts/worker/worker.ts',
     cache: workerCache,
     plugins
   }).then(bundle => {
