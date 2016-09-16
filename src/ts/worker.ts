@@ -13,7 +13,7 @@ let blocks
 loadData()
 
 let input: string
-let type: Messages.inputType
+let type: Messages.InputType
 
 // TODO: track recieved and requested № entries in main thread
 
@@ -51,15 +51,15 @@ const initialisers = {
 onmessage = function ({data}: {data: Messages.Message}) {
   switch (data.action) {
     case 'input':
-      receiveInput(<Messages.inputMessage>data)
+      receiveInput(<Messages.InputMessage>data)
       break
     case 'tick':
-      receiveTick(<Messages.tickMessage>data)
+      receiveTick(<Messages.TickMessage>data)
       break
   }
 }
 
-function receiveInput (data: Messages.inputMessage) {
+function receiveInput (data: Messages.InputMessage) {
   if (!data.type) return
   if (type !== data.type) {
     log('Δ type:', type, '→', data.type)

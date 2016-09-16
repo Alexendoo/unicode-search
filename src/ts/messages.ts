@@ -1,20 +1,20 @@
-export type Message = inputMessage|tickMessage|clearMessage
+export type Message = InputMessage|TickMessage|ClearMessage
 
-export interface inputMessage {
+export interface InputMessage {
   action: 'input'
-  type?: inputType
+  type?: InputType
   input?: string
 }
 
-export interface tickMessage {
+export interface TickMessage {
   action: 'tick'
 }
 
-export interface clearMessage {
+export interface ClearMessage {
   action: 'clear'
-  type?: inputType
+  type?: InputType
 }
 
-export enum inputType {
+export enum InputType {
   chars, name, bytes
 }
