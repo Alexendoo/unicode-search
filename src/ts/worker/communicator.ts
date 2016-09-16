@@ -4,7 +4,7 @@ import { InputType, InputMessage } from '../messages'
 import { arrayStartsWith, log } from '../util'
 import { State } from './state'
 import { CharCache } from './caches'
-import { sendClear } from './senders'
+import { sendClear, sendCharacter } from './senders'
 
 
 let lastType: InputType
@@ -54,6 +54,10 @@ class CharsCommunicator extends Communicator {
     super.receive(message)
     const invalidated = this.Cache.update(this.input)
     if (invalidated) this.sendClear(this.type)
+  }
+
+  send() {
+    sendCharacter(this.Cache.next())
   }
 }
 

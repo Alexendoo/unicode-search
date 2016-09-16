@@ -11,6 +11,6 @@ export function sendClear(type: InputType) {
   self.postMessage(message)
 }
 
-export function sendCharacter() {
+export function sendCharacter(input: string) {
 
 }
