@@ -1,15 +1,12 @@
 /// <reference path="../../../node_modules/typescript/lib/lib.webworker.d.ts" />
 
 import { InputType, InputMessage } from '../messages'
-import { arrayStartsWith, log } from '../util'
-import { State } from './state'
 import { CharCache } from './caches'
 import { sendClear, sendCharacter } from './senders'
 
-
 let lastType: InputType
 let mCommunicator: Communicator
-export function getCommunicator(type: InputType): Communicator {
+export function getCommunicator(type: InputType = lastType): Communicator {
   if (type === lastType) return mCommunicator
   switch (type) {
     case 'bytes':
@@ -34,12 +31,17 @@ abstract class Communicator {
     this.type = type
   }
 
+  abstract send(): void
+
   receive(message: InputMessage) {
     this.input = message.input
   }
 }
 
 class BytesCommunicator extends Communicator {
+  send() {
+    sendCharacter('a')
+  }
 }
 
 class CharsCommunicator extends Communicator {
@@ -62,4 +64,7 @@ class CharsCommunicator extends Communicator {
 }
 
 class NameCommunicator extends Communicator {
+  send() {
+    sendCharacter('a')
+  }
 }
