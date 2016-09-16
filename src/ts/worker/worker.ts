@@ -1,13 +1,10 @@
 /// <reference path="../../../node_modules/typescript/lib/lib.webworker.d.ts" />
 
 import * as Messages from '../messages'
-import Initialiser from './initialiser'
-import * as Util from '../util'
 import { State } from './state'
+import { receiveInput, receiveTick } from './receivers'
 
 State.initialise()
-
-const initialiser = new Initialiser()
 
 // TODO: track recieved and requested № entries in main thread
 
@@ -20,22 +17,4 @@ onmessage = function ({data}: {data: Messages.Message}) {
       receiveTick(data as Messages.TickMessage)
       break
   }
-}
-
-function receiveInput (data: Messages.InputMessage) {
-  initialiser.initialise(data.input, data.type)
-}
-
-// let timeoutID
-// function scheduleTimer () {
-//   clearTimeout(timeoutID)
-//   timeoutID = setTimeout(tick, 1000)
-// }
-
-function receiveTick (data: Messages.TickMessage) {
-  Util.log('tick', data)
-}
-
-function send (message) {
-  self.postMessage({action: 'append', type, message})
 }
