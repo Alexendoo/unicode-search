@@ -4,10 +4,9 @@ import { InputType, InputMessage } from '../messages'
 import { CharCache } from './caches'
 import { sendClear, sendCharacter } from './senders'
 
-let lastType: InputType
 let mCommunicator: Communicator
-export function getCommunicator(type: InputType = lastType): Communicator {
-  if (type === lastType) return mCommunicator
+export function getCommunicator(type?: InputType): Communicator {
+  if (mCommunicator && mCommunicator.type === type) return mCommunicator
   switch (type) {
     case 'bytes':
       mCommunicator = new BytesCommunicator(type)
@@ -23,9 +22,10 @@ export function getCommunicator(type: InputType = lastType): Communicator {
 }
 
 abstract class Communicator {
+  public type: InputType
+
   protected input: string
   protected sendClear = sendClear
-  protected type: InputType
 
   constructor(type: InputType) {
     this.type = type
