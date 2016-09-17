@@ -75,7 +75,7 @@ gulp.task('build:json', () =>
 gulp.task('watch', ['watch:ts', 'watch:html', 'watch:css'])
 
 gulp.task('watch:ts', () => {
-  gulp.watch('src/ts/*', ['build:ts'])
+  gulp.watch('src/ts/**/*.ts', ['build:ts'])
 })
 
 gulp.task('watch:html', () => {
