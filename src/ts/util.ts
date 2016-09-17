@@ -46,7 +46,7 @@ export function stringToUtf8ByteArray(str: string): number[] {
     }
   }
   return out
-};
+}
 
 /**
  * Converts a UTF-8 byte array to JavaScript's 16-bit Unicode.
@@ -85,4 +85,4 @@ export function utf8ByteArrayToString(bytes: number[]|Uint8Array) {
     }
   }
   return out.join('')
-};
+}

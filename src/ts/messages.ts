@@ -11,7 +11,6 @@ export interface InputMessage {
 
 export interface TickMessage {
   action: 'tick'
-  type?: InputType
 }
 
 export interface ClearMessage {
