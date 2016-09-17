@@ -9,8 +9,8 @@ interface INames {
 }
 
 export abstract class State {
-  public static names: Array<IBlock>
-  public static blocks: INames
+  public static names: INames
+  public static blocks: Array<IBlock>
 
   static initialise() {
     const nameRequest = new XMLHttpRequest()
