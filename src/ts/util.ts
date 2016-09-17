@@ -12,63 +12,77 @@ export function arrayStartsWith(long: any[], short: any[]) {
 }
 
 /**
- * adapted from http://www.onicos.com/staff/iz/amuse/javascript/expert/utf.txt
+ * Converts a JS string to a UTF-8 "byte" array.
  *
- * @param str a utf16 string
- * @returns a utf8 string
+ * Adapted from https://github.com/google/closure-library/blob/master/closure/goog/crypt/crypt.js
+ *
+ * @license Apache-2.0
+ * @param str 16-bit unicode string.
+ * @return UTF-8 byte array.
  */
-export function utf16to8(str: string): string {
-  let out = ''
-  const len = str.length
-  for (let i = 0; i < len; i++) {
-    const code = str.charCodeAt(i)
-    if ((code >= 0x0001) && (code <= 0x007F)) {
-      out += str.charAt(i)
-    } else if (code > 0x07FF) {
-      out += String.fromCharCode(0xE0 | ((code >> 12) & 0x0F))
-      out += String.fromCharCode(0x80 | ((code >> 6) & 0x3F))
-      out += String.fromCharCode(0x80 | ((code >> 0) & 0x3F))
+export function stringToUtf8ByteArray(str: string): number[] {
+  const out: number[] = []
+  let p = 0
+  for (let i = 0; i < str.length; i++) {
+    let code = str.charCodeAt(i)
+    if (code < 128) {
+      out[p++] = code
+    } else if (code < 2048) {
+      out[p++] = (code >> 6) | 192
+      out[p++] = (code & 63) | 128
+    } else if (
+        ((code & 0xFC00) === 0xD800) && (i + 1) < str.length &&
+        ((str.charCodeAt(i + 1) & 0xFC00) === 0xDC00)) {
+      // Surrogate Pair
+      code = 0x10000 + ((code & 0x03FF) << 10) + (str.charCodeAt(++i) & 0x03FF);
+      out[p++] = (code >> 18) | 240
+      out[p++] = ((code >> 12) & 63) | 128
+      out[p++] = ((code >> 6) & 63) | 128
+      out[p++] = (code & 63) | 128
     } else {
-      out += String.fromCharCode(0xC0 | ((code >> 6) & 0x1F))
-      out += String.fromCharCode(0x80 | ((code >> 0) & 0x3F))
+      out[p++] = (code >> 12) | 224
+      out[p++] = ((code >> 6) & 63) | 128
+      out[p++] = (code & 63) | 128
     }
   }
   return out
-}
+};
 
 /**
- * adapted from http://www.onicos.com/staff/iz/amuse/javascript/expert/utf.txt
+ * Converts a UTF-8 byte array to JavaScript's 16-bit Unicode.
  *
- * @param str a utf8 string
- * @returns a utf16 string
+ * Adapted from https://github.com/google/closure-library/blob/master/closure/goog/crypt/crypt.js
+ *
+ * @license Apache-2.0
+ * @param bytes UTF-8 byte array.
+ * @return 16-bit Unicode string.
  */
-export function utf8to16(str: string): string {
-  let out = ''
-  let i = 0
-  const len = str.length
-  while (i < len) {
-    const c = str.charCodeAt(i++)
-    let char2: number
-    let char3: number
-    switch (c >> 4) {
-      case 0: case 1: case 2: case 3: case 4: case 5: case 6: case 7:
-        // 0xxxxxxx
-        out += str.charAt(i - 1)
-        break
-      case 12: case 13:
-        // 110x xxxx   10xx xxxx
-        char2 = str.charCodeAt(i++)
-        out += String.fromCharCode(((c & 0x1F) << 6) | (char2 & 0x3F))
-        break
-      case 14:
-        // 1110 xxxx  10xx xxxx  10xx xxxx
-        char2 = str.charCodeAt(i++)
-        char3 = str.charCodeAt(i++)
-        out += String.fromCharCode(((c & 0x0F) << 12) |
-          ((char2 & 0x3F) << 6) |
-          ((char3 & 0x3F) << 0))
-        break
+export function utf8ByteArrayToString(bytes: number[]|Uint8Array) {
+  const out: string[] = []
+  let pos = 0
+  let c = 0
+  while (pos < bytes.length) {
+    const c1 = bytes[pos++]
+    if (c1 < 128) {
+      out[c++] = String.fromCharCode(c1)
+    } else if (c1 > 191 && c1 < 224) {
+      const c2 = bytes[pos++]
+      out[c++] = String.fromCharCode((c1 & 31) << 6 | c2 & 63)
+    } else if (c1 > 239 && c1 < 365) {
+      // Surrogate Pair
+      const c2 = bytes[pos++]
+      const c3 = bytes[pos++]
+      const c4 = bytes[pos++]
+      const u = ((c1 & 7) << 18 | (c2 & 63) << 12 | (c3 & 63) << 6 | c4 & 63)
+        - 0x10000
+      out[c++] = String.fromCharCode(0xD800 + (u >> 10))
+      out[c++] = String.fromCharCode(0xDC00 + (u & 1023))
+    } else {
+      const c2 = bytes[pos++]
+      const c3 = bytes[pos++]
+      out[c++] =
+          String.fromCharCode((c1 & 15) << 12 | (c2 & 63) << 6 | c3 & 63)
     }
   }
-  return out
-}
+  return out.join('')
+};
