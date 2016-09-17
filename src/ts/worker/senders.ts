@@ -13,7 +13,8 @@ export function sendClear(type: InputType) {
   self.postMessage(message)
 }
 
-export function sendCharacter(input: string) {
+export function sendCharacter(input?: string) {
+  if (input === undefined) return
   const codePoint = input.codePointAt(0)
 
   const block = getBlock(codePoint)
