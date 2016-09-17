@@ -37,7 +37,6 @@ sendInput()
 // }
 
 worker.onmessage = function({data: message}: { data: BrowserMessage }) {
-  console.log('💻', message)
   if (isClear(message)) {
     clearChildren(display)
     sendTick()
@@ -51,13 +50,8 @@ worker.onmessage = function({data: message}: { data: BrowserMessage }) {
 }
 
 document.addEventListener('scroll', () => {
-  if (needsEntries()) {
-    console.log('thres')
-    sendTick()
-  } else {
-    console.log('nothres')
-  }
-})
+  if (needsEntries()) sendTick()
+}, {passive: true})
 
 function isClear(message: BrowserMessage): message is ClearMessage {
   return message.action === 'clear'
@@ -68,21 +62,14 @@ function isDisplay(message: BrowserMessage): message is DisplayMessage {
 }
 
 function needsEntries(): boolean {
-  return (document.body.clientHeight - (window.innerHeight + window.scrollY) < 500)
+  return (document.body.clientHeight - (window.innerHeight + window.scrollY) < 1000)
 }
 
 function sendInput() {
-  let text: string
-  if (input.value.length > 100) {
-    text = input.value.slice(0, 100)
-  } else {
-    text = input.value
-  }
-
   const message: InputMessage = {
     action: 'input',
     type: type,
-    input: text
+    input: input.value
   }
 
   worker.postMessage(message)
