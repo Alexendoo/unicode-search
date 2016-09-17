@@ -1,5 +1,3 @@
-/// <reference path="../../../node_modules/typescript/lib/lib.webworker.d.ts" />
-
 import { InputType, InputMessage } from '../messages'
 import { CharCache } from './caches'
 import { sendClear, sendCharacter } from './senders'
@@ -29,6 +27,7 @@ abstract class Communicator {
 
   constructor(type: InputType) {
     this.type = type
+    this.sendClear()
   }
 
   abstract send(): void

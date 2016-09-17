@@ -1,10 +1,11 @@
-/// <reference path="../../../node_modules/typescript/lib/lib.es6.d.ts" />
+/// <reference path="../../../node_modules/typescript/lib/lib.d.ts" />
 
 import {
   BrowserMessage,
   InputMessage,
   ClearMessage,
   DisplayMessage,
+  TickMessage,
   InputType
 } from '../messages'
 
@@ -17,28 +18,46 @@ const display = document.querySelector('main')
 const radios = document.querySelectorAll('input[name=type]') as NodeListOf<HTMLInputElement>
 let type: InputType = 'chars'
 
-input.addEventListener('input', () => updateUi())
+input.addEventListener('input', () => sendInput())
 
 for (let i = 0; i < radios.length; i++) {
   const radio = radios[i]
 
   radio.addEventListener('change', event => {
     type = (event.target as HTMLInputElement).value as InputType
-    updateUi()
+    sendInput()
   })
 }
 
 const worker = new Worker('worker.js')
+sendInput()
 
-worker.onmessage = function ({data: message}: { data: BrowserMessage }) {
+// if ('serviceWorker' in navigator) {
+//   navigator.serviceWorker.register('sw.js')
+// }
+
+worker.onmessage = function({data: message}: { data: BrowserMessage }) {
   console.log('💻', message)
   if (isClear(message)) {
-    return clearChildren(display)
+    clearChildren(display)
+    sendTick()
+    return
   }
   if (isDisplay(message)) {
-    return createCharDetails(message)
+    createCharDetails(message)
+    if (needsEntries()) sendTick()
+    return
   }
 }
+
+document.addEventListener('scroll', () => {
+  if (needsEntries()) {
+    console.log('thres')
+    sendTick()
+  } else {
+    console.log('nothres')
+  }
+})
 
 function isClear(message: BrowserMessage): message is ClearMessage {
   return message.action === 'clear'
@@ -48,11 +67,11 @@ function isDisplay(message: BrowserMessage): message is DisplayMessage {
   return message.action === 'display'
 }
 
-if ('serviceWorker' in navigator) {
-  // navigator.serviceWorker.register('sw.js')
+function needsEntries(): boolean {
+  return (document.body.clientHeight - (window.innerHeight + window.scrollY) < 500)
 }
 
-function updateUi() {
+function sendInput() {
   let text: string
   if (input.value.length > 100) {
     text = input.value.slice(0, 100)
@@ -67,6 +86,11 @@ function updateUi() {
   }
 
   worker.postMessage(message)
+  if (needsEntries()) sendTick()
+}
+
+function sendTick() {
+  worker.postMessage({action: 'tick'} as TickMessage)
 }
 
 function createCharDetails({character, name, block, codePoint, bytes}: DisplayMessage) {
@@ -85,8 +109,3 @@ function clearChildren(node: Node) {
     node.removeChild(node.firstChild)
   }
 }
-
-setInterval(function() {
-  if (!input.value) return
-  worker.postMessage({ action: 'tick' })
-}, 100)

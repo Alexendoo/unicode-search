@@ -6,8 +6,6 @@ import { getCommunicator } from './communicator'
 
 State.initialise()
 
-// TODO: track recieved and requested № entries in main thread
-
 onmessage = function ({data: message}: { data: WorkerMessage }) {
   if (isInput(message)) {
     return getCommunicator(message.type)

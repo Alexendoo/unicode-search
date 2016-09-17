@@ -4,7 +4,7 @@ import { ClearMessage, DisplayMessage, InputType } from '../messages'
 import { State } from './state'
 import { stringToUtf8ByteArray } from '../util'
 
-export function sendClear(type: InputType) {
+export function sendClear(type?: InputType) {
   const message: ClearMessage = {
     action: 'clear',
     type
