@@ -18,7 +18,7 @@ export class CharCache {
     if (this.cache === undefined) {
       this.cache = {
         part: chars,
-        full: chars
+        full: chars.slice()
       }
     } else if (arrayStartsWith(chars, this.cache.full)) {
       const len = this.cache.full.length
@@ -27,7 +27,7 @@ export class CharCache {
     } else {
       this.cache = {
         part: chars,
-        full: chars
+        full: chars.slice()
       }
       return true
     }
