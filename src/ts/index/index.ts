@@ -62,7 +62,7 @@ function isDisplay(message: BrowserMessage): message is DisplayMessage {
 }
 
 function needsEntries(): boolean {
-  return (document.body.clientHeight - (window.innerHeight + window.scrollY) < 1000)
+  return (document.body.clientHeight - (window.innerHeight + window.pageYOffset) < 1000)
 }
 
 function sendInput() {
