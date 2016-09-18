@@ -1,7 +1,3 @@
-export function log(...v: any[]) {
-  if (console && console.log) console.log('⚙', ...v)
-}
-
 /**
  * e.g. [1,2,3] starts with [1,2]
  *
@@ -9,6 +5,62 @@ export function log(...v: any[]) {
  */
 export function arrayStartsWith(long: any[], short: any[]) {
   return short.every((v, i) => long[i] === v)
+}
+
+/**
+ * Convert a unicode code point to a JS string
+ *
+ * @param code unicode code point of the character
+ * @returns the character, may be a surrogate pair
+ */
+export function codePointToChar(code: number): string {
+  if (code < 0x10000) {
+    return String.fromCharCode(code)
+  } else {
+    code -= 0x10000
+    const high = Math.floor(code >> 10) + 0xD800
+    const low = code % 0x400 + 0xDC00
+    return String.fromCharCode(high, low)
+  }
+}
+
+/**
+ * Convert a JS character to a codepoint, accounting for
+ * surrogate pairs
+ *
+ * @export
+ * @param {string} str
+ * @returns {number}
+ */
+export function charToCodePoint(str: string): number {
+  const code = str.charCodeAt(0)
+  if (str.length > 1 && code >= 0xD800 && code <= 0xDBFF) {
+    // code is a high surrogate
+    const low = str.charCodeAt(1)
+    return (code - 0xD800) * 0x400 + low - 0xDC00 + 0x10000
+  } else {
+    return code
+  }
+}
+
+/**
+ * Converts a JS string to an array of characters
+ *
+ * @param str 16-bit unicode string
+ * @returns array of full characters (ie including surrogate pairs)
+ */
+export function stringToCharArray(str: string): string[] {
+  const out: string[] = []
+  for (let i = 0; i < str.length; i++) {
+    const code = str.charCodeAt(i)
+    if (code >= 0xD800 && code <= 0xDBFF) {
+      // code is a high surrogate
+      out.push(str.substr(i++, 2))
+    } else {
+      out.push(str[i])
+    }
+  }
+  return out
 }
 
 /**

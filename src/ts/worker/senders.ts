@@ -1,13 +1,10 @@
-/// <reference path="../../../node_modules/typescript/lib/lib.webworker.d.ts" />
-
-import { ClearMessage, DisplayMessage, InputType } from '../messages'
+import { ClearMessage, DisplayMessage } from '../messages'
 import { State } from './state'
-import { stringToUtf8ByteArray } from '../util'
+import { charToCodePoint, stringToUtf8ByteArray } from '../util'
 
-export function sendClear(type?: InputType) {
+export function sendClear() {
   const message: ClearMessage = {
-    action: 'clear',
-    type
+    action: 'clear'
   }
 
   self.postMessage(message)
@@ -15,7 +12,7 @@ export function sendClear(type?: InputType) {
 
 export function sendCharacter(input?: string) {
   if (input === undefined) return
-  const codePoint = input.codePointAt(0)
+  const codePoint = charToCodePoint(input)
 
   const block = getBlock(codePoint)
   const bytes = getBytes(input)

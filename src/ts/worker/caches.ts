@@ -1,7 +1,4 @@
-/// <reference path="../../../node_modules/typescript/lib/lib.webworker.d.ts" />
-/// <reference path="../../../node_modules/typescript/lib/lib.es6.d.ts" />
-
-import { arrayStartsWith } from '../util'
+import { arrayStartsWith, codePointToChar, stringToCharArray } from '../util'
 import { State } from './state'
 
 interface ICharCache {
@@ -33,7 +30,7 @@ export class CharCache implements ICache {
   private cache: ICharCache
 
   update(input: string): boolean {
-    const chars = Array.from(input)
+    const chars = stringToCharArray(input)
     if (this.cache === undefined) {
       this.cache = {
         part: chars,
@@ -68,7 +65,7 @@ export class NameCache implements ICache {
     for (let key in State.names) {
       const name = State.names[key]
       if (name.indexOf(input) >= 0) {
-        this.queue.push(String.fromCodePoint(Number(key)))
+        this.queue.push(codePointToChar(Number(key)))
       }
     }
     return true
