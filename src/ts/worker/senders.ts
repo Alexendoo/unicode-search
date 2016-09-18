@@ -24,11 +24,11 @@ export function sendCharacter(input?: string) {
 
   const message: DisplayMessage = {
     action: 'display',
-    block,
-    bytes,
-    character,
-    codePoint,
-    name
+    block: block,
+    bytes: bytes,
+    character: character,
+    codePoint: codePoint,
+    name: name
   }
 
   postMessage(message)
