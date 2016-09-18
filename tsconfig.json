@@ -1,0 +1,7 @@
+{
+  "compilerOptions": {
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitAny": true,
+    "target": "es5"
+  }
+}

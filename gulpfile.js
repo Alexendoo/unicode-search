@@ -1,6 +1,7 @@
 /* eslint-env node */
+'use strict'
 const rollup = require('rollup')
-const babel = require('rollup-plugin-babel')
+const typescript = require('rollup-plugin-typescript')
 const nodeResolve = require('rollup-plugin-node-resolve')
 const commonjs = require('rollup-plugin-commonjs')
 const uglify = require('rollup-plugin-uglify')
@@ -11,37 +12,43 @@ const concat = require('gulp-concat')
 
 gulp.task('default', ['build', 'watch'])
 
-gulp.task('build', ['build:js', 'build:html', 'build:css', 'build:json'])
+gulp.task('build', ['build:ts', 'build:html', 'build:css', 'build:json'])
 
-let cache
-gulp.task('build:js', cb =>
+gulp.task('build:ts', ['build:ts:worker', 'build:ts:browser'])
+
+const plugins = [
+  typescript()
+]
+
+let browserCache
+gulp.task('build:ts:browser', () =>
   rollup.rollup({
-    entry: 'src/js/index.js',
-    cache,
-    plugins: [
-      nodeResolve({
-        jsnext: true,
-        browser: true,
-        preferBuiltins: false
-      }),
-      commonjs(),
-      babel({
-        exclude: 'node_modules/**'
-      }),
-      uglify()
-    ]
+    entry: 'src/ts/index/index.ts',
+    cache: browserCache,
+    plugins
   }).then(bundle => {
-    cache = bundle
     bundle.write({
-      dest: 'dist/bundle.js',
-      format: 'cjs'
+      dest: 'dist/index.js'
+    })
+  })
+)
+
+let workerCache
+gulp.task('build:ts:worker', () =>
+  rollup.rollup({
+    entry: 'src/ts/worker/worker.ts',
+    cache: workerCache,
+    plugins
+  }).then(bundle => {
+    bundle.write({
+      dest: 'dist/worker.js'
     })
   })
 )
 
 gulp.task('build:html', () =>
   gulp.src('src/index.html')
-    .pipe(htmlmin({collapseWhitespace: true}))
+    .pipe(htmlmin({ collapseWhitespace: true }))
     .pipe(gulp.dest('dist'))
 )
 
@@ -59,10 +66,10 @@ gulp.task('build:json', () =>
     .pipe(gulp.dest('dist'))
 )
 
-gulp.task('watch', ['watch:js', 'watch:html', 'watch:css'])
+gulp.task('watch', ['watch:ts', 'watch:html', 'watch:css'])
 
-gulp.task('watch:js', () => {
-  gulp.watch('src/js/*', ['build:js'])
+gulp.task('watch:ts', () => {
+  gulp.watch('src/ts/**/*.ts', ['build:ts'])
 })
 
 gulp.task('watch:html', () => {
