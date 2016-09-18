@@ -1,4 +1,4 @@
-import { arrayStartsWith, codePointToChar, stringToCharArray } from '../util'
+import { arrayStartsWith, codePointToChar, stringToCharArray, utf8ByteArrayToString } from '../util'
 import { State } from './state'
 
 interface ICharCache {
@@ -25,6 +25,45 @@ export interface ICache {
   next(): string
 }
 
+export class ByteCache implements ICache {
+  private mCharCache: CharCache
+  private valid: boolean
+  private lastValidInput: string
+
+  constructor() {
+    this.mCharCache = new CharCache()
+  }
+
+  update(input: string): boolean {
+    // strip whitespace
+    input = input.replace(/\s/g, '')
+
+    // ignore non-hex inputs
+    this.valid = /^[0-9a-f]{2,}$/i.test(input)
+    if (!this.valid) return true
+
+    // reinitialise cache if unchanged (display may have been cleared)
+    if (this.lastValidInput === input) {
+      this.mCharCache = new CharCache()
+    }
+    this.lastValidInput = input
+
+    const bytes = input.match(/../g)
+      .map(byte => parseInt(byte, 16))
+    const str = utf8ByteArrayToString(bytes)
+
+    return this.mCharCache.update(str)
+  }
+
+  next(): string {
+    if (this.valid) {
+      return this.mCharCache.next()
+    } else {
+      return undefined
+    }
+  }
+}
+
 // TODO: No reason to store cache in object
 export class CharCache implements ICache {
   private cache: ICharCache
@@ -36,10 +75,12 @@ export class CharCache implements ICache {
         part: chars,
         full: chars.slice()
       }
+      return true
     } else if (arrayStartsWith(chars, this.cache.full)) {
       const len = this.cache.full.length
       this.cache.part.push(...chars.slice(len))
       this.cache.full = chars
+      return false
     } else {
       this.cache = {
         part: chars,
@@ -47,7 +88,6 @@ export class CharCache implements ICache {
       }
       return true
     }
-    return false
   }
 
   next(): string {

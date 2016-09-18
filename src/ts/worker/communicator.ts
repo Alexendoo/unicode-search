@@ -1,5 +1,5 @@
 import { InputType } from '../messages'
-import { ICache, CharCache, NameCache } from './caches'
+import { ICache, ByteCache, CharCache, NameCache } from './caches'
 import { sendClear, sendCharacter } from './senders'
 
 let mCommunicator: ICommunicator
@@ -15,9 +15,9 @@ let mCommunicator: ICommunicator
 export function getCommunicator(type?: InputType): ICommunicator {
   if (mCommunicator && mCommunicator.type === type) return mCommunicator
   switch (type) {
-    // case 'bytes':
-    //   mCommunicator = new BytesCommunicator(type)
-    //   break
+    case 'bytes':
+      mCommunicator = new Communicator(ByteCache, type)
+      break
     case 'chars':
       mCommunicator = new Communicator(CharCache, type)
       break
