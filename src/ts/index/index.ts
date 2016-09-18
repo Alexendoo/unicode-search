@@ -9,15 +9,13 @@ import {
   InputType
 } from '../messages'
 
-import TemplatePolyfill from 'template-polyfill'
-TemplatePolyfill()
-
 const input = document.getElementById('chars') as HTMLInputElement
 const template = document.getElementById('char--template') as HTMLTemplateElement
 const display = document.querySelector('main')
 const radios = document.querySelectorAll('input[name=type]') as NodeListOf<HTMLInputElement>
 let type: InputType
 
+polyfillTemplate(template)
 input.addEventListener('input', () => sendInput())
 
 for (let i = 0; i < radios.length; i++) {
@@ -97,4 +95,19 @@ function clearChildren(node: Node) {
   while (node.firstChild) {
     node.removeChild(node.firstChild)
   }
+}
+
+function polyfillTemplate(template: HTMLTemplateElement) {
+  if ('content' in template) {
+    return
+  }
+
+  const content = template.childNodes
+  const fragment = document.createDocumentFragment()
+
+  while (content[0]) {
+    fragment.appendChild(content[0])
+  }
+
+  template.content = fragment
 }

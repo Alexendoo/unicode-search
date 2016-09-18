@@ -17,13 +17,7 @@ gulp.task('build', ['build:ts', 'build:html', 'build:css', 'build:json'])
 gulp.task('build:ts', ['build:ts:worker', 'build:ts:browser'])
 
 const plugins = [
-  typescript(),
-  nodeResolve({
-    jsnext: true,
-    browser: true,
-    preferBuiltins: false
-  }),
-  commonjs()
+  typescript()
 ]
 
 let browserCache
