@@ -9,7 +9,7 @@ State.initialise()
 onmessage = function ({data: message}: { data: WorkerMessage }) {
   if (isInput(message)) {
     return getCommunicator(message.type)
-      .receive(message)
+      .receive(message.input)
   }
   if (isTick(message)) {
     return getCommunicator()

@@ -1,69 +1,85 @@
-import { InputType, InputMessage } from '../messages'
-import { CharCache } from './caches'
+import { InputType } from '../messages'
+import { ICache, CharCache, NameCache } from './caches'
 import { sendClear, sendCharacter } from './senders'
 
-let mCommunicator: Communicator
-export function getCommunicator(type?: InputType): Communicator {
+let mCommunicator: ICommunicator
+
+/**
+ * Returns an ICommunicator, recreating it if the InputType
+ * changes
+ *
+ * @param [type] the currently selected type by the user
+ * @returns an ICommunicator to send/receieve input to the
+ *          browser
+ */
+export function getCommunicator(type?: InputType): ICommunicator {
   if (mCommunicator && mCommunicator.type === type) return mCommunicator
   switch (type) {
-    case 'bytes':
-      mCommunicator = new BytesCommunicator(type)
-      break
+    // case 'bytes':
+    //   mCommunicator = new BytesCommunicator(type)
+    //   break
     case 'chars':
-      mCommunicator = new CharsCommunicator(type)
+      mCommunicator = new Communicator(CharCache, type)
       break
     case 'name':
-      mCommunicator = new NameCommunicator(type)
+      mCommunicator = new Communicator(NameCache, type)
       break
   }
   return mCommunicator
 }
 
-abstract class Communicator {
+interface ICommunicator {
+  /**
+   * InputType the ICommunicator was initialised with
+   */
+  type: InputType
+
+  /**
+   * Receive new input from the user, updates the Cache
+   * as needed
+   *
+   * @param input user supplied input
+   */
+  receive(input: string): void
+
+  /**
+   * Reset the cache and sendClear to the browser
+   */
+  reset(): void
+
+  /**
+   * Send the next character to the browser
+   */
+  send(): void
+}
+
+class Communicator<T extends ICache> implements ICommunicator {
   public type: InputType
 
-  protected input: string
-  protected sendClear = sendClear
+  private Cache: T
+  private CacheType: new() => T
+  private input: string
 
-  constructor(type: InputType) {
+  constructor(CacheType: new() => T, type: InputType) {
     this.type = type
-    this.sendClear()
+
+    this.Cache = new CacheType()
+    this.CacheType = CacheType
   }
 
-  abstract send(): void
-
-  receive(message: InputMessage) {
-    this.input = message.input
-  }
-}
-
-class BytesCommunicator extends Communicator {
-  send() {
-    sendCharacter('a')
-  }
-}
-
-class CharsCommunicator extends Communicator {
-  private Cache: CharCache
-
-  constructor(type: InputType) {
-    super(type)
-    this.Cache = new CharCache()
+  receive(input: string) {
+    this.input = input
+    const invalidated = this.Cache.update(input)
+    if (invalidated) sendClear()
   }
 
-  receive(message: InputMessage) {
-    super.receive(message)
-    const invalidated = this.Cache.update(this.input)
-    if (invalidated) this.sendClear(this.type)
+  reset() {
+    this.Cache = new this.CacheType()
+    this.receive(this.input)
+    sendClear()
   }
 
   send() {
     sendCharacter(this.Cache.next())
-  }
-}
-
-class NameCommunicator extends Communicator {
-  send() {
-    sendCharacter('a')
   }
 }

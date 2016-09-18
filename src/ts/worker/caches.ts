@@ -1,18 +1,37 @@
 /// <reference path="../../../node_modules/typescript/lib/lib.webworker.d.ts" />
+/// <reference path="../../../node_modules/typescript/lib/lib.es6.d.ts" />
 
 import { arrayStartsWith } from '../util'
+import { State } from './state'
 
 interface ICharCache {
   part: string[]
   full: string[]
 }
 
-export class CharCache {
-  private cache: ICharCache
+export interface ICache {
+  /**
+   * Update the cache with the new input, if the cache
+   * is invalidated and the browser UI needs to be cleared,
+   * returns true
+   *
+   * @param input user supplied input
+   * @returns if the cache is invalidated
+   */
+  update(input: string): boolean
 
   /**
-   * @returns true if the cache is invalidated
+   * Receive the next character from the cache to display
+   *
+   * @returns the next character
    */
+  next(): string
+}
+
+// TODO: No reason to store cache in object
+export class CharCache implements ICache {
+  private cache: ICharCache
+
   update(input: string): boolean {
     const chars = Array.from(input)
     if (this.cache === undefined) {
@@ -34,10 +53,28 @@ export class CharCache {
     return false
   }
 
-  /**
-   * @returns the next character to display
-   */
   next(): string {
     return this.cache.part.shift()
+  }
+}
+
+export class NameCache implements ICache {
+  private queue: string[]
+
+  update(input: string): boolean {
+    this.queue = []
+    if (!State.names || !input) return
+    input = input.toUpperCase()
+    for (let key in State.names) {
+      const name = State.names[key]
+      if (name.indexOf(input) >= 0) {
+        this.queue.push(String.fromCodePoint(Number(key)))
+      }
+    }
+    return true
+  }
+
+  next(): string {
+    return this.queue.shift()
   }
 }
