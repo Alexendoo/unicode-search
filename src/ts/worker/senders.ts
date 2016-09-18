@@ -7,7 +7,7 @@ export function sendClear() {
     action: 'clear'
   }
 
-  self.postMessage(message)
+  postMessage(message)
 }
 
 export function sendCharacter(input?: string) {
@@ -28,7 +28,7 @@ export function sendCharacter(input?: string) {
     name
   }
 
-  self.postMessage(message)
+  postMessage(message)
 }
 
 function getBlock(codePoint: number): string {
@@ -43,7 +43,7 @@ function getBlock(codePoint: number): string {
 
 function getBytes(input: string): string {
   return stringToUtf8ByteArray(input)
-    .map(byte => byte.toString(16))
+    .map(byte => byte.toString(16).toUpperCase())
     .map(byte => byte.length < 2 ? '0' + byte : byte)
     .join(' ')
 }

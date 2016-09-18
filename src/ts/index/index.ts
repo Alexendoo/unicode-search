@@ -97,6 +97,12 @@ function clearChildren(node: Node) {
   }
 }
 
+/**
+ * Browsers that don't support template natively can be
+ * made to with a little persuasion
+ *
+ * @param template to correct
+ */
 function polyfillTemplate(template: HTMLTemplateElement) {
   if ('content' in template) {
     return
