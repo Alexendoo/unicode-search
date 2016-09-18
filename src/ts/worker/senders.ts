@@ -11,7 +11,10 @@ export function sendClear() {
 }
 
 export function sendCharacter(input?: string) {
-  if (input === undefined) return
+  if (input === undefined) {
+    // TODO sendDone()
+    return
+  }
   const codePoint = charToCodePoint(input)
 
   const block = getBlock(codePoint)

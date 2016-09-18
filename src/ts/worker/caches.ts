@@ -1,4 +1,9 @@
-import { arrayStartsWith, codePointToChar, stringToCharArray, utf8ByteArrayToString } from '../util'
+import {
+  arrayStartsWith,
+  codePointToChar,
+  stringToCharArray,
+  utf8ByteArrayToCodePoints
+} from '../util'
 import { State } from './state'
 
 interface ICharCache {
@@ -26,13 +31,8 @@ export interface ICache {
 }
 
 export class ByteCache implements ICache {
-  private mCharCache: CharCache
+  private chars: string[]
   private valid: boolean
-  private lastValidInput: string
-
-  constructor() {
-    this.mCharCache = new CharCache()
-  }
 
   update(input: string): boolean {
     // strip whitespace
@@ -42,25 +42,17 @@ export class ByteCache implements ICache {
     this.valid = /^[0-9a-f]{2,}$/i.test(input)
     if (!this.valid) return true
 
-    // reinitialise cache if unchanged (display may have been cleared)
-    if (this.lastValidInput === input) {
-      this.mCharCache = new CharCache()
-    }
-    this.lastValidInput = input
-
     const bytes = input.match(/../g)
       .map(byte => parseInt(byte, 16))
-    const str = utf8ByteArrayToString(bytes)
 
-    return this.mCharCache.update(str)
+    this.chars = utf8ByteArrayToCodePoints(bytes)
+      .map(code => codePointToChar(code))
+
+    return true
   }
 
-  next(): string {
-    if (this.valid) {
-      return this.mCharCache.next()
-    } else {
-      return undefined
-    }
+  next() {
+    if (this.valid) return this.chars.shift()
   }
 }
 

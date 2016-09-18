@@ -100,40 +100,61 @@ export function stringToUtf8ByteArray(str: string): number[] {
 }
 
 /**
- * Converts a UTF-8 byte array to JavaScript's 16-bit Unicode.
+ * Converts an array of UTF-8 bytes to unicode code points
  *
- * Adapted from https://github.com/google/closure-library/blob/master/closure/goog/crypt/crypt.js
+ *          Byte 1   Byte 2   Byte 3   Byte 4
+ *         0xxxxxxx
+ *         110xxxxx 10xxxxxx
+ *         1110xxxx 10xxxxxx 10xxxxxx
+ *         11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
  *
- * @license Apache-2.0
- * @param bytes UTF-8 byte array.
- * @return 16-bit Unicode string.
+ * @param bytes UTF-8 bytes
+ * @returns an array of unicode code points
  */
-export function utf8ByteArrayToString(bytes: number[]|Uint8Array) {
-  const out: string[] = []
-  let pos = 0
-  let c = 0
-  while (pos < bytes.length) {
-    const c1 = bytes[pos++]
-    if (c1 < 128) {
-      out[c++] = String.fromCharCode(c1)
-    } else if (c1 > 191 && c1 < 224) {
-      const c2 = bytes[pos++]
-      out[c++] = String.fromCharCode((c1 & 31) << 6 | c2 & 63)
-    } else if (c1 > 239 && c1 < 365) {
-      // Surrogate Pair
-      const c2 = bytes[pos++]
-      const c3 = bytes[pos++]
-      const c4 = bytes[pos++]
-      const u = ((c1 & 7) << 18 | (c2 & 63) << 12 | (c3 & 63) << 6 | c4 & 63)
-        - 0x10000
-      out[c++] = String.fromCharCode(0xD800 + (u >> 10))
-      out[c++] = String.fromCharCode(0xDC00 + (u & 1023))
-    } else {
-      const c2 = bytes[pos++]
-      const c3 = bytes[pos++]
-      out[c++] =
-          String.fromCharCode((c1 & 15) << 12 | (c2 & 63) << 6 | c3 & 63)
+export function utf8ByteArrayToCodePoints(bytes: number[]) {
+  const out: number[] = []
+  let i = 0
+  while (i < bytes.length) {
+    const b1 = bytes[i]
+    if (b1 < 0b10000000) {
+      // 0xxxxxx
+      i++
+      out.push(b1)
+      continue
     }
+
+    // 10xxxxxx - continuation byte [invalid]
+    if (b1 < 0b11000000) {
+      i++
+      continue
+    }
+
+    const b2 = bytes[++i]
+    if (b2 >> 6 !== 2) continue
+    if (b1 < 0b11100000) {
+      // 110xxxxx - 2 byte sequence
+      out.push(
+        (b1 & 0b11111) << 6 | (b2 & 0b111111)
+      )
+      continue
+    }
+
+    const b3 = bytes[++i]
+    if (b3 >> 6 !== 2) continue
+    if (b1 < 0b11110000) {
+      // 1110xxxx - 3 byte sequence
+      out.push(
+        (b1 & 0b1111) << 12 | (b2 & 0b111111) << 6 | b3 & 0b111111
+      )
+      continue
+    }
+
+    const b4 = bytes[++i]
+    if (b4 >> 6 !== 2) continue
+    // 11110xxx - 4 byte sequence
+    out.push(
+      (b1 & 0b111) << 18 | (b2 & 0b111111) << 12 | (b3 & 0b111111) << 6 | b4 & 0b111111
+    )
   }
-  return out.join('')
+  return out
 }
