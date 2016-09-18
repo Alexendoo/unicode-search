@@ -28,15 +28,14 @@ export function codePointToChar(code: number): string {
  * Convert a JS character to a codepoint, accounting for
  * surrogate pairs
  *
- * @export
- * @param {string} str
- * @returns {number}
+ * @param char a character (may be a surrogate pair)
+ * @returns codepoint of char
  */
-export function charToCodePoint(str: string): number {
-  const code = str.charCodeAt(0)
-  if (str.length > 1 && code >= 0xD800 && code <= 0xDBFF) {
+export function charToCodePoint(char: string): number {
+  const code = char.charCodeAt(0)
+  if (char.length > 1 && code >= 0xD800 && code <= 0xDBFF) {
     // code is a high surrogate
-    const low = str.charCodeAt(1)
+    const low = char.charCodeAt(1)
     return (code - 0xD800) * 0x400 + low - 0xDC00 + 0x10000
   } else {
     return code
