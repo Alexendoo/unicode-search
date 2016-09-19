@@ -2,15 +2,15 @@ body {
   padding: 0;
   margin: 0;
   font-family:
-    emoji,
+    "Open Sans",
+    Roboto,
     "Apple Color Emoji",
-    "Noto Color Emoji",
-    "Segoe UI Emoji",
     -apple-system,
     BlinkMacSystemFont,
-    "Open Sans",
+    "Segoe UI Emoji",
+    "Emoji One",
+    "Noto Color Emoji",
     "Segoe UI",
-    Roboto,
     "Helvetica Neue",
     arial,
     "Courier New",
