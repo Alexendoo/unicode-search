@@ -18,6 +18,7 @@ body {
     "Noto Sans",
     sans-serif;
   text-rendering: optimizeLegibility;
+  overflow-y: scroll;
 }
 
 *, *:after, *:before {
