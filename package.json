@@ -9,6 +9,7 @@
     "url": "https://github.com/Alexendoo/utf.git"
   },
   "devDependencies": {
+    "prettier": "^1.7.4",
     "typescript": "^2.5.3"
   },
   "scripts": {}
