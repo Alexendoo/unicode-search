@@ -10,9 +10,11 @@
   },
   "devDependencies": {
     "prettier": "^1.7.4",
-    "typescript": "^2.5.3"
+    "ts-loader": "^3.1.0",
+    "typescript": "^2.5.3",
+    "webpack": "^3.8.1"
   },
   "scripts": {
-    "format": "prettier --write 'src/**/*.{css,json,ts,js}'"
+    "format": "prettier --write '**/*.{css,json,ts,js}'"
   }
 }
