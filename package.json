@@ -16,6 +16,6 @@
     "webpack": "^3.8.1"
   },
   "scripts": {
-    "format": "prettier --write '**/*.{css,json,ts,js}'"
+    "format": "prettier --write \"**/*.{css,json,ts,js}\""
   }
 }
