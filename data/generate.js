@@ -92,8 +92,32 @@ function isDerived(code) {
   })
 }
 
-saxStream.on("opentag", node => {
-  if (node.name !== "block") return
-})
+// Blocks
+{
+  const blocks = []
+
+  saxStream.on("opentag", node => {
+    if (node.name !== "block") return
+    const attr = node.attributes
+
+    blocks.push({
+      name: attr.name,
+      start: parseInt(attr["first-cp"], 16),
+      end: parseInt(attr["last-cp"], 16),
+    })
+  })
+
+  saxStream.on("closetag", nodeName => {
+    if (nodeName !== "blocks") return
+
+    const json = JSON.stringify(blocks, null, 2)
+
+    fs.writeFile(
+      path.join(__dirname, "../src/json/blocks.json"),
+      json,
+      assert.ifError,
+    )
+  })
+}
 
 fs.createReadStream(path.join(__dirname, "ucd.all.flat.xml")).pipe(saxStream)
