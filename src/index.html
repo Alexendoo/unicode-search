@@ -4,18 +4,18 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="bundle.css">
+  <link href="bundle.css" rel="stylesheet">
   <title>Character information</title>
 </head>
 
 <body>
-  <input id="chars" type="text" name="chars" value="" maxlength="1000" autofocus>
+  <input id="chars" name="chars" type="text" value maxlength="1000" autofocus>
   <div class="types">
-    <input type="radio" name="type" id="radio--chars" value="chars" checked>
+    <input id="radio--chars" name="type" type="radio" value="chars" checked>
     <label for="radio--chars">chars</label>
-    <input type="radio" name="type" id="radio--name" value="name">
+    <input id="radio--name" name="type" type="radio" value="name">
     <label for="radio--name">name</label>
-    <input type="radio" name="type" id="radio--bytes" value="bytes">
+    <input id="radio--bytes" name="type" type="radio" value="bytes">
     <label for="radio--bytes">bytes</label>
   </div>
   <main></main>
@@ -45,7 +45,6 @@
     </table>
     </div>
   </template>
-  <script src="index.js"></script>
 </body>
 
 </html>

@@ -1,5 +1,3 @@
-/// <reference path="../../../node_modules/typescript/lib/lib.webworker.d.ts" />
-
 import { InputMessage, TickMessage, WorkerMessage } from "../messages"
 import { State } from "./state"
 import { getCommunicator } from "./communicator"

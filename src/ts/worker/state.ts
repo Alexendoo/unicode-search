@@ -2,8 +2,8 @@ import { getCommunicator } from "./communicator"
 
 interface IBlock {
   name: string
-  start: string
-  end: string
+  start: number
+  end: number
 }
 
 interface INames {
@@ -15,8 +15,13 @@ export abstract class State {
   public static blocks: Array<IBlock>
 
   static initialise() {
-    request("names.json", json => (State.names = JSON.parse(json)))
-    request("blocks.json", json => (State.blocks = JSON.parse(json)))
+    import("../../data/blocks").then(blocks => {
+      State.blocks = blocks.default
+    })
+
+    import("../../data/names").then(names => {
+      State.names = names.default
+    })
   }
 }
 

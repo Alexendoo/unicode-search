@@ -1,5 +1,3 @@
-/// <reference path="../../../node_modules/typescript/lib/lib.d.ts" />
-
 import {
   BrowserMessage,
   InputMessage,
@@ -8,6 +6,8 @@ import {
   TickMessage,
   InputType,
 } from "../messages"
+
+import NameWorker from "worker-loader!../worker/worker"
 
 const input = document.getElementById("chars") as HTMLInputElement
 const template = document.getElementById(
@@ -33,7 +33,8 @@ for (let i = 0; i < radios.length; i++) {
   })
 }
 
-const worker = new Worker("worker.js")
+console.log(NameWorker)
+const worker = new NameWorker()
 sendInput()
 
 // if ('serviceWorker' in navigator) {

@@ -1,17 +1,18 @@
 const path = require("path")
 const webpack = require("webpack")
 const rimraf = require("rimraf")
+const HtmlWebpackPlugin = require("html-webpack-plugin")
 
-const resolve = (...pathSegments) => path.resolve(__dirname, ...pathSegments)
+const dir = (...pathSegments) => path.resolve(__dirname, ...pathSegments)
 
 rimraf.sync("./dist/*")
 
 module.exports = {
-  entry: { main: "./src/ts/index/index", worker: "./src/ts/worker/worker" },
+  entry: "./src/ts/index/index.ts",
 
   output: {
-    path: resolve("dist"),
-    filename: "[name].[chunkhash].js",
+    path: dir("dist"),
+    filename: "[name].[hash].js",
   },
 
   resolve: {
@@ -28,7 +29,11 @@ module.exports = {
     ],
   },
 
-  devtool: "source-map",
+  // devtool: "source-map",
 
-  plugins: [],
+  plugins: [
+    new HtmlWebpackPlugin({
+      template: "src/index.html",
+    }),
+  ],
 }
