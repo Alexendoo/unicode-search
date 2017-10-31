@@ -7,7 +7,7 @@ import {
   InputType,
 } from "../messages"
 
-import NameWorker from "worker-loader!../worker/worker"
+import NameWorker from "worker-loader?name=[name].[hash].js!../worker/worker"
 
 const input = document.getElementById("chars") as HTMLInputElement
 const template = document.getElementById(

@@ -1,7 +1,7 @@
-const path = require("path")
-const webpack = require("webpack")
-const rimraf = require("rimraf")
 const HtmlWebpackPlugin = require("html-webpack-plugin")
+const path = require("path")
+const rimraf = require("rimraf")
+const webpack = require("webpack")
 
 const dir = (...pathSegments) => path.resolve(__dirname, ...pathSegments)
 
@@ -12,7 +12,7 @@ module.exports = {
 
   output: {
     path: dir("dist"),
-    filename: "[name].[hash].js",
+    filename: "[name].[chunkhash].js",
   },
 
   resolve: {
@@ -35,5 +35,6 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: "src/index.html",
     }),
+    new webpack.HashedModuleIdsPlugin(),
   ],
 }

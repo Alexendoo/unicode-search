@@ -1,4 +1,4 @@
-declare module "worker-loader!*" {
+declare module "worker-loader*" {
   interface loadedWorker {
     new (): Worker
   }
