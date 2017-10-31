@@ -8,6 +8,8 @@ const sax = require("sax")
 
 const saxStream = sax.createStream(true)
 
+const dir = (...pathSegments) => path.resolve(__dirname, ...pathSegments)
+
 // https://www.unicode.org/versions/Unicode10.0.0/ch04.pdf
 // Table 4-8. Name Derivation Rule Prefix Strings
 const nameDerivationRules = [
@@ -26,6 +28,8 @@ const nameDerivationRules = [
   { start: 0x2f800, end: 0x2fa1d, prefix: "CJK COMPATIBILITY IDEOGRAPH-" },
 ]
 
+const filePrefix = `export default `
+
 /**
  * @param {number} code
  */
@@ -37,9 +41,7 @@ function isDerived(code) {
 
 // Characters
 {
-  const namesBase = {
-    names: {},
-  }
+  const names = {}
 
   let char = {
     code: -1,
@@ -73,7 +75,7 @@ function isDerived(code) {
   saxStream.on("closetag", nodeName => {
     if (nodeName !== "char" || isDerived(char.code) || char.code === -1) return
 
-    namesBase.names[char.code] = char.name
+    names[char.code] = char.name
 
     char = {
       code: -1,
@@ -84,27 +86,23 @@ function isDerived(code) {
   saxStream.on("closetag", nodeName => {
     if (nodeName !== "repertoire") return
 
-    const json = JSON.stringify(namesBase, null, 2)
+    const json = JSON.stringify(names, null, 2)
+    const namesPath = dir("../src/data/names.ts")
 
-    fs.writeFile(
-      path.join(__dirname, "../src/json/names.json"),
-      json,
-      assert.ifError,
-    )
+    fs.writeFileSync(namesPath, filePrefix)
+    fs.appendFileSync(namesPath, json)
   })
 }
 
 // Blocks
 {
-  const blocksBase = {
-    blocks: [],
-  }
+  const blocks = []
 
   saxStream.on("opentag", node => {
     if (node.name !== "block") return
     const attr = node.attributes
 
-    blocksBase.blocks.push({
+    blocks.push({
       name: attr.name,
       start: parseInt(attr["first-cp"], 16),
       end: parseInt(attr["last-cp"], 16),
@@ -114,14 +112,12 @@ function isDerived(code) {
   saxStream.on("closetag", nodeName => {
     if (nodeName !== "blocks") return
 
-    const json = JSON.stringify(blocksBase, null, 2)
+    const json = JSON.stringify(blocks, null, 2)
+    const blocksPath = dir("../src/data/blocks.ts")
 
-    fs.writeFile(
-      path.join(__dirname, "../src/json/blocks.json"),
-      json,
-      assert.ifError,
-    )
+    fs.writeFileSync(blocksPath, filePrefix)
+    fs.appendFileSync(blocksPath, json)
   })
 }
 
-fs.createReadStream(path.join(__dirname, "ucd.all.flat.xml")).pipe(saxStream)
+fs.createReadStream(dir("ucd.all.flat.xml")).pipe(saxStream)
