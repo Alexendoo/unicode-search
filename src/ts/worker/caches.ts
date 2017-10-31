@@ -2,9 +2,9 @@ import {
   arrayStartsWith,
   codePointToChar,
   stringToCharArray,
-  utf8ByteArrayToCodePoints
-} from '../util'
-import { State } from './state'
+  utf8ByteArrayToCodePoints,
+} from "../util"
+import { State } from "./state"
 
 interface ICharCache {
   part: string[]
@@ -36,17 +36,17 @@ export class ByteCache implements ICache {
 
   update(input: string): boolean {
     // strip whitespace
-    input = input.replace(/\s/g, '')
+    input = input.replace(/\s/g, "")
 
     // ignore non-hex inputs
     this.valid = /^[0-9a-f]{2,}$/i.test(input)
     if (!this.valid) return true
 
-    const bytes = input.match(/../g)
-      .map(byte => parseInt(byte, 16))
+    const bytes = input.match(/../g).map(byte => parseInt(byte, 16))
 
-    this.chars = utf8ByteArrayToCodePoints(bytes)
-      .map(code => codePointToChar(code))
+    this.chars = utf8ByteArrayToCodePoints(bytes).map(code =>
+      codePointToChar(code),
+    )
 
     return true
   }
@@ -65,7 +65,7 @@ export class CharCache implements ICache {
     if (this.cache === undefined) {
       this.cache = {
         part: chars,
-        full: chars.slice()
+        full: chars.slice(),
       }
       return true
     } else if (arrayStartsWith(chars, this.cache.full)) {
@@ -76,7 +76,7 @@ export class CharCache implements ICache {
     } else {
       this.cache = {
         part: chars,
-        full: chars.slice()
+        full: chars.slice(),
       }
       return true
     }

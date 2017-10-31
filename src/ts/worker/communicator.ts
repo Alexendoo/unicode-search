@@ -1,6 +1,6 @@
-import { InputType } from '../messages'
-import { ICache, ByteCache, CharCache, NameCache } from './caches'
-import { sendClear, sendCharacter } from './senders'
+import { InputType } from "../messages"
+import { ICache, ByteCache, CharCache, NameCache } from "./caches"
+import { sendClear, sendCharacter } from "./senders"
 
 let mCommunicator: ICommunicator
 
@@ -15,13 +15,13 @@ let mCommunicator: ICommunicator
 export function getCommunicator(type?: InputType): ICommunicator {
   if (mCommunicator && mCommunicator.type === type) return mCommunicator
   switch (type) {
-    case 'bytes':
+    case "bytes":
       mCommunicator = new Communicator(ByteCache, type)
       break
-    case 'chars':
+    case "chars":
       mCommunicator = new Communicator(CharCache, type)
       break
-    case 'name':
+    case "name":
       mCommunicator = new Communicator(NameCache, type)
       break
   }
@@ -57,10 +57,10 @@ class Communicator<T extends ICache> implements ICommunicator {
   public type: InputType
 
   private Cache: T
-  private CacheType: new() => T
+  private CacheType: new () => T
   private input: string
 
-  constructor(CacheType: new() => T, type: InputType) {
+  constructor(CacheType: new () => T, type: InputType) {
     this.type = type
 
     this.Cache = new CacheType()

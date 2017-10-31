@@ -1,10 +1,10 @@
-import { ClearMessage, DisplayMessage } from '../messages'
-import { State } from './state'
-import { charToCodePoint, stringToUtf8ByteArray } from '../util'
+import { ClearMessage, DisplayMessage } from "../messages"
+import { State } from "./state"
+import { charToCodePoint, stringToUtf8ByteArray } from "../util"
 
 export function sendClear() {
   const message: ClearMessage = {
-    action: 'clear'
+    action: "clear",
   }
 
   postMessage(message)
@@ -20,33 +20,34 @@ export function sendCharacter(input?: string) {
   const block = getBlock(codePoint)
   const bytes = getBytes(input)
   const character = input
-  const name = (State.names) ? State.names[codePoint] || 'Unknown' : 'Loading…'
+  const name = State.names ? State.names[codePoint] || "Unknown" : "Loading…"
 
   const message: DisplayMessage = {
-    action: 'display',
+    action: "display",
     block: block,
     bytes: bytes,
     character: character,
     codePoint: codePoint,
-    name: name
+    name: name,
   }
 
   postMessage(message)
 }
 
 function getBlock(codePoint: number): string {
-  if (!State.blocks) return 'Loading…'
+  if (!State.blocks) return "Loading…"
 
   for (const block of State.blocks) {
-    if (codePoint >= Number(block.start) && codePoint <= Number(block.end)) return block.name
+    if (codePoint >= Number(block.start) && codePoint <= Number(block.end))
+      return block.name
   }
 
-  return 'Unknown'
+  return "Unknown"
 }
 
 function getBytes(input: string): string {
   return stringToUtf8ByteArray(input)
     .map(byte => byte.toString(16).toUpperCase())
-    .map(byte => byte.length < 2 ? '0' + byte : byte)
-    .join(' ')
+    .map(byte => (byte.length < 2 ? "0" + byte : byte))
+    .join(" ")
 }

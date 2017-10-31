@@ -18,8 +18,8 @@ export function codePointToChar(code: number): string {
     return String.fromCharCode(code)
   } else {
     code -= 0x10000
-    const high = Math.floor(code >> 10) + 0xD800
-    const low = code % 0x400 + 0xDC00
+    const high = Math.floor(code >> 10) + 0xd800
+    const low = code % 0x400 + 0xdc00
     return String.fromCharCode(high, low)
   }
 }
@@ -33,10 +33,10 @@ export function codePointToChar(code: number): string {
  */
 export function charToCodePoint(char: string): number {
   const code = char.charCodeAt(0)
-  if (char.length > 1 && code >= 0xD800 && code <= 0xDBFF) {
+  if (char.length > 1 && code >= 0xd800 && code <= 0xdbff) {
     // code is a high surrogate
     const low = char.charCodeAt(1)
-    return (code - 0xD800) * 0x400 + low - 0xDC00 + 0x10000
+    return (code - 0xd800) * 0x400 + low - 0xdc00 + 0x10000
   } else {
     return code
   }
@@ -52,7 +52,7 @@ export function stringToCharArray(str: string): string[] {
   const out: string[] = []
   for (let i = 0; i < str.length; i++) {
     const code = str.charCodeAt(i)
-    if (code >= 0xD800 && code <= 0xDBFF) {
+    if (code >= 0xd800 && code <= 0xdbff) {
       // code is a high surrogate
       out.push(str.substr(i++, 2))
     } else {
@@ -82,10 +82,12 @@ export function stringToUtf8ByteArray(str: string): number[] {
       out[p++] = (code >> 6) | 192
       out[p++] = (code & 63) | 128
     } else if (
-        ((code & 0xFC00) === 0xD800) && (i + 1) < str.length &&
-        ((str.charCodeAt(i + 1) & 0xFC00) === 0xDC00)) {
+      (code & 0xfc00) === 0xd800 &&
+      i + 1 < str.length &&
+      (str.charCodeAt(i + 1) & 0xfc00) === 0xdc00
+    ) {
       // Surrogate Pair
-      code = 0x10000 + ((code & 0x03FF) << 10) + (str.charCodeAt(++i) & 0x03FF);
+      code = 0x10000 + ((code & 0x03ff) << 10) + (str.charCodeAt(++i) & 0x03ff)
       out[p++] = (code >> 18) | 240
       out[p++] = ((code >> 12) & 63) | 128
       out[p++] = ((code >> 6) & 63) | 128
@@ -133,9 +135,7 @@ export function utf8ByteArrayToCodePoints(bytes: number[]) {
     if (b2 >> 6 !== 2) continue
     if (b1 < 0b11100000) {
       // 110xxxxx - 2 byte sequence
-      out.push(
-        (b1 & 0b11111) << 6 | (b2 & 0b111111)
-      )
+      out.push(((b1 & 0b11111) << 6) | (b2 & 0b111111))
       continue
     }
 
@@ -143,9 +143,7 @@ export function utf8ByteArrayToCodePoints(bytes: number[]) {
     if (b3 >> 6 !== 2) continue
     if (b1 < 0b11110000) {
       // 1110xxxx - 3 byte sequence
-      out.push(
-        (b1 & 0b1111) << 12 | (b2 & 0b111111) << 6 | b3 & 0b111111
-      )
+      out.push(((b1 & 0b1111) << 12) | ((b2 & 0b111111) << 6) | (b3 & 0b111111))
       continue
     }
 
@@ -153,7 +151,10 @@ export function utf8ByteArrayToCodePoints(bytes: number[]) {
     if (b4 >> 6 !== 2) continue
     // 11110xxx - 4 byte sequence
     out.push(
-      (b1 & 0b111) << 18 | (b2 & 0b111111) << 12 | (b3 & 0b111111) << 6 | b4 & 0b111111
+      ((b1 & 0b111) << 18) |
+        ((b2 & 0b111111) << 12) |
+        ((b3 & 0b111111) << 6) |
+        (b4 & 0b111111),
     )
   }
   return out

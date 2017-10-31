@@ -2,6 +2,7 @@
   "compilerOptions": {
     "noFallthroughCasesInSwitch": true,
     "noImplicitAny": true,
+    "sourceMap": true,
     "target": "es5"
   }
 }

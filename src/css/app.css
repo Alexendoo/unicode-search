@@ -1,27 +1,17 @@
 body {
   padding: 0;
   margin: 0;
-  font-family:
-    "Open Sans",
-    Roboto,
-    "Apple Color Emoji",
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI Emoji",
-    "Emoji One",
-    "Noto Color Emoji",
-    "Segoe UI",
-    "Helvetica Neue",
-    arial,
-    "Courier New",
-    "DejaVu Sans",
-    "Noto Sans",
-    sans-serif;
+  font-family: "Open Sans", Roboto, "Apple Color Emoji", -apple-system,
+    BlinkMacSystemFont, "Segoe UI Emoji", "Emoji One", "Noto Color Emoji",
+    "Segoe UI", "Helvetica Neue", arial, "Courier New", "DejaVu Sans",
+    "Noto Sans", sans-serif;
   text-rendering: optimizeLegibility;
   overflow-y: scroll;
 }
 
-*, *:after, *:before {
+*,
+*:after,
+*:before {
   box-sizing: border-box;
 }
 
@@ -59,7 +49,8 @@ body {
   transition: color 0.2s, background-color 0.2s;
 }
 
-.types label:hover, .types input:focus + label {
+.types label:hover,
+.types input:focus + label {
   color: #414141;
   background: #f9f9f9;
 }
@@ -87,7 +78,7 @@ main {
 
 .char--details::before {
   display: block;
-  content: '';
+  content: "";
   width: 88px;
   margin: 16px auto 13px;
   border-bottom: 1px solid #aaa;
