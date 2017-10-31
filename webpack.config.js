@@ -1,11 +1,16 @@
 const path = require("path")
 const webpack = require("webpack")
+const rimraf = require("rimraf")
+
+const resolve = (...pathSegments) => path.resolve(__dirname, ...pathSegments)
+
+rimraf.sync("./dist/*")
 
 module.exports = {
   entry: { main: "./src/ts/index/index", worker: "./src/ts/worker/worker" },
 
   output: {
-    path: path.resolve(__dirname, "dist"),
+    path: resolve("dist"),
     filename: "[name].[chunkhash].js",
   },
 
