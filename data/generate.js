@@ -37,7 +37,9 @@ function isDerived(code) {
 
 // Characters
 {
-  const names = {}
+  const namesBase = {
+    names: {},
+  }
 
   let char = {
     code: -1,
@@ -71,7 +73,7 @@ function isDerived(code) {
   saxStream.on("closetag", nodeName => {
     if (nodeName !== "char" || isDerived(char.code) || char.code === -1) return
 
-    names[char.code] = char.name
+    namesBase.names[char.code] = char.name
 
     char = {
       code: -1,
@@ -82,7 +84,7 @@ function isDerived(code) {
   saxStream.on("closetag", nodeName => {
     if (nodeName !== "repertoire") return
 
-    const json = JSON.stringify(names, null, 2)
+    const json = JSON.stringify(namesBase, null, 2)
 
     fs.writeFile(
       path.join(__dirname, "../src/json/names.json"),
@@ -94,13 +96,15 @@ function isDerived(code) {
 
 // Blocks
 {
-  const blocks = []
+  const blocksBase = {
+    blocks: [],
+  }
 
   saxStream.on("opentag", node => {
     if (node.name !== "block") return
     const attr = node.attributes
 
-    blocks.push({
+    blocksBase.blocks.push({
       name: attr.name,
       start: parseInt(attr["first-cp"], 16),
       end: parseInt(attr["last-cp"], 16),
@@ -110,7 +114,7 @@ function isDerived(code) {
   saxStream.on("closetag", nodeName => {
     if (nodeName !== "blocks") return
 
-    const json = JSON.stringify(blocks, null, 2)
+    const json = JSON.stringify(blocksBase, null, 2)
 
     fs.writeFile(
       path.join(__dirname, "../src/json/blocks.json"),
