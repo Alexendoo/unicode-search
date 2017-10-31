@@ -53,13 +53,9 @@ worker.onmessage = function({ data: message }: { data: BrowserMessage }) {
   }
 }
 
-document.addEventListener(
-  "scroll",
-  () => {
-    if (needsEntries()) sendTick()
-  },
-  { passive: true },
-)
+document.addEventListener("scroll", () => {
+  if (needsEntries()) sendTick()
+})
 
 function isClear(message: BrowserMessage): message is ClearMessage {
   return message.action === "clear"
@@ -132,5 +128,5 @@ function polyfillTemplate(template: HTMLTemplateElement) {
     fragment.appendChild(content[0])
   }
 
-  template.content = fragment
+  template.content! = fragment
 }
