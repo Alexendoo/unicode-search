@@ -9,6 +9,8 @@
     "url": "https://github.com/Alexendoo/utf.git"
   },
   "devDependencies": {
+    "extract-loader": "^1.0.1",
+    "file-loader": "^1.1.5",
     "html-webpack-plugin": "^2.30.1",
     "prettier": "^1.7.4",
     "rimraf": "^2.6.2",
