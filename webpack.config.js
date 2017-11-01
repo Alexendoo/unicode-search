@@ -1,3 +1,4 @@
+const ExtractTextPlugin = require("extract-text-webpack-plugin")
 const HtmlWebpackPlugin = require("html-webpack-plugin")
 const path = require("path")
 const rimraf = require("rimraf")
@@ -26,6 +27,12 @@ module.exports = {
         loader: "ts-loader",
         options: { transpileOnly: true },
       },
+      {
+        test: /\.css$/,
+        use: ExtractTextPlugin.extract({
+          use: "css-loader",
+        }),
+      },
     ],
   },
 
@@ -34,7 +41,11 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       template: "src/index.ejs",
+      minify: {
+        collapseWhitespace: true,
+      },
     }),
     new webpack.HashedModuleIdsPlugin(),
+    new ExtractTextPlugin("styles.css"),
   ],
 }

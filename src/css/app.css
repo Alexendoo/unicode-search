@@ -1,3 +1,5 @@
+@import "../../node_modules/normalize.css/normalize.css";
+
 body {
   padding: 0;
   margin: 0;
