@@ -46,6 +46,6 @@ module.exports = {
       },
     }),
     new webpack.HashedModuleIdsPlugin(),
-    new ExtractTextPlugin("styles.css"),
+    new ExtractTextPlugin("style.[contenthash].css"),
   ],
 }
