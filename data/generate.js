@@ -28,8 +28,6 @@ const nameDerivationRules = [
   { start: 0x2f800, end: 0x2fa1d, prefix: "CJK COMPATIBILITY IDEOGRAPH-" },
 ]
 
-const filePrefix = `export default `
-
 /**
  * @param {number} code
  */
@@ -83,14 +81,23 @@ function isDerived(code) {
     }
   })
 
+  const template = `
+export interface Names {
+  [codePoint: string]: string
+}
+
+const names: Names = %
+
+export default names
+`
+
   saxStream.on("closetag", nodeName => {
     if (nodeName !== "repertoire") return
 
     const json = JSON.stringify(names, null, 2)
     const namesPath = dir("../src/data/names.ts")
 
-    fs.writeFileSync(namesPath, filePrefix)
-    fs.appendFileSync(namesPath, json)
+    fs.writeFileSync(namesPath, template.replace("%", json))
   })
 }
 
@@ -109,14 +116,25 @@ function isDerived(code) {
     })
   })
 
+  const template = `
+export interface Block {
+  name: string
+  start: number
+  end: number
+}
+
+const blocks: Array<Block> = %
+
+export default blocks
+`
+
   saxStream.on("closetag", nodeName => {
     if (nodeName !== "blocks") return
 
     const json = JSON.stringify(blocks, null, 2)
     const blocksPath = dir("../src/data/blocks.ts")
 
-    fs.writeFileSync(blocksPath, filePrefix)
-    fs.appendFileSync(blocksPath, json)
+    fs.writeFileSync(blocksPath, template.replace("%", json))
   })
 }
 

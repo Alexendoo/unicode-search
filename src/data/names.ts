@@ -1,4 +1,9 @@
-export default {
+
+export interface Names {
+  [codePoint: string]: string
+}
+
+const names: Names = {
   "0": "NULL",
   "1": "START OF HEADING",
   "2": "START OF TEXT",
@@ -30178,3 +30183,5 @@ export default {
   "917998": "VARIATION SELECTOR-255",
   "917999": "VARIATION SELECTOR-256"
 }
+
+export default names

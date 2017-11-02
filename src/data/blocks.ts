@@ -1,4 +1,11 @@
-export default [
+
+export interface Block {
+  name: string
+  start: number
+  end: number
+}
+
+const blocks: Array<Block> = [
   {
     "name": "Basic Latin",
     "start": 0,
@@ -1400,3 +1407,5 @@ export default [
     "end": 1114111
   }
 ]
+
+export default blocks
