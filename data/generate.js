@@ -4,6 +4,7 @@
 const assert = require("assert")
 const fs = require("fs")
 const path = require("path")
+const prettier = require("prettier")
 const sax = require("sax")
 
 const saxStream = sax.createStream(true)
@@ -35,6 +36,26 @@ function isDerived(code) {
   return nameDerivationRules.some(
     range => code >= range.start && code <= range.end,
   )
+}
+
+const prettierConfig = prettier.resolveConfig.sync(dir(".."))
+
+/**
+ * Stamps a template with any data, formats it and writes to path
+ *
+ * @param {string} template - string with % in place of data that should be
+ *                            substituted
+ * @param {any} data
+ * @param {string} path
+ */
+function writeData(template, data, path) {
+  const json = JSON.stringify(data)
+  const formatted = prettier.format(template.replace("%", json), {
+    ...prettierConfig,
+    parser: "typescript",
+  })
+
+  fs.writeFileSync(path, formatted)
 }
 
 // Characters
@@ -94,10 +115,7 @@ export default names
   saxStream.on("closetag", nodeName => {
     if (nodeName !== "repertoire") return
 
-    const json = JSON.stringify(names, null, 2)
-    const namesPath = dir("../src/data/names.ts")
-
-    fs.writeFileSync(namesPath, template.replace("%", json))
+    writeData(template, names, dir("../src/data/names.ts"))
   })
 }
 
@@ -131,10 +149,7 @@ export default blocks
   saxStream.on("closetag", nodeName => {
     if (nodeName !== "blocks") return
 
-    const json = JSON.stringify(blocks, null, 2)
-    const blocksPath = dir("../src/data/blocks.ts")
-
-    fs.writeFileSync(blocksPath, template.replace("%", json))
+    writeData(template, blocks, dir("../src/data/blocks.ts"))
   })
 }
 
