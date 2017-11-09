@@ -7,8 +7,8 @@ import {
   InputType,
 } from "../messages"
 
-import NameWorker from "worker-loader?name=[name].[hash].js!../worker/worker"
 import "../../css/app.css"
+import "../../index.html"
 
 const input = document.getElementById("chars") as HTMLInputElement
 const template = document.getElementById(
@@ -34,8 +34,7 @@ for (let i = 0; i < radios.length; i++) {
   })
 }
 
-console.log(NameWorker)
-const worker = new NameWorker()
+const worker = new Worker("worker.js")
 sendInput()
 
 // if ('serviceWorker' in navigator) {

@@ -1,19 +1,14 @@
 const ExtractTextPlugin = require("extract-text-webpack-plugin")
 const HtmlWebpackPlugin = require("html-webpack-plugin")
 const path = require("path")
-const rimraf = require("rimraf")
 const webpack = require("webpack")
 
 const dir = (...pathSegments) => path.resolve(__dirname, ...pathSegments)
 
-rimraf.sync("./dist/*")
-
-module.exports = {
-  entry: "./src/ts/index/index.ts",
-
+const base = {
   output: {
     path: dir("dist"),
-    filename: "[name].[chunkhash].js",
+    filename: "[name].js",
   },
 
   resolve: {
@@ -27,25 +22,66 @@ module.exports = {
         loader: "ts-loader",
         options: { transpileOnly: true },
       },
+    ],
+  },
+}
+
+const web = {
+  ...base,
+
+  target: "web",
+
+  entry: "./src/ts/index/index.ts",
+
+  module: {
+    rules: [
+      ...base.module.rules,
       {
         test: /\.css$/,
         use: ExtractTextPlugin.extract({
           use: "css-loader",
         }),
       },
+      {
+        test: /\.html$/,
+        use: [
+          {
+            loader: "file-loader",
+            options: {
+              name: "[name].[ext]",
+            },
+          },
+          {
+            loader: "extract-loader",
+          },
+          {
+            loader: "html-loader",
+            options: {
+              minimize: true,
+              conservativeCollapse: false,
+            },
+          },
+        ],
+      },
     ],
   },
 
-  // devtool: "source-map",
-
-  plugins: [
-    new HtmlWebpackPlugin({
-      template: "src/index.ejs",
-      minify: {
-        collapseWhitespace: true,
-      },
-    }),
-    new webpack.HashedModuleIdsPlugin(),
-    new ExtractTextPlugin("style.[contenthash].css"),
-  ],
+  plugins: [new ExtractTextPlugin("style.css")],
 }
+
+const worker = {
+  ...base,
+
+  target: "webworker",
+
+  entry: {
+    worker: "./src/ts/worker/worker.ts",
+  },
+
+  output: {
+    ...base.output,
+    chunkFilename: "worker.[id].js",
+  },
+}
+
+module.exports = [web, worker]
