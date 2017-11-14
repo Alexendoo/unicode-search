@@ -1,19 +1,18 @@
 import { InputMessage } from "./messages"
-import names from "../../data/names"
+import names from "../data/names"
 
 onmessage = event => {
-  const data: InputMessage = event.data
-  const input = data.input.toUpperCase()
+  const message: InputMessage = event.data
 
   const start = performance.now()
 
   for (const codepoint in names) {
     const char = names[codepoint]
 
-    if (char.includes(input)) {
+    if (char.includes(message.input)) {
       postMessage(codepoint)
     }
   }
 
-  console.log(performance.now() - start)
+  console.log("searched for", message.input, "in", performance.now() - start)
 }

@@ -10,6 +10,7 @@ const sax = require("sax")
 const saxStream = sax.createStream(true)
 
 const dir = (...pathSegments) => path.resolve(__dirname, ...pathSegments)
+const dataDir = (...pathSegments) => dir("../src/ts/data", ...pathSegments)
 
 // https://www.unicode.org/versions/Unicode10.0.0/ch04.pdf
 // Table 4-8. Name Derivation Rule Prefix Strings
@@ -115,7 +116,7 @@ export default names
   saxStream.on("closetag", nodeName => {
     if (nodeName !== "repertoire") return
 
-    writeData(template, names, dir("../src/data/names.ts"))
+    writeData(template, names, dataDir("names.ts"))
   })
 }
 
@@ -149,7 +150,7 @@ export default blocks
   saxStream.on("closetag", nodeName => {
     if (nodeName !== "blocks") return
 
-    writeData(template, blocks, dir("../src/data/blocks.ts"))
+    writeData(template, blocks, dataDir("blocks.ts"))
   })
 }
 
