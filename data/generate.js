@@ -108,9 +108,7 @@ export interface Names {
   [codePoint: string]: string
 }
 
-const names: Names = %
-
-export default names
+export const names: Names = %
 `
 
   saxStream.on("closetag", nodeName => {
@@ -142,9 +140,7 @@ export interface Block {
   end: number
 }
 
-const blocks: Array<Block> = %
-
-export default blocks
+export const blocks: Array<Block> = %
 `
 
   saxStream.on("closetag", nodeName => {

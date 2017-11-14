@@ -1,5 +1,5 @@
 import { InputMessage } from "./messages"
-import names from "../data/names"
+import { names } from "../data/names"
 
 onmessage = event => {
   const message: InputMessage = event.data

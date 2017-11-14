@@ -2,7 +2,7 @@ export interface Names {
   [codePoint: string]: string
 }
 
-const names: Names = {
+export const names: Names = {
   "0": "NULL",
   "1": "START OF HEADING",
   "2": "START OF TEXT",
@@ -30236,5 +30236,3 @@ const names: Names = {
   "917998": "VARIATION SELECTOR-255",
   "917999": "VARIATION SELECTOR-256",
 }
-
-export default names
