@@ -1,5 +1,4 @@
 const ExtractTextPlugin = require("extract-text-webpack-plugin")
-const HtmlWebpackPlugin = require("html-webpack-plugin")
 const path = require("path")
 const webpack = require("webpack")
 
@@ -26,7 +25,10 @@ const base = {
   },
 }
 
-const web = {
+const extractCSS = new ExtractTextPlugin("style.css")
+const extractHTML = new ExtractTextPlugin("index.html")
+
+const mainThread = {
   ...base,
 
   target: "web",
@@ -38,35 +40,26 @@ const web = {
       ...base.module.rules,
       {
         test: /\.css$/,
-        use: ExtractTextPlugin.extract({
+        use: extractCSS.extract({
           use: "css-loader",
         }),
       },
       {
         test: /\.html$/,
-        use: [
-          {
-            loader: "file-loader",
-            options: {
-              name: "[name].[ext]",
-            },
-          },
-          {
-            loader: "extract-loader",
-          },
-          {
+        use: extractHTML.extract({
+          use: {
             loader: "html-loader",
             options: {
               minimize: true,
               conservativeCollapse: false,
             },
           },
-        ],
+        }),
       },
     ],
   },
 
-  plugins: [new ExtractTextPlugin("style.css")],
+  plugins: [extractCSS, extractHTML],
 }
 
 const worker = {
@@ -84,4 +77,4 @@ const worker = {
   },
 }
 
-module.exports = [web, worker]
+module.exports = [mainThread, worker]
