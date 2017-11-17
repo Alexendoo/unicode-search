@@ -1,15 +1,15 @@
-import { InputMessage } from "./messages"
+import { InputMessage, CharMessage } from "./messages"
 import { names } from "../data/names"
 
 let tagMemory: Uint32Array
 let countMemory: Int32Array
 
 onmessage = event => {
-  const message: InputMessage | SharedArrayBuffer = event.data
+  const input: InputMessage | SharedArrayBuffer = event.data
 
-  if (message instanceof SharedArrayBuffer) {
-    tagMemory = new Uint32Array(message, 0, 1)
-    countMemory = new Int32Array(message, 4, 1)
+  if (input instanceof SharedArrayBuffer) {
+    tagMemory = new Uint32Array(input, 0, 1)
+    countMemory = new Int32Array(input, 4, 1)
     return
   }
 
@@ -18,21 +18,23 @@ onmessage = event => {
   let sent = 0
 
   for (const codepoint in names) {
-    if (Atomics.load(tagMemory, 0) !== message.tag) {
+    if (Atomics.load(tagMemory, 0) !== input.tag) {
       break
     }
 
     const char = names[codepoint]
 
-    if (char.includes(message.input)) {
-      postMessage({
+    if (char.includes(input.input)) {
+      const message: CharMessage = {
         codepoint: parseInt(codepoint, 10),
-        tag: message.tag,
-      })
+        tag: input.tag,
+      }
+
+      postMessage(message)
       sent += 1
       Atomics.wait(countMemory, 0, sent)
     }
   }
 
-  console.log("searched for", message.input, "in", performance.now() - start)
+  console.log("searched for", input.input, "in", performance.now() - start)
 }
