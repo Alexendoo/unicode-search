@@ -60,9 +60,9 @@ function writeData(template, data, path) {
 
 // Characters
 {
-  const names = {}
+  const names = []
 
-  let char = {
+  const char = {
     code: -1,
     name: "",
   }
@@ -94,20 +94,16 @@ function writeData(template, data, path) {
   saxStream.on("closetag", nodeName => {
     if (nodeName !== "char" || isDerived(char.code) || char.code === -1) return
 
-    names[char.code] = char.name
+    names.push([char.code, char.name])
 
-    char = {
-      code: -1,
-      name: "",
-    }
+    char.code = -1
+    char.name = ""
   })
 
   const template = `
-export interface Names {
-  [codePoint: number]: string
-}
+export type Names = Map<number, string>
 
-export const names: Names = %
+export const names: Names = new Map(%)
 `
 
   saxStream.on("closetag", nodeName => {

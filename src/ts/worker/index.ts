@@ -17,16 +17,17 @@ onmessage = event => {
 
   let sent = 0
 
-  for (const codepoint in names) {
+  for (const kv of names) {
+    const codepoint = kv[0]
+    const char = kv[1]
+
     if (Atomics.load(tagMemory, 0) !== input.tag) {
       break
     }
 
-    const char = names[codepoint]
-
     if (char.includes(input.input)) {
       const message: CharMessage = {
-        codepoint: parseInt(codepoint, 10),
+        codepoint,
         tag: input.tag,
       }
 
