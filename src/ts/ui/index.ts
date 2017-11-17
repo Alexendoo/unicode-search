@@ -1,6 +1,5 @@
 import "../../files"
 import { InputMessage, CharMessage } from "../worker/messages"
-import { names } from "../data/names"
 
 const sab = new SharedArrayBuffer(2 * Uint32Array.BYTES_PER_ELEMENT)
 const uint32 = new Uint32Array(sab, 0, 1)
@@ -39,7 +38,7 @@ function receiveMessage(event: MessageEvent) {
   app.insertAdjacentHTML(
     "beforeend",
     `
-    <p>${message.codepoint} - ${names.get(message.codepoint)}</p>
+    <p>${message.codepoint}</p>
     `,
   )
 }

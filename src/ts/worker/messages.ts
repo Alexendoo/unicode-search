@@ -1,9 +1,11 @@
-export interface InputMessage {
-  input: string
+export interface Tagged {
   tag: number
 }
 
-export interface CharMessage {
+export interface InputMessage extends Tagged {
+  input: string
+}
+
+export interface CharMessage extends Tagged {
   codepoint: number
-  tag: number
 }
