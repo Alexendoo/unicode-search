@@ -105,7 +105,7 @@ function writeData(template, data, path) {
 
   const template = `
 export interface Names {
-  [codePoint: string]: string
+  [codePoint: number]: string
 }
 
 export const names: Names = %

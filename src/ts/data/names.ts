@@ -1,5 +1,5 @@
 export interface Names {
-  [codePoint: string]: string
+  [codePoint: number]: string
 }
 
 export const names: Names = {
