@@ -38,7 +38,7 @@ function receiveMessage(event: MessageEvent) {
   app.insertAdjacentHTML(
     "beforeend",
     `
-    <p>${message.codepoint}</p>
+    <p>${message.codepoint} - ${message.name}</p>
     `,
   )
 }

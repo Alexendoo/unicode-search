@@ -8,4 +8,5 @@ export interface InputMessage extends Tagged {
 
 export interface CharMessage extends Tagged {
   codepoint: number
+  name: string
 }

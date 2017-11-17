@@ -26,6 +26,7 @@ export function search(input: InputMessage) {
       const message: CharMessage = {
         codepoint,
         tag: input.tag,
+        name: char,
       }
 
       postMessage(message)
