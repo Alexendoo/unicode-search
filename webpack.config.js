@@ -33,7 +33,7 @@ const mainThread = {
 
   target: "web",
 
-  entry: "./src/ts/index/index.ts",
+  entry: "./src/ts/ui",
 
   module: {
     rules: [
@@ -68,7 +68,7 @@ const worker = {
   target: "webworker",
 
   entry: {
-    worker: "./src/ts/worker/worker.ts",
+    worker: "./src/ts/worker",
   },
 
   output: {

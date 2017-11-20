@@ -9,42 +9,10 @@
 </head>
 
 <body>
-  <input id="chars" name="chars" type="text" value maxlength="1000" autofocus>
-  <div class="types">
-    <input id="radio--chars" name="type" type="radio" value="chars" checked>
-    <label for="radio--chars">chars</label>
-    <input id="radio--name" name="type" type="radio" value="name">
-    <label for="radio--name">name</label>
-    <input id="radio--bytes" name="type" type="radio" value="bytes">
-    <label for="radio--bytes">bytes</label>
-  </div>
-  <main></main>
-  <template id="char--template">
-    <div class="char--details">
-    <table>
-      <tr class="detail">
-        <td class="label">Character</td>
-        <td class="value char--literal"></td>
-      </tr>
-      <tr class="detail">
-        <td class="label">Character&nbsp;name</td>
-        <td class="value char--name"></td>
-      </tr>
-      <tr class="detail">
-        <td class="label">Unicode&nbsp;block</td>
-        <td class="value char--block"></td>
-      </tr>
-      <tr class="detail">
-        <td class="label">Code&nbsp;point</td>
-        <td class="value char--code"></td>
-      </tr>
-      <tr class="detail">
-        <td class="label">UTF-8&nbsp;bytes</td>
-        <td class="value char--bytes"></td>
-      </tr>
-    </table>
-    </div>
-  </template>
+  <input id="chars" name="chars" type="text">
+
+  <div id="app"></div>
+
   <script src="main.js"></script>
 </body>
 

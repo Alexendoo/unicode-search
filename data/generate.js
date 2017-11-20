@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 "use strict"
 
 const assert = require("assert")
@@ -10,6 +9,7 @@ const sax = require("sax")
 const saxStream = sax.createStream(true)
 
 const dir = (...pathSegments) => path.resolve(__dirname, ...pathSegments)
+const dataDir = (...pathSegments) => dir("../src/ts/data", ...pathSegments)
 
 // https://www.unicode.org/versions/Unicode10.0.0/ch04.pdf
 // Table 4-8. Name Derivation Rule Prefix Strings
@@ -60,9 +60,9 @@ function writeData(template, data, path) {
 
 // Characters
 {
-  const names = {}
+  const names = []
 
-  let char = {
+  const char = {
     code: -1,
     name: "",
   }
@@ -94,28 +94,22 @@ function writeData(template, data, path) {
   saxStream.on("closetag", nodeName => {
     if (nodeName !== "char" || isDerived(char.code) || char.code === -1) return
 
-    names[char.code] = char.name
+    names.push([char.code, char.name])
 
-    char = {
-      code: -1,
-      name: "",
-    }
+    char.code = -1
+    char.name = ""
   })
 
   const template = `
-export interface Names {
-  [codePoint: string]: string
-}
+export type Names = Map<number, string>
 
-const names: Names = %
-
-export default names
+export const names: Names = new Map(%)
 `
 
   saxStream.on("closetag", nodeName => {
     if (nodeName !== "repertoire") return
 
-    writeData(template, names, dir("../src/data/names.ts"))
+    writeData(template, names, dataDir("names.ts"))
   })
 }
 
@@ -141,15 +135,13 @@ export interface Block {
   end: number
 }
 
-const blocks: Array<Block> = %
-
-export default blocks
+export const blocks: Array<Block> = %
 `
 
   saxStream.on("closetag", nodeName => {
     if (nodeName !== "blocks") return
 
-    writeData(template, blocks, dir("../src/data/blocks.ts"))
+    writeData(template, blocks, dataDir("blocks.ts"))
   })
 }
 

@@ -4,7 +4,7 @@ export interface Block {
   end: number
 }
 
-const blocks: Array<Block> = [
+export const blocks: Array<Block> = [
   { name: "Basic Latin", start: 0, end: 127 },
   { name: "Latin-1 Supplement", start: 128, end: 255 },
   { name: "Latin Extended-A", start: 256, end: 383 },
@@ -298,5 +298,3 @@ const blocks: Array<Block> = [
   { name: "Supplementary Private Use Area-A", start: 983040, end: 1048575 },
   { name: "Supplementary Private Use Area-B", start: 1048576, end: 1114111 },
 ]
-
-export default blocks

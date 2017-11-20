@@ -4,8 +4,8 @@
     "noFallthroughCasesInSwitch": true,
     "noImplicitAny": true,
     "sourceMap": true,
-    "target": "es5",
+    "target": "es2017",
 
-    "lib": ["dom", "es2015", "webworker"]
+    "lib": ["dom", "es2017", "webworker"]
   }
 }
