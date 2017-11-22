@@ -1,4 +1,5 @@
 const ExtractTextPlugin = require("extract-text-webpack-plugin")
+const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin")
 const path = require("path")
 const webpack = require("webpack")
 
@@ -59,7 +60,13 @@ const mainThread = {
     ],
   },
 
-  plugins: [extractCSS, extractHTML],
+  plugins: [
+    new ForkTsCheckerWebpackPlugin({
+      tsconfig: dir("src/ts/tsconfig.json"),
+    }),
+    extractCSS,
+    extractHTML,
+  ],
 }
 
 const worker = {
@@ -75,6 +82,12 @@ const worker = {
     ...base.output,
     chunkFilename: "worker.[id].js",
   },
+
+  plugins: [
+    new ForkTsCheckerWebpackPlugin({
+      tsconfig: dir("src/ts/worker/tsconfig.json"),
+    }),
+  ],
 }
 
 module.exports = [mainThread, worker]

@@ -6,6 +6,6 @@
     "sourceMap": true,
     "target": "es2017",
 
-    "lib": ["dom", "es2017", "webworker"]
+    "lib": ["webworker", "es2017"]
   }
 }
