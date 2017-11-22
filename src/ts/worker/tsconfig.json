@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "module": "esnext",
+    "newLine": "LF",
     "noFallthroughCasesInSwitch": true,
     "noImplicitAny": true,
     "sourceMap": true,
