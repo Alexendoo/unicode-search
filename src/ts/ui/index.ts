@@ -1,5 +1,6 @@
 import "../../files"
 import { InputMessage, CharMessage } from "../worker/messages"
+import { charElement } from "./char"
 
 const sab = new SharedArrayBuffer(2 * Uint32Array.BYTES_PER_ELEMENT)
 const uint32 = new Uint32Array(sab, 0, 1)
@@ -35,12 +36,7 @@ function sendMessage() {
 function receiveMessage(event: MessageEvent) {
   const message: CharMessage = event.data
 
-  app.insertAdjacentHTML(
-    "beforeend",
-    `
-    <p>${message.codepoint} - ${message.name}</p>
-    `,
-  )
+  app.appendChild(charElement(message))
 }
 
 worker.addEventListener("message", receiveMessage)
