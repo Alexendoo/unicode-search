@@ -10,8 +10,6 @@ export function initSearch(sab: SharedArrayBuffer) {
 }
 
 export function search(input: InputMessage) {
-  const start = performance.now()
-
   let sent = 0
 
   for (const kv of names) {
@@ -35,6 +33,4 @@ export function search(input: InputMessage) {
       Atomics.wait(countMemory, 0, sent)
     }
   }
-
-  console.log("searched for", input.input, "in", performance.now() - start)
 }

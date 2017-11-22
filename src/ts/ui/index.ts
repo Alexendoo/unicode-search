@@ -1,32 +1,16 @@
 import "../../files"
 import { InputMessage, CharMessage } from "../worker/messages"
 import { charElement } from "./char"
-
-const sab = new SharedArrayBuffer(2 * Uint32Array.BYTES_PER_ELEMENT)
-const uint32 = new Uint32Array(sab, 0, 1)
-const int32 = new Int32Array(sab, 4, 1)
-
-const app = document.getElementById("app")
-const input = document.getElementById("chars") as HTMLInputElement
+import { clearNode, input, app } from "./dom"
+import { sab, newTag, receiveChar } from "./lazy"
 
 const worker = new Worker("worker.js")
 worker.postMessage(sab)
 
-function clearNode(node: Node) {
-  while (node.firstChild !== null) {
-    node.removeChild(node.firstChild)
-  }
-}
-
 function sendMessage() {
-  const oldTag = Atomics.add(uint32, 0, 1)
-
-  Atomics.store(int32, 0, 3)
-  Atomics.wake(int32, 0, 1)
-
   const message: InputMessage = {
     input: input.value.toUpperCase(),
-    tag: oldTag + 1,
+    tag: newTag(),
   }
 
   worker.postMessage(message)
@@ -36,7 +20,7 @@ function sendMessage() {
 function receiveMessage(event: MessageEvent) {
   const message: CharMessage = event.data
 
-  app.appendChild(charElement(message))
+  receiveChar(message)
 }
 
 worker.addEventListener("message", receiveMessage)
@@ -49,5 +33,3 @@ declare global {
 }
 
 window.worker = worker
-window.uint32 = uint32
-window.int32 = int32
