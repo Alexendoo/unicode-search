@@ -53,6 +53,7 @@ function writeData(template, data, path) {
   const formatted = prettier.format(template.replace("%", json), {
     ...prettierConfig,
     parser: "typescript",
+    printWidth: 200,
   })
 
   fs.writeFileSync(path, formatted)
