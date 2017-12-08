@@ -3,10 +3,24 @@
 body {
   padding: 0;
   margin: 0;
-  font-family: "Open Sans", Roboto, "Apple Color Emoji", -apple-system,
-    BlinkMacSystemFont, "Segoe UI Emoji", "Emoji One", "Noto Color Emoji",
-    "Segoe UI", "Helvetica Neue", arial, "Courier New", "DejaVu Sans",
-    "Noto Sans", sans-serif;
+  /* prettier-ignore */
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    "Open Sans",
+    arial,
+    "Courier New",
+    "DejaVu Sans",
+    "Noto Sans",
+    "Helvetica Neue",
+    sans-serif,
+
+    "Apple Color Emoji",
+    "Segoe UI Emoji",
+    "Emoji One",
+    "Noto Color Emoji";
   text-rendering: optimizeLegibility;
   overflow-y: scroll;
 }
