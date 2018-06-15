@@ -19,7 +19,7 @@ export function codePointToChar(code: number): string {
   } else {
     code -= 0x10000
     const high = Math.floor(code >> 10) + 0xd800
-    const low = code % 0x400 + 0xdc00
+    const low = (code % 0x400) + 0xdc00
     return String.fromCharCode(high, low)
   }
 }

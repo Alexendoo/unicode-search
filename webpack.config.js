@@ -39,12 +39,15 @@ const conf = {
 
   plugins: [
     new HtmlWebpackPlugin({
-      template: "src/index.ejs",
+      template: "src/index.html",
+      inject: false,
       minify: {
         collapseWhitespace: true,
       },
     }),
-    new CSSExtractPlugin(),
+    new CSSExtractPlugin({
+      filename: "style.css",
+    }),
   ],
 }
 
