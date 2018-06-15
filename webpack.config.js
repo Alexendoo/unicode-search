@@ -8,9 +8,7 @@ const dir = (...pathSegments) => path.resolve(__dirname, ...pathSegments)
 rimraf.sync("./dist/*")
 
 /** @type {import('webpack').Configuration} */
-const conf = {
-  entry: "./src/ts/index/index.ts",
-
+const base = {
   mode: "development",
 
   output: {
@@ -34,8 +32,15 @@ const conf = {
       },
     ],
   },
+}
 
-  // devtool: "source-map",
+/** @type {import('webpack').Configuration} */
+const main = {
+  ...base,
+
+  entry: {
+    main: "./src/ts/index/index.ts",
+  },
 
   plugins: [
     new HtmlWebpackPlugin({
@@ -51,4 +56,15 @@ const conf = {
   ],
 }
 
-module.exports = conf
+/** @type {import('webpack').Configuration} */
+const worker = {
+  ...base,
+
+  entry: {
+    worker: "./src/ts/worker/worker.ts",
+  },
+
+  target: "webworker",
+}
+
+module.exports = [main, worker]

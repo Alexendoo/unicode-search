@@ -7,7 +7,6 @@ import {
   InputType,
 } from "../messages"
 
-import NameWorker from "worker-loader?name=[name].js!../worker/worker"
 import "../../css/app.css"
 
 const input = document.getElementById("chars") as HTMLInputElement
@@ -34,8 +33,7 @@ for (let i = 0; i < radios.length; i++) {
   })
 }
 
-console.log(NameWorker)
-const worker = new NameWorker()
+const worker = new Worker("worker.js")
 sendInput()
 
 worker.onmessage = function({ data: message }: { data: BrowserMessage }) {
