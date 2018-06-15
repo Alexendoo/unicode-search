@@ -315,6 +315,11 @@ export default [
     "end": 7311
   },
   {
+    "name": "Georgian Extended",
+    "start": 7312,
+    "end": 7359
+  },
+  {
     "name": "Sundanese Supplement",
     "start": 7360,
     "end": 7375
@@ -1010,9 +1015,24 @@ export default [
     "end": 68863
   },
   {
+    "name": "Hanifi Rohingya",
+    "start": 68864,
+    "end": 68927
+  },
+  {
     "name": "Rumi Numeral Symbols",
     "start": 69216,
     "end": 69247
+  },
+  {
+    "name": "Old Sogdian",
+    "start": 69376,
+    "end": 69423
+  },
+  {
+    "name": "Sogdian",
+    "start": 69424,
+    "end": 69487
   },
   {
     "name": "Brahmi",
@@ -1105,6 +1125,11 @@ export default [
     "end": 71487
   },
   {
+    "name": "Dogra",
+    "start": 71680,
+    "end": 71759
+  },
+  {
     "name": "Warang Citi",
     "start": 71840,
     "end": 71935
@@ -1138,6 +1163,16 @@ export default [
     "name": "Masaram Gondi",
     "start": 72960,
     "end": 73055
+  },
+  {
+    "name": "Gunjala Gondi",
+    "start": 73056,
+    "end": 73135
+  },
+  {
+    "name": "Makasar",
+    "start": 73440,
+    "end": 73471
   },
   {
     "name": "Cuneiform",
@@ -1183,6 +1218,11 @@ export default [
     "name": "Pahawh Hmong",
     "start": 92928,
     "end": 93071
+  },
+  {
+    "name": "Medefaidrin",
+    "start": 93760,
+    "end": 93855
   },
   {
     "name": "Miao",
@@ -1245,6 +1285,11 @@ export default [
     "end": 119375
   },
   {
+    "name": "Mayan Numerals",
+    "start": 119520,
+    "end": 119551
+  },
+  {
     "name": "Tai Xuan Jing Symbols",
     "start": 119552,
     "end": 119647
@@ -1278,6 +1323,11 @@ export default [
     "name": "Adlam",
     "start": 125184,
     "end": 125279
+  },
+  {
+    "name": "Indic Siyaq Numbers",
+    "start": 126064,
+    "end": 126143
   },
   {
     "name": "Arabic Mathematical Alphabetic Symbols",
@@ -1348,6 +1398,11 @@ export default [
     "name": "Supplemental Symbols and Pictographs",
     "start": 129280,
     "end": 129535
+  },
+  {
+    "name": "Chess Symbols",
+    "start": 129536,
+    "end": 129647
   },
   {
     "name": "CJK Unified Ideographs Extension B",
