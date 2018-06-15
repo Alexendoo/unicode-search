@@ -8,23 +8,25 @@
     "type": "git",
     "url": "https://github.com/Alexendoo/utf.git"
   },
-  "devDependencies": {
-    "css-loader": "^0.28.7",
-    "extract-loader": "^1.0.1",
-    "extract-text-webpack-plugin": "^3.0.2",
-    "file-loader": "^1.1.5",
-    "html-webpack-plugin": "^2.30.1",
-    "normalize.css": "^7.0.0",
-    "prettier": "^1.7.4",
+  "dependencies": {
+    "css-loader": "^0.28.11",
+    "extract-loader": "^2.0.1",
+    "file-loader": "^1.1.11",
+    "html-webpack-plugin": "^3.2.0",
+    "mini-css-extract-plugin": "^0.4.0",
+    "normalize.css": "^8.0.0",
+    "prettier": "^1.13.5",
     "rimraf": "^2.6.2",
     "sax": "^1.2.4",
-    "ts-loader": "^3.1.1",
-    "typescript": "~2.6.1",
-    "webpack": "^3.8.1",
-    "worker-loader": "^1.1.0"
+    "ts-loader": "^4.4.1",
+    "typescript": "~2.9.2",
+    "webpack": "^4.12.0",
+    "webpack-command": "^0.2.1",
+    "worker-loader": "^2.0.0"
   },
   "scripts": {
     "build": "webpack",
+    "build:prod": "webpack --run-prod",
     "format": "prettier --write \"**/*.{css,json,ts,js}\""
   }
 }

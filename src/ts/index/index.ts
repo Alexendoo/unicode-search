@@ -38,10 +38,6 @@ console.log(NameWorker)
 const worker = new NameWorker()
 sendInput()
 
-// if ('serviceWorker' in navigator) {
-//   navigator.serviceWorker.register('sw.js')
-// }
-
 worker.onmessage = function({ data: message }: { data: BrowserMessage }) {
   if (isClear(message)) {
     clearChildren(display)
@@ -123,12 +119,12 @@ function polyfillTemplate(template: HTMLTemplateElement) {
     return
   }
 
-  const content = template.childNodes
+  const content = template!.childNodes
   const fragment = document.createDocumentFragment()
 
   while (content[0]) {
     fragment.appendChild(content[0])
   }
 
-  template.content! = fragment
+  ;(template!.content as any) = fragment
 }

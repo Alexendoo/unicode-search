@@ -1,19 +1,20 @@
-const ExtractTextPlugin = require("extract-text-webpack-plugin")
+const CSSExtractPlugin = require("mini-css-extract-plugin")
 const HtmlWebpackPlugin = require("html-webpack-plugin")
 const path = require("path")
 const rimraf = require("rimraf")
-const webpack = require("webpack")
 
 const dir = (...pathSegments) => path.resolve(__dirname, ...pathSegments)
 
 rimraf.sync("./dist/*")
 
-module.exports = {
+/** @type {import('webpack').Configuration} */
+const conf = {
   entry: "./src/ts/index/index.ts",
+
+  mode: "development",
 
   output: {
     path: dir("dist"),
-    filename: "[name].[chunkhash].js",
   },
 
   resolve: {
@@ -29,9 +30,7 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        use: ExtractTextPlugin.extract({
-          use: "css-loader",
-        }),
+        use: [CSSExtractPlugin.loader, "css-loader"],
       },
     ],
   },
@@ -45,7 +44,8 @@ module.exports = {
         collapseWhitespace: true,
       },
     }),
-    new webpack.HashedModuleIdsPlugin(),
-    new ExtractTextPlugin("style.[contenthash].css"),
+    new CSSExtractPlugin(),
   ],
 }
+
+module.exports = conf
