@@ -1,12 +1,9 @@
+use std::fmt;
+
 #[derive(Debug)]
 struct Entry {
     index: usize,
-}
-
-#[derive(Debug)]
-struct Table {
-    combined: Vec<u8>,
-    entries: Vec<Entry>,
+    codepoint: usize,
 }
 
 #[derive(Debug)]
@@ -15,12 +12,35 @@ struct TempSuffix<'a> {
     entry: Entry,
 }
 
+struct Table {
+    combined: Vec<u8>,
+    entries: Vec<Entry>,
+}
+
+impl fmt::Debug for Table {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        writeln!(f, "{:?} len: {:?}", self.combined, self.combined.len())?;
+
+        for (index, entry) in self.entries.iter().enumerate() {
+            writeln!(
+                f,
+                "{:4}: {:?} -> {:?}",
+                index,
+                entry,
+                String::from_utf8_lossy(self.slice_from(entry.index, usize::max_value() / 2))
+            )?;
+        }
+
+        Ok(())
+    }
+}
+
 impl Table {
     fn new(strings: Vec<&str>) -> Table {
-        let mut combined = Vec::<u8>::new();
+        let mut combined = Vec::new();
         let mut temp_suffixes = Vec::new();
 
-        for string in strings {
+        for (string_idx, string) in strings.iter().enumerate() {
             let start = combined.len();
 
             for byte in string.bytes() {
@@ -31,6 +51,7 @@ impl Table {
             for (offset, suffix) in suffixes(string) {
                 let entry = Entry {
                     index: start + offset,
+                    codepoint: string_idx,
                 };
 
                 temp_suffixes.push(TempSuffix { suffix, entry })
@@ -47,52 +68,57 @@ impl Table {
         Table { combined, entries }
     }
 
-    fn iter_from<'a>(&'a self, index: usize, limit: usize) -> impl Iterator<Item = u8> + 'a {
-        self.combined
-            .iter()
-            .map(|&b| b)
-            .skip(index)
-            .take(limit)
-            .take_while(|&byte| byte != b'$')
-    }
-
     fn slice_from(&self, start: usize, limit: usize) -> &[u8] {
         let end = usize::min(start + limit, self.combined.len());
 
         &self.combined[start..end]
     }
 
-    fn binary_search(&self, substring: &str) -> Option<usize> {
-        for entry in &self.entries {
-            println!(
-                "{:?}",
-                self.iter_from(entry.index, usize::max_value())
-                    .map(|c| c as char)
-                    .collect::<String>()
-            )
+    fn find_range(&self, substring: &[u8]) -> (usize, usize) {
+        // https://en.wikipedia.org/wiki/Suffix_array#Applications
+        let mut left = 0;
+        let mut right = self.entries.len();
+
+        while left < right {
+            let mid = (left + right) / 2;
+            let entry = &self.entries[mid];
+
+            if substring > &self.slice_from(entry.index, substring.len()) {
+                left = mid + 1;
+            } else {
+                right = mid;
+            }
         }
 
-        self.entries
-            .binary_search_by(|entry| {
-                let candidate = self.iter_from(entry.index, substring.len())
-                    .map(|c| c as char)
-                    .collect::<String>();
+        let start = left;
+        right = self.entries.len();
 
-                println!(
-                    "{0:?} - {1:?}.cmp({2:?}) = {3:?}",
-                    entry,
-                    substring,
-                    candidate,
-                    substring
-                        .bytes()
-                        .cmp(self.iter_from(entry.index, substring.len())),
-                );
+        while left < right {
+            let mid = (left + right) / 2;
+            let entry = &self.entries[mid];
 
-                substring
-                    .bytes()
-                    .cmp(self.iter_from(entry.index, substring.len()))
-            })
-            .ok()
+            if substring < self.slice_from(entry.index, substring.len()) {
+                right = mid;
+            } else {
+                left = mid + 1;
+            }
+        }
+
+        (start, right)
+    }
+
+    fn codepoints(&self, substring: &[u8]) -> Vec<usize> {
+        let (start, end) = self.find_range(substring);
+
+        let mut vec = self.entries[start..end]
+            .iter()
+            .map(|entry| entry.codepoint)
+            .collect::<Vec<_>>();
+
+        vec.sort();
+        vec.dedup();
+
+        vec
     }
 }
 
@@ -104,12 +130,8 @@ fn main() {
     let input = vec!["one", "two", "three"];
 
     let table = Table::new(input);
-
     println!("{:?}", table);
 
-    let it: String = table.iter_from(6, 1000).map(|byte| byte as char).collect();
-    println!("{:?}", it);
-
-    let se = table.binary_search("tw");
+    let se = table.codepoints(b"e");
     println!("{:?}", se);
 }
