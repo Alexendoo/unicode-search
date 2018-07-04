@@ -3,4 +3,8 @@ name = "general-suffix"
 version = "0.1.0"
 authors = ["Alex Macleod <alex@macleod.io>"]
 
+[lib]
+crate-type = ["cdylib"]
+
 [dependencies]
+ucd-raw = "0.3"

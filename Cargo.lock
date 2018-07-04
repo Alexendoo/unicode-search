@@ -1,4 +1,14 @@
 [[package]]
 name = "general-suffix"
 version = "0.1.0"
+dependencies = [
+ "ucd-raw 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
+]
 
+[[package]]
+name = "ucd-raw"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[metadata]
+"checksum ucd-raw 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)" = "3176d11edba0afe4273fd6905191bcf677ed9d83e6e3c61e6c60c14f4a37e344"

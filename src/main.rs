@@ -115,7 +115,7 @@ impl Table {
             .map(|entry| entry.codepoint)
             .collect::<Vec<_>>();
 
-        vec.sort();
+        vec.sort_unstable();
         vec.dedup();
 
         vec
@@ -127,11 +127,4 @@ fn suffixes<'a>(string: &'a str) -> impl Iterator<Item = (usize, &'a str)> {
 }
 
 fn main() {
-    let input = vec!["one", "two", "three"];
-
-    let table = Table::new(input);
-    println!("{:?}", table);
-
-    let se = table.codepoints(b"e");
-    println!("{:?}", se);
 }
