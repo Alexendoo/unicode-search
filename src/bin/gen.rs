@@ -64,7 +64,7 @@ fn main() {
 
     writeln!(
         out,
-        "pub static COMBINED: &[u8] = b\"{}\";",
+        "pub const COMBINED: &[u8] = b\"{}\";",
         String::from_utf8(combined).unwrap()
     ).unwrap();
 

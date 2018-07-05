@@ -1,35 +1,14 @@
-use core::fmt;
-
 use alloc::Vec;
-use alloc::String;
 
 #[derive(Debug)]
 pub struct Entry {
-    pub index: usize,
-    pub codepoint: usize,
+    pub index: u32,
+    pub codepoint: u32,
 }
 
 pub struct Table<'a> {
     pub combined: &'a [u8],
     pub entries: &'a [Entry],
-}
-
-impl<'a> fmt::Debug for Table<'a> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        writeln!(f, "{:?} len: {:?}", self.combined, self.combined.len())?;
-
-        for (index, entry) in self.entries.iter().enumerate() {
-            writeln!(
-                f,
-                "{:4}: {:?} -> {:?}",
-                index,
-                entry,
-                String::from_utf8_lossy(self.slice_from(entry.index, usize::max_value() / 2))
-            )?;
-        }
-
-        Ok(())
-    }
 }
 
 impl<'a> Table<'a> {
@@ -48,7 +27,7 @@ impl<'a> Table<'a> {
             let mid = (left + right) / 2;
             let entry = &self.entries[mid];
 
-            if substring > &self.slice_from(entry.index, substring.len()) {
+            if substring > &self.slice_from(entry.index as usize, substring.len()) {
                 left = mid + 1;
             } else {
                 right = mid;
@@ -62,7 +41,7 @@ impl<'a> Table<'a> {
             let mid = (left + right) / 2;
             let entry = &self.entries[mid];
 
-            if substring < self.slice_from(entry.index, substring.len()) {
+            if substring < self.slice_from(entry.index as usize, substring.len()) {
                 right = mid;
             } else {
                 left = mid + 1;
@@ -72,7 +51,7 @@ impl<'a> Table<'a> {
         (start, right)
     }
 
-    pub fn codepoints(&self, vec: &mut Vec<usize>, substring: &[u8]) {
+    pub fn codepoints(&self, vec: &mut Vec<u32>, substring: &[u8]) {
         let (start, end) = self.find_range(substring);
 
         vec.clear();

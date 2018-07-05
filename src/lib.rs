@@ -6,10 +6,11 @@
 extern crate alloc;
 extern crate wee_alloc;
 
-mod table;
 mod generated;
+mod table;
 
 use alloc::Vec;
+use table::Table;
 
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
@@ -74,15 +75,16 @@ unsafe fn set_result_location() {
     RESULT_LOCATION.len = RESULT.len();
 }
 
-#[no_mangle]
-pub unsafe extern "C" fn location() -> *const ResultLocation<u32> {
-    &RESULT_LOCATION
-}
+const TABLE: Table = Table {
+    entries: generated::ENTRIES,
+    combined: generated::COMBINED,
+};
 
 #[no_mangle]
-pub unsafe extern "C" fn find() {
-    let table = table::Table {
-        entries: generated::ENTRIES,
-        combined: generated::COMBINED,
-    };
+pub unsafe extern "C" fn find() -> *const ResultLocation<u32> {
+    TABLE.codepoints(&mut RESULT, b"test");
+
+    set_result_location();
+
+    &RESULT_LOCATION
 }
