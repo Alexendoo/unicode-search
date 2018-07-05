@@ -1,5 +1,8 @@
 .vscode
 *.log
+**/*.rs.bk
+/target
 dist
 node_modules
+src/generated.rs
 ucd.*.xml
