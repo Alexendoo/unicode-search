@@ -73,53 +73,6 @@ impl Table {
 
         &self.combined[start..end]
     }
-
-    fn find_range(&self, substring: &[u8]) -> (usize, usize) {
-        // https://en.wikipedia.org/wiki/Suffix_array#Applications
-        let mut left = 0;
-        let mut right = self.entries.len();
-
-        while left < right {
-            let mid = (left + right) / 2;
-            let entry = &self.entries[mid];
-
-            if substring > &self.slice_from(entry.index, substring.len()) {
-                left = mid + 1;
-            } else {
-                right = mid;
-            }
-        }
-
-        let start = left;
-        right = self.entries.len();
-
-        while left < right {
-            let mid = (left + right) / 2;
-            let entry = &self.entries[mid];
-
-            if substring < self.slice_from(entry.index, substring.len()) {
-                right = mid;
-            } else {
-                left = mid + 1;
-            }
-        }
-
-        (start, right)
-    }
-
-    fn codepoints(&self, substring: &[u8]) -> Vec<usize> {
-        let (start, end) = self.find_range(substring);
-
-        let mut vec = self.entries[start..end]
-            .iter()
-            .map(|entry| entry.codepoint)
-            .collect::<Vec<_>>();
-
-        vec.sort_unstable();
-        vec.dedup();
-
-        vec
-    }
 }
 
 fn suffixes<'a>(string: &'a str) -> impl Iterator<Item = (usize, &'a str)> {

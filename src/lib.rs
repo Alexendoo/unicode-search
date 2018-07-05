@@ -6,6 +6,8 @@
 extern crate alloc;
 extern crate wee_alloc;
 
+mod table;
+
 use alloc::Vec;
 
 #[global_allocator]
