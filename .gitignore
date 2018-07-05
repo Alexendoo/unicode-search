@@ -1,6 +1,7 @@
 .vscode
 *.log
-**/*.rs.bk
-/target
+*.rs.bk
+client/wasm
 node_modules
 src/generated.rs
+target

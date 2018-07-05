@@ -15,24 +15,10 @@ use table::Table;
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
-extern "C" {
-    fn console_panic(ptr: *const ResultLocation<u8>);
-    fn console_oom();
-}
-
 #[panic_implementation]
 #[no_mangle]
-pub fn panic(info: &core::panic::PanicInfo) -> ! {
+pub fn panic(_info: &core::panic::PanicInfo) -> ! {
     unsafe {
-        static mut ERROR_LOCATION: ResultLocation<u8> = ResultLocation::new();
-
-        let stacktrace = format!("{}", info);
-
-        ERROR_LOCATION.ptr = stacktrace.as_ptr();
-        ERROR_LOCATION.len = stacktrace.len();
-
-        console_panic(&ERROR_LOCATION);
-
         core::intrinsics::abort();
     }
 }
@@ -41,8 +27,6 @@ pub fn panic(info: &core::panic::PanicInfo) -> ! {
 #[no_mangle]
 pub extern "C" fn oom() -> ! {
     unsafe {
-        console_oom();
-
         core::intrinsics::abort();
     }
 }
@@ -81,8 +65,19 @@ const TABLE: Table = Table {
 };
 
 #[no_mangle]
-pub unsafe extern "C" fn find() -> *const ResultLocation<u32> {
-    TABLE.codepoints(&mut RESULT, b"test");
+pub unsafe extern "C" fn allocate(capacity: usize) -> *mut u8 {
+    Vec::with_capacity(capacity).as_mut_ptr()
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn find(
+    ptr: *mut u8,
+    length: usize,
+    capacity: usize,
+) -> *const ResultLocation<u32> {
+    let slice = Vec::from_raw_parts(ptr, length, capacity);
+
+    TABLE.codepoints(&mut RESULT, &slice);
 
     set_result_location();
 

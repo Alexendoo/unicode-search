@@ -30,7 +30,7 @@ fn main() {
 
     let mut out = File::create("src/generated.rs").unwrap();
 
-    for character in char_iter() {
+    for character in char_iter().take(20) {
         let start = combined.len();
 
         for byte in character.name.bytes() {

@@ -1,3 +1,5 @@
+import "./wasm.js"
+
 const input = document.getElementById("chars")
 const template = document.getElementById("char--template")
 const display = document.querySelector("main")

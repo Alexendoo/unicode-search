@@ -13,7 +13,7 @@
     "typescript": "~2.9.2"
   },
   "scripts": {
-    "build": "cargo build --target wasm32-unknown-unknown --lib --release -Z unstable-options --out-dir src/wasm",
+    "build": "cargo build --target wasm32-unknown-unknown --lib --release -Z unstable-options --out-dir client/wasm",
     "format": "prettier --write \"src/**/*.{css,json,ts,js}\"",
     "generate": "cargo run --bin gen --release --features gen"
   }
