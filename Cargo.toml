@@ -6,6 +6,13 @@ authors = ["Alex Macleod <alex@macleod.io>"]
 [lib]
 crate-type = ["cdylib"]
 
+[[bin]]
+name = "gen"
+required-features = ["gen"]
+
+[features]
+gen = ["ucd-raw"]
+
 [dependencies]
-ucd-raw = "0.3"
+ucd-raw = { version = "0.3", optional = true }
 wee_alloc = "0.4"
