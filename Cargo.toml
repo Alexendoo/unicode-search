@@ -8,3 +8,4 @@ crate-type = ["cdylib"]
 
 [dependencies]
 ucd-raw = "0.3"
+wee_alloc = "0.4"
