@@ -4,23 +4,17 @@ use alloc::Vec;
 use alloc::String;
 
 #[derive(Debug)]
-struct Entry {
-    index: usize,
-    codepoint: usize,
+pub struct Entry {
+    pub index: usize,
+    pub codepoint: usize,
 }
 
-#[derive(Debug)]
-struct TempSuffix<'a> {
-    suffix: &'a str,
-    entry: Entry,
+pub struct Table<'a> {
+    pub combined: &'a [u8],
+    pub entries: &'a [Entry],
 }
 
-struct Table {
-    combined: Vec<u8>,
-    entries: Vec<Entry>,
-}
-
-impl fmt::Debug for Table {
+impl<'a> fmt::Debug for Table<'a> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         writeln!(f, "{:?} len: {:?}", self.combined, self.combined.len())?;
 
@@ -38,7 +32,7 @@ impl fmt::Debug for Table {
     }
 }
 
-impl Table {
+impl<'a> Table<'a> {
     fn slice_from(&self, start: usize, limit: usize) -> &[u8] {
         let end = usize::min(start + limit, self.combined.len());
 
@@ -78,7 +72,7 @@ impl Table {
         (start, right)
     }
 
-    fn codepoints(&self, vec: &mut Vec<usize>, substring: &[u8]) {
+    pub fn codepoints(&self, vec: &mut Vec<usize>, substring: &[u8]) {
         let (start, end) = self.find_range(substring);
 
         vec.clear();

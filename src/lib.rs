@@ -7,6 +7,7 @@ extern crate alloc;
 extern crate wee_alloc;
 
 mod table;
+mod generated;
 
 use alloc::Vec;
 
@@ -76,4 +77,12 @@ unsafe fn set_result_location() {
 #[no_mangle]
 pub unsafe extern "C" fn location() -> *const ResultLocation<u32> {
     &RESULT_LOCATION
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn find() {
+    let table = table::Table {
+        entries: generated::ENTRIES,
+        combined: generated::COMBINED,
+    };
 }

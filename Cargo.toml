@@ -8,11 +8,12 @@ crate-type = ["cdylib"]
 
 [[bin]]
 name = "gen"
+path = "src/bin/gen.rs"
 required-features = ["gen"]
 
 [features]
 gen = ["ucd-raw"]
 
 [dependencies]
-ucd-raw = { version = "0.3", optional = true }
+ucd-raw = { version = "0.5", optional = true }
 wee_alloc = "0.4"
