@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "module": "esnext",
+    "noEmit": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitAny": true,
     "sourceMap": true,

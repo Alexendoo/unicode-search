@@ -2,6 +2,7 @@ language: node_js
 node_js:
   - "lts/carbon"
 script:
+  - yarn tsc
   - yarn format
   - git diff --exit-code
   - yarn build
