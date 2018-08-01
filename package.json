@@ -28,6 +28,7 @@
   "scripts": {
     "build": "webpack --run-prod --devtool source-map",
     "dev": "webpack-serve --open",
-    "format": "prettier --write \"**/*.{css,json,ts,js}\""
+    "format": "prettier --write \"**/*.{css,json,ts,js}\"",
+    "generate": "node data/generate.js"
   }
 }
