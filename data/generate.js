@@ -1,14 +1,14 @@
-#!/usr/bin/env node
 "use strict"
 
-const assert = require("assert")
 const fs = require("fs")
 const path = require("path")
+const prettier = require("prettier")
 const sax = require("sax")
 
 const saxStream = sax.createStream(true)
 
 const dir = (...pathSegments) => path.resolve(__dirname, ...pathSegments)
+const dataDir = (...pathSegments) => dir("../src/data", ...pathSegments)
 
 // https://www.unicode.org/versions/Unicode11.0.0/ch04.pdf
 // Table 4-8. Name Derivation Rule Prefix Strings
@@ -28,8 +28,6 @@ const nameDerivationRules = [
   { start: 0x2f800, end: 0x2fa1d, prefix: "CJK COMPATIBILITY IDEOGRAPH-" },
 ]
 
-const filePrefix = `export default `
-
 /**
  * @param {number} code
  */
@@ -39,11 +37,32 @@ function isDerived(code) {
   )
 }
 
+const prettierConfig = prettier.resolveConfig.sync(dir(".."))
+
+/**
+ * Stamps a template with any data, formats it and writes to path
+ *
+ * @param {string} template - string with % in place of data that should be
+ *                            substituted
+ * @param {any} data
+ * @param {string} path
+ */
+function writeData(template, data, path) {
+  const json = JSON.stringify(data)
+  const formatted = prettier.format(template.replace("%", json), {
+    ...prettierConfig,
+    parser: "typescript",
+    printWidth: 200,
+  })
+
+  fs.writeFileSync(path, formatted)
+}
+
 // Characters
 {
-  const names = {}
+  const names = []
 
-  let char = {
+  const char = {
     code: -1,
     name: "",
   }
@@ -75,22 +94,22 @@ function isDerived(code) {
   saxStream.on("closetag", nodeName => {
     if (nodeName !== "char" || isDerived(char.code) || char.code === -1) return
 
-    names[char.code] = char.name
+    names.push([char.code, char.name])
 
-    char = {
-      code: -1,
-      name: "",
-    }
+    char.code = -1
+    char.name = ""
   })
+
+  const template = `
+export type Names = Map<number, string>
+
+export const names: Names = new Map(%)
+`
 
   saxStream.on("closetag", nodeName => {
     if (nodeName !== "repertoire") return
 
-    const json = JSON.stringify(names, null, 2)
-    const namesPath = dir("../src/data/names.ts")
-
-    fs.writeFileSync(namesPath, filePrefix)
-    fs.appendFileSync(namesPath, json)
+    writeData(template, names, dataDir("names.ts"))
   })
 }
 
@@ -109,15 +128,25 @@ function isDerived(code) {
     })
   })
 
+  const template = `
+export interface Block {
+  name: string
+  start: number
+  end: number
+}
+
+export const blocks: Array<Block> = %
+`
+
   saxStream.on("closetag", nodeName => {
     if (nodeName !== "blocks") return
 
-    const json = JSON.stringify(blocks, null, 2)
-    const blocksPath = dir("../src/data/blocks.ts")
-
-    fs.writeFileSync(blocksPath, filePrefix)
-    fs.appendFileSync(blocksPath, json)
+    writeData(template, blocks, dataDir("blocks.ts"))
   })
+}
+
+if (!fs.existsSync(dataDir())) {
+  fs.mkdirSync(dataDir())
 }
 
 fs.createReadStream(dir("ucd.all.flat.xml")).pipe(saxStream)
