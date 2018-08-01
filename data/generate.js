@@ -10,7 +10,7 @@ const saxStream = sax.createStream(true)
 
 const dir = (...pathSegments) => path.resolve(__dirname, ...pathSegments)
 
-// https://www.unicode.org/versions/Unicode10.0.0/ch04.pdf
+// https://www.unicode.org/versions/Unicode11.0.0/ch04.pdf
 // Table 4-8. Name Derivation Rule Prefix Strings
 const nameDerivationRules = [
   { start: 0xac00, end: 0xd7a3, prefix: "HANGUL SYLLABLE " },
