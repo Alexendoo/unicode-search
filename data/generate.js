@@ -8,7 +8,7 @@ const sax = require("sax")
 const saxStream = sax.createStream(true)
 
 const dir = (...pathSegments) => path.resolve(__dirname, ...pathSegments)
-const dataDir = (...pathSegments) => dir("../src/data", ...pathSegments)
+const dataDir = (...pathSegments) => dir("../src/ts/data", ...pathSegments)
 
 // https://www.unicode.org/versions/Unicode11.0.0/ch04.pdf
 // Table 4-8. Name Derivation Rule Prefix Strings
