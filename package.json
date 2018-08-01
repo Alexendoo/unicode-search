@@ -9,20 +9,20 @@
     "url": "https://github.com/Alexendoo/utf.git"
   },
   "dependencies": {
-    "css-loader": "^0.28.11",
+    "css-loader": "^1.0.0",
     "extract-loader": "^2.0.1",
     "file-loader": "^1.1.11",
     "html-webpack-plugin": "^3.2.0",
-    "mini-css-extract-plugin": "^0.4.0",
+    "mini-css-extract-plugin": "^0.4.1",
     "normalize.css": "^8.0.0",
-    "prettier": "^1.13.5",
+    "prettier": "^1.14.0",
     "rimraf": "^2.6.2",
     "sax": "^1.2.4",
-    "ts-loader": "^4.4.1",
-    "typescript": "~2.9.2",
-    "webpack": "^4.12.0",
-    "webpack-command": "^0.2.1",
-    "webpack-serve": "^1.0.4",
+    "ts-loader": "^4.4.2",
+    "typescript": "~3.0.1",
+    "webpack": "^4.16.3",
+    "webpack-command": "^0.4.1",
+    "webpack-serve": "^2.0.2",
     "worker-loader": "^2.0.0"
   },
   "scripts": {

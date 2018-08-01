@@ -9,8 +9,6 @@ rimraf.sync("./dist/*")
 
 /** @type {import('webpack').Configuration} */
 const base = {
-  mode: "development",
-
   output: {
     path: dir("dist"),
   },
