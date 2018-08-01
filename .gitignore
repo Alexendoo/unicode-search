@@ -1,3 +1,4 @@
+.tsc
 .vscode
 *.log
 dist

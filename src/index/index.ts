@@ -5,21 +5,20 @@ import {
   DisplayMessage,
   TickMessage,
   InputType,
-} from "../messages"
+} from "../shared/util/messages"
 
-import "../../css/app.css"
+import "../css/app.css"
 
 const input = document.getElementById("chars") as HTMLInputElement
 const template = document.getElementById(
   "char--template",
 ) as HTMLTemplateElement
-const display = document.querySelector("main")
+const display = document.querySelector("main") as HTMLMainElement
 const radios = document.querySelectorAll("input[name=type]") as NodeListOf<
   HTMLInputElement
 >
 let type: InputType
 
-polyfillTemplate(template)
 input.addEventListener("input", () => sendInput())
 
 for (let i = 0; i < radios.length; i++) {
@@ -33,10 +32,22 @@ for (let i = 0; i < radios.length; i++) {
   })
 }
 
-const worker = new Worker("worker.js")
+let sab = new SharedArrayBuffer(1024)
+
+const coordinator = new Worker("coordinator.js")
+coordinator.postMessage(sab)
+const fuzzers = new Set()
+
+for (let i = 0; i < navigator.hardwareConcurrency; i++) {
+  const fuzzer = new Worker("fuzzy.js")
+  fuzzer.postMessage(sab)
+
+  fuzzers.add(fuzzer)
+}
+
 sendInput()
 
-worker.onmessage = function({ data: message }: { data: BrowserMessage }) {
+coordinator.onmessage = function({ data: message }: { data: BrowserMessage }) {
   if (isClear(message)) {
     clearChildren(display)
     sendTick()
@@ -75,12 +86,12 @@ function sendInput() {
     input: input.value,
   }
 
-  worker.postMessage(message)
+  coordinator.postMessage(message)
   if (needsEntries()) sendTick()
 }
 
 function sendTick() {
-  worker.postMessage({ action: "tick" } as TickMessage)
+  coordinator.postMessage({ action: "tick" } as TickMessage)
 }
 
 function createCharDetails({
@@ -90,11 +101,11 @@ function createCharDetails({
   codePoint,
   bytes,
 }: DisplayMessage) {
-  template.content.querySelector(".char--literal").textContent = character
-  template.content.querySelector(".char--name").textContent = name
-  template.content.querySelector(".char--block").textContent = block
-  template.content.querySelector(".char--code").textContent = String(codePoint)
-  template.content.querySelector(".char--bytes").textContent = bytes
+  template.content.querySelector(".char--literal")!.textContent = character
+  template.content.querySelector(".char--name")!.textContent = name
+  template.content.querySelector(".char--block")!.textContent = block
+  template.content.querySelector(".char--code")!.textContent = String(codePoint)
+  template.content.querySelector(".char--bytes")!.textContent = bytes
 
   const node = document.importNode(template.content, true)
   display.appendChild(node)
@@ -104,25 +115,4 @@ function clearChildren(node: Node) {
   while (node.firstChild) {
     node.removeChild(node.firstChild)
   }
-}
-
-/**
- * Browsers that don't support template natively can be
- * made to with a little persuasion
- *
- * @param template to correct
- */
-function polyfillTemplate(template: HTMLTemplateElement) {
-  if ("content" in template) {
-    return
-  }
-
-  const content = template!.childNodes
-  const fragment = document.createDocumentFragment()
-
-  while (content[0]) {
-    fragment.appendChild(content[0])
-  }
-
-  ;(template!.content as any) = fragment
 }

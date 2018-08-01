@@ -2,7 +2,8 @@ language: node_js
 node_js:
   - "lts/carbon"
 script:
-  - yarn tsc
+  - yarn tsc src/ts/tsconfig.main.json
+  - yarn tsc src/ts/tsconfig.worker.json
   - yarn format
   - git diff --exit-code
   - yarn build

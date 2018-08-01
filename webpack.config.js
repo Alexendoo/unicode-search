@@ -9,6 +9,8 @@ rimraf.sync("./dist/*")
 
 /** @type {import('webpack').Configuration} */
 const base = {
+  mode: "development",
+
   output: {
     path: dir("dist"),
   },
@@ -22,7 +24,10 @@ const base = {
       {
         test: /\.ts$/,
         loader: "ts-loader",
-        options: { transpileOnly: true },
+        options: {
+          configFile: dir("tsconfig.webpack.json"),
+          transpileOnly: true,
+        },
       },
       {
         test: /\.css$/,
@@ -37,7 +42,7 @@ const main = {
   ...base,
 
   entry: {
-    main: "./src/ts/index/index.ts",
+    main: "./src/index/index.ts",
   },
 
   plugins: [
@@ -59,7 +64,8 @@ const worker = {
   ...base,
 
   entry: {
-    worker: "./src/ts/worker/worker.ts",
+    fuzzy: "./src/worker/fuzzy/fuzzy.ts",
+    coordinator: "./src/worker/coordinator/coordinator.ts",
   },
 
   target: "webworker",

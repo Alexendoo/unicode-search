@@ -1,12 +1,8 @@
 {
-  "compilerOptions": {
-    "module": "esnext",
-    "noEmit": true,
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitAny": true,
-    "sourceMap": true,
-    "target": "es5",
-
-    "lib": ["dom", "es2015", "webworker"]
-  }
+  "files": [],
+  "include": [],
+  "references": [
+    { "path": "src/worker" },
+    { "path": "src/index" }
+  ]
 }
