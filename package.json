@@ -12,6 +12,7 @@
     "css-loader": "^1.0.0",
     "extract-loader": "^2.0.1",
     "file-loader": "^1.1.11",
+    "fork-ts-checker-webpack-plugin": "^0.4.3",
     "html-webpack-plugin": "^3.2.0",
     "mini-css-extract-plugin": "^0.4.1",
     "normalize.css": "^8.0.0",
@@ -21,14 +22,14 @@
     "ts-loader": "^4.4.2",
     "typescript": "~3.0.1",
     "webpack": "^4.16.3",
-    "webpack-command": "^0.4.1",
-    "webpack-serve": "^2.0.2",
+    "webpack-cli": "^3.1.0",
+    "webpack-dev-server": "^3.1.5",
     "worker-loader": "^2.0.0"
   },
   "scripts": {
-    "build": "webpack --run-prod --devtool source-map",
-    "dev": "webpack-serve --open",
-    "format": "prettier --write \"**/*.{css,json,ts,js}\"",
+    "build": "webpack -p --devtool source-map",
+    "dev": "webpack-dev-server -d",
+    "format": "prettier --write \"**/*.{css,json,ts,js,yml,md}\"",
     "generate": "node data/generate.js"
   }
 }
