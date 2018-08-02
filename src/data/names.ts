@@ -2,9 +2,8 @@ export interface Name {
   codepoint: number
   name: string
 }
-export type Names = Array<Name>
 
-export const names: Names = [
+export const names: Array<Name> = [
   { codepoint: 0, name: "NULL" },
   { codepoint: 1, name: "START OF HEADING" },
   { codepoint: 2, name: "START OF TEXT" },
@@ -30868,3 +30867,5 @@ export const names: Names = [
   { codepoint: 917998, name: "VARIATION SELECTOR-255" },
   { codepoint: 917999, name: "VARIATION SELECTOR-256" },
 ]
+
+export const length = 30862

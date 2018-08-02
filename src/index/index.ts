@@ -19,100 +19,107 @@ const radios = document.querySelectorAll("input[name=type]") as NodeListOf<
 >
 let type: InputType
 
-input.addEventListener("input", () => sendInput())
+// input.addEventListener("input", () => sendInput())
 
-for (let i = 0; i < radios.length; i++) {
-  const radio = radios[i]
+// for (let i = 0; i < radios.length; i++) {
+//   const radio = radios[i]
 
-  if (radio.checked) type = radio.value as InputType
+//   if (radio.checked) type = radio.value as InputType
 
-  radio.addEventListener("change", event => {
-    type = (event.target as HTMLInputElement).value as InputType
-    sendInput()
-  })
-}
+//   radio.addEventListener("change", event => {
+//     type = (event.target as HTMLInputElement).value as InputType
+//     sendInput()
+//   })
+// }
 
 let sab = new SharedArrayBuffer(1024)
 
 const coordinator = new Worker("coordinator.js")
-coordinator.postMessage(sab)
 const fuzzers = new Set()
+const ports = []
 
 for (let i = 0; i < navigator.hardwareConcurrency; i++) {
   const fuzzer = new Worker("fuzzy.js")
-  fuzzer.postMessage(sab)
+
+  const channel = new MessageChannel()
+
+
+  fuzzer.postMessage({ sab, port: channel.port2 }, [channel.port2])
+  ports.push(channel.port1)
 
   fuzzers.add(fuzzer)
 }
 
-sendInput()
+coordinator.postMessage({ sab, ports: ports }, ports)
 
-coordinator.onmessage = function({ data: message }: { data: BrowserMessage }) {
-  if (isClear(message)) {
-    clearChildren(display)
-    sendTick()
-    return
-  }
-  if (isDisplay(message)) {
-    createCharDetails(message)
-    if (needsEntries()) sendTick()
-    return
-  }
-}
+// sendInput()
 
-document.addEventListener("scroll", () => {
-  if (needsEntries()) sendTick()
-})
+// coordinator.onmessage = function({ data: message }: { data: BrowserMessage }) {
+//   if (isClear(message)) {
+//     clearChildren(display)
+//     sendTick()
+//     return
+//   }
+//   if (isDisplay(message)) {
+//     createCharDetails(message)
+//     if (needsEntries()) sendTick()
+//     return
+//   }
+// }
 
-function isClear(message: BrowserMessage): message is ClearMessage {
-  return message.action === "clear"
-}
+// document.addEventListener("scroll", () => {
+//   if (needsEntries()) sendTick()
+// })
 
-function isDisplay(message: BrowserMessage): message is DisplayMessage {
-  return message.action === "display"
-}
+// function isClear(message: BrowserMessage): message is ClearMessage {
+//   return message.action === "clear"
+// }
 
-function needsEntries(): boolean {
-  return (
-    document.body.clientHeight - (window.innerHeight + window.pageYOffset) <
-    1000
-  )
-}
+// function isDisplay(message: BrowserMessage): message is DisplayMessage {
+//   return message.action === "display"
+// }
 
-function sendInput() {
-  const message: InputMessage = {
-    action: "input",
-    type: type,
-    input: input.value,
-  }
+// function needsEntries(): boolean {
+//   return (
+//     document.body.clientHeight - (window.innerHeight + window.pageYOffset) <
+//     1000
+//   )
+// }
 
-  coordinator.postMessage(message)
-  if (needsEntries()) sendTick()
-}
+// function sendInput() {
+//   const message: InputMessage = {
+//     action: "input",
+//     type: type,
+//     input: input.value,
+//   }
 
-function sendTick() {
-  coordinator.postMessage({ action: "tick" } as TickMessage)
-}
+//   coordinator.postMessage(message)
+//   if (needsEntries()) sendTick()
+// }
 
-function createCharDetails({
-  character,
-  name,
-  block,
-  codePoint,
-  bytes,
-}: DisplayMessage) {
-  template.content.querySelector(".char--literal")!.textContent = character
-  template.content.querySelector(".char--name")!.textContent = name
-  template.content.querySelector(".char--block")!.textContent = block
-  template.content.querySelector(".char--code")!.textContent = String(codePoint)
-  template.content.querySelector(".char--bytes")!.textContent = bytes
+// function sendTick() {
+//   coordinator.postMessage({ action: "tick" } as TickMessage)
+// }
 
-  const node = document.importNode(template.content, true)
-  display.appendChild(node)
-}
+// function createCharDetails({
+//   character,
+//   name,
+//   block,
+//   codePoint,
+//   bytes,
+// }: DisplayMessage) {
+//   template.content.querySelector(".char--literal")!.textContent = character
+//   template.content.querySelector(".char--name")!.textContent = name
+//   template.content.querySelector(".char--block")!.textContent = block
+//   template.content.querySelector(".char--code")!.textContent = String(codePoint)
+//   template.content.querySelector(".char--bytes")!.textContent = bytes
 
-function clearChildren(node: Node) {
-  while (node.firstChild) {
-    node.removeChild(node.firstChild)
-  }
-}
+//   const node = document.importNode(template.content, true)
+//   display.appendChild(node)
+// }
+
+// function clearChildren(node: Node) {
+//   while (node.firstChild) {
+//     node.removeChild(node.firstChild)
+//   }
+// }

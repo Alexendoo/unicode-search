@@ -48,8 +48,7 @@ const prettierConfig = prettier.resolveConfig.sync(dir(".."))
  * @param {string} path
  */
 function writeData(template, data, path) {
-  const json = JSON.stringify(data)
-  const formatted = prettier.format(template.replace("%", json), {
+  const formatted = prettier.format(template(data), {
     ...prettierConfig,
     parser: "typescript",
     printWidth: 200,
@@ -103,14 +102,15 @@ function writeData(template, data, path) {
     char.name = ""
   })
 
-  const template = `
+  const template = names => `
     export interface Name {
       codepoint: number,
       name: string,
     }
-    export type Names = Array<Name>
 
-    export const names: Names = %
+    export const names: Array<Name> = ${JSON.stringify(names)}
+
+    export const length = ${names.length}
 `
 
   saxStream.on("closetag", nodeName => {
@@ -135,14 +135,14 @@ function writeData(template, data, path) {
     })
   })
 
-  const template = `
-export interface Block {
-  name: string
-  start: number
-  end: number
-}
+  const template = blocks => `
+    export interface Block {
+      name: string
+      start: number
+      end: number
+    }
 
-export const blocks: Array<Block> = %
+    export const blocks: Array<Block> = ${JSON.stringify(blocks)}
 `
 
   saxStream.on("closetag", nodeName => {
