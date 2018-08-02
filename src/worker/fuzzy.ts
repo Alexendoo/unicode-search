@@ -31,5 +31,6 @@ function main(mem: Int32Array, pid: number) {
 }
 
 onmessage = event => {
+  postMessage(null)
   main(new Int32Array(event.data.sab), event.data.pid)
 }

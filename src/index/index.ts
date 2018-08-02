@@ -32,25 +32,30 @@ let type: InputType
 //   })
 // }
 
-let sab = new SharedArrayBuffer(1024)
+const sab = new SharedArrayBuffer(1024)
+
+const fuzzers = new Set()
+let loaded = 0
+
+const concurrency = Math.min(30, navigator.hardwareConcurrency)
 
 const coordinator = new Worker("coordinator.js")
-const fuzzers = new Set()
-const ports = []
 
-for (let i = 0; i < navigator.hardwareConcurrency; i++) {
+console.group("Loading Workers")
+for (let i = 0; i < concurrency; i++) {
   const fuzzer = new Worker("fuzzy.js")
 
-  const channel = new MessageChannel()
-
-
-  fuzzer.postMessage({ sab, port: channel.port2 }, [channel.port2])
-  ports.push(channel.port1)
-
+  fuzzer.postMessage({ sab, pid: i })
+  fuzzer.onmessage = () => {
+    console.log(`Loaded pid ${i} (${loaded+1}/${concurrency})`)
+    if (++loaded === concurrency) {
+      coordinator.postMessage({ sab, concurrency })
+      console.groupEnd()
+    }
+  }
   fuzzers.add(fuzzer)
 }
 
-coordinator.postMessage({ sab, ports: ports }, ports)
 
 // sendInput()
 
