@@ -1,8 +1,14 @@
 {
-  "files": [],
-  "include": [],
-  "references": [
-    { "path": "src/worker" },
-    { "path": "src/index" }
-  ]
+  "compilerOptions": {
+    "target": "es2018",
+    "module": "esnext",
+    "lib": ["es2018"],
+
+    "noFallthroughCasesInSwitch": true,
+    "strict": true,
+
+    "noEmit": true,
+    "pretty": true,
+    "sourceMap": true
+  }
 }

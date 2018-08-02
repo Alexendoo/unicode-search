@@ -1,7 +1,6 @@
 {
-  "extends": "../tsconfig.base.json",
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
     "lib": ["es2018", "dom"]
-  },
-  "references": [{ "path": "../shared" }]
+  }
 }

@@ -25,7 +25,6 @@ const base = {
         test: /\.ts$/,
         loader: "ts-loader",
         options: {
-          configFile: dir("tsconfig.webpack.json"),
           transpileOnly: true,
         },
       },

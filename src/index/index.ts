@@ -5,7 +5,7 @@ import {
   DisplayMessage,
   TickMessage,
   InputType,
-} from "../shared/util/messages"
+} from "../shared/messages"
 
 import "../css/app.css"
 
