@@ -71,8 +71,8 @@ const worker = {
   ...base,
 
   entry: {
-    fuzzy: "./src/worker/fuzzy/fuzzy.ts",
-    coordinator: "./src/worker/coordinator/coordinator.ts",
+    fuzzy: "./src/worker/fuzzy.ts",
+    coordinator: "./src/worker/coordinator.ts",
   },
 
   target: "webworker",
