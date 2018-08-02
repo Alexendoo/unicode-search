@@ -94,16 +94,23 @@ function writeData(template, data, path) {
   saxStream.on("closetag", nodeName => {
     if (nodeName !== "char" || isDerived(char.code) || char.code === -1) return
 
-    names.push([char.code, char.name])
+    names.push({
+      codepoint: char.code,
+      name: char.name,
+    })
 
     char.code = -1
     char.name = ""
   })
 
   const template = `
-export type Names = Map<number, string>
+    export interface Name {
+      codepoint: number,
+      name: string,
+    }
+    export type Names = Array<Name>
 
-export const names: Names = new Map(%)
+    export const names: Names = %
 `
 
   saxStream.on("closetag", nodeName => {
