@@ -8,6 +8,7 @@ import {
 } from "../shared/messages"
 
 import "../css/app.css"
+import { Offset } from "../shared/memory";
 
 const input = document.getElementById("chars") as HTMLInputElement
 const template = document.getElementById(
@@ -32,12 +33,14 @@ let type: InputType
 //   })
 // }
 
-const sab = new SharedArrayBuffer(1024)
+const concurrency = Math.min(31, navigator.hardwareConcurrency)
+const sab = new SharedArrayBuffer(4 *(Offset.InputEnd + Offset.ResultEnd * concurrency))
+;(window as any).mem = new Int32Array(sab)
+
 
 const fuzzers = new Set()
 let loaded = 0
 
-const concurrency = Math.min(30, navigator.hardwareConcurrency)
 
 const coordinator = new Worker("coordinator.js")
 
@@ -47,7 +50,7 @@ for (let i = 0; i < concurrency; i++) {
 
   fuzzer.postMessage({ sab, pid: i })
   fuzzer.onmessage = () => {
-    console.log(`Loaded pid ${i} (${loaded+1}/${concurrency})`)
+    console.log(`Loaded pid ${i} (${loaded + 1}/${concurrency})`)
     if (++loaded === concurrency) {
       coordinator.postMessage({ sab, concurrency })
       console.groupEnd()
@@ -55,7 +58,6 @@ for (let i = 0; i < concurrency; i++) {
   }
   fuzzers.add(fuzzer)
 }
-
 
 // sendInput()
 

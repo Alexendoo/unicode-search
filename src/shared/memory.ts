@@ -2,6 +2,7 @@ export const enum Offset {
   Index,
   Turn,
 
+  WakeAllFuzzers,
   PIDFlags,
 
   InputLength,
