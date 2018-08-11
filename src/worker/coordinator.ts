@@ -1,37 +1,47 @@
-import { Offset } from "../shared/memory"
-import { length } from "../data/names";
+import { Offset, CoordinatorState, FuzzerState } from "../shared/memory"
+import { length } from "../data/names"
 
 function main(mem: Int32Array, concurrency: number) {
+  let turn = 0
   while (true) {
-    const turn = Atomics.load(mem, Offset.Turn)
     Atomics.wait(mem, Offset.Turn, turn)
+    turn = Atomics.load(mem, Offset.Turn)
 
-    Atomics.store(mem, Offset.WakeAllFuzzers, 1)
-    Atomics.wake(mem, Offset.WakeAllFuzzers, Infinity)
-
-    const cs = []
+    const rec = []
 
     while (true) {
       if (Atomics.load(mem, Offset.Turn) !== turn) {
         break
       }
 
-      Atomics.wait(mem, Offset.PIDFlags, 0)
-      const flags = Atomics.load(mem, Offset.PIDFlags)
+      Atomics.wait(mem, Offset.Coordinator, CoordinatorState.Idle)
+      Atomics.store(mem, Offset.Coordinator, CoordinatorState.Scanning)
 
-      for (let pid = 0; pid < concurrency; pid++) {
-        const pidFlag = 1 << pid
-        if ((flags & pidFlag) === 0) {
+      for (
+        let i = Offset.InputEnd;
+        i < Offset.InputEnd + concurrency * Offset.ResultEnd;
+        i += Offset.ResultEnd
+      ) {
+        if (Atomics.load(mem, i + Offset.Fuzzer) === FuzzerState.Fuzzing) {
           continue
         }
 
-        const outIndex = Offset.InputEnd + pid * Offset.ResultEnd
+        const codepoint = Atomics.load(mem, i + Offset.Codepoint)
+        rec.push(codepoint)
 
-        cs.push(Atomics.load(mem, outIndex + Offset.Codepoint))
+        Atomics.store(mem, i + Offset.Fuzzer, FuzzerState.Fuzzing)
+        Atomics.wake(mem, i + Offset.Fuzzer, 1)
+      }
 
-        Atomics.and(mem, Offset.PIDFlags, ~pidFlag)
-        Atomics.store(mem, outIndex + Offset.WakeFuzzer, 1)
-        Atomics.wake(mem, outIndex + Offset.WakeFuzzer, 1)
+      const prev = Atomics.compareExchange(
+        mem,
+        Offset.Coordinator,
+        CoordinatorState.Scanning,
+        CoordinatorState.Idle,
+      )
+
+      if (prev === CoordinatorState.HasResult) {
+        continue
       }
 
       if (Atomics.load(mem, Offset.Index) >= length) {
@@ -39,8 +49,9 @@ function main(mem: Int32Array, concurrency: number) {
       }
     }
 
-    Atomics.store(mem, Offset.WakeAllFuzzers, 0)
-    console.log(cs)
+    console.log(rec)
+    // TODO: some entries getting eaten
+    console.assert(rec.length === length)
   }
 }
 

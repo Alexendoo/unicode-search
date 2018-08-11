@@ -66,6 +66,11 @@ const worker = {
     coordinator: "./src/worker/coordinator.ts",
   },
 
+  performance: {
+    maxAssetSize: 2e6,
+    maxEntrypointSize: 2e6,
+  },
+
   target: "webworker",
 }
 

@@ -8,7 +8,7 @@ import {
 } from "../shared/messages"
 
 import "../css/app.css"
-import { Offset } from "../shared/memory";
+import { Offset } from "../shared/memory"
 
 const input = document.getElementById("chars") as HTMLInputElement
 const template = document.getElementById(
@@ -34,13 +34,13 @@ let type: InputType
 // }
 
 const concurrency = Math.min(31, navigator.hardwareConcurrency)
-const sab = new SharedArrayBuffer(4 *(Offset.InputEnd + Offset.ResultEnd * concurrency))
+const sab = new SharedArrayBuffer(
+  4 * (Offset.InputEnd + Offset.ResultEnd * concurrency),
+)
 ;(window as any).mem = new Int32Array(sab)
-
 
 const fuzzers = new Set()
 let loaded = 0
-
 
 const coordinator = new Worker("coordinator.js")
 

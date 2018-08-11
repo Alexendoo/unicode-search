@@ -2,8 +2,7 @@ export const enum Offset {
   Index,
   Turn,
 
-  WakeAllFuzzers,
-  PIDFlags,
+  Coordinator,
 
   InputLength,
   MaxInputLength = 0xff,
@@ -11,7 +10,18 @@ export const enum Offset {
 
   // Offsets from InputEnd + n * ResultEnd
 
-  WakeFuzzer = 0,
+  Fuzzer = 0,
   Codepoint,
   ResultEnd,
+}
+
+export const enum CoordinatorState {
+  Idle,
+  Scanning,
+  HasResult,
+}
+
+export const enum FuzzerState {
+  Fuzzing,
+  Complete,
 }
