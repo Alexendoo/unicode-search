@@ -1,7 +1,6 @@
 const CSSExtractPlugin = require("mini-css-extract-plugin")
 const HtmlWebpackPlugin = require("html-webpack-plugin")
 const path = require("path")
-const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin")
 const rimraf = require("rimraf")
 
 const dir = (...pathSegments) => path.resolve(__dirname, ...pathSegments)
@@ -27,9 +26,6 @@ const base = {
       {
         test: /\.ts$/,
         loader: "ts-loader",
-        options: {
-          transpileOnly: true,
-        },
       },
       {
         test: /\.css$/,
@@ -58,11 +54,6 @@ const main = {
     new CSSExtractPlugin({
       filename: "style.css",
     }),
-    new ForkTsCheckerWebpackPlugin({
-      async: false,
-      formatter: "codeframe",
-      tsconfig: dir("src/index/tsconfig.json"),
-    }),
   ],
 }
 
@@ -76,14 +67,6 @@ const worker = {
   },
 
   target: "webworker",
-
-  plugins: [
-    new ForkTsCheckerWebpackPlugin({
-      async: false,
-      formatter: "codeframe",
-      tsconfig: dir("src/worker/tsconfig.json"),
-    }),
-  ],
 }
 
 module.exports = [main, worker]

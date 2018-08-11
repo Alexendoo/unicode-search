@@ -7,7 +7,6 @@
     "noFallthroughCasesInSwitch": true,
     "strict": true,
 
-    "noEmit": true,
     "pretty": true,
     "sourceMap": true
   }
