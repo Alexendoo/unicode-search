@@ -1,5 +1,5 @@
 import { Offset, CoordinatorState, FuzzerState } from "../shared/memory"
-import { length } from "../data/names"
+import { length, names } from "../data/names"
 
 function main(mem: Int32Array, concurrency: number) {
   let turn = 0
@@ -18,19 +18,21 @@ function main(mem: Int32Array, concurrency: number) {
       Atomics.store(mem, Offset.Coordinator, CoordinatorState.Scanning)
 
       for (
-        let i = Offset.InputEnd;
-        i < Offset.InputEnd + concurrency * Offset.ResultEnd;
-        i += Offset.ResultEnd
+        let outIndex = Offset.InputEnd;
+        outIndex < Offset.InputEnd + concurrency * Offset.ResultEnd;
+        outIndex += Offset.ResultEnd
       ) {
-        if (Atomics.load(mem, i + Offset.Fuzzer) === FuzzerState.Fuzzing) {
+        if (
+          Atomics.load(mem, outIndex + Offset.Fuzzer) === FuzzerState.Fuzzing
+        ) {
           continue
         }
 
-        const codepoint = Atomics.load(mem, i + Offset.Codepoint)
+        const codepoint = Atomics.load(mem, outIndex + Offset.Codepoint)
         rec.push(codepoint)
 
-        Atomics.store(mem, i + Offset.Fuzzer, FuzzerState.Fuzzing)
-        Atomics.wake(mem, i + Offset.Fuzzer, 1)
+        Atomics.store(mem, outIndex + Offset.Fuzzer, FuzzerState.Fuzzing)
+        Atomics.wake(mem, outIndex + Offset.Fuzzer, 1)
       }
 
       const prev = Atomics.compareExchange(
@@ -49,9 +51,20 @@ function main(mem: Int32Array, concurrency: number) {
       }
     }
 
-    console.log(rec)
-    // TODO: some entries getting eaten
-    console.assert(rec.length === length)
+    console.log("rec", rec)
+
+    const sorted = rec.slice().sort((a, b) => a - b)
+    const duplicates = []
+    for (let i = 0; i < sorted.length - 1; i++) {
+      if (sorted[i] === sorted[i + 1]) {
+        duplicates.push(sorted[i])
+      }
+    }
+    console.log("duplicates", duplicates)
+
+    const actual = new Set(sorted)
+    const missing = names.filter(name => !actual.has(name.codepoint))
+    console.log("missing", missing)
   }
 }
 
