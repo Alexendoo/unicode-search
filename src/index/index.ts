@@ -33,10 +33,9 @@ let type: InputType
 //   })
 // }
 
-const concurrency = Math.min(31, navigator.hardwareConcurrency)
-const sab = new SharedArrayBuffer(
-  4 * (Offset.InputEnd + Offset.ResultEnd * concurrency),
-)
+// const concurrency = navigator.hardwareConcurrency
+const concurrency = 1
+const sab = new SharedArrayBuffer(4 * Offset.InputEnd)
 ;(window as any).mem = new Int32Array(sab)
 
 const fuzzers = new Set()
@@ -45,12 +44,12 @@ let loaded = 0
 const coordinator = new Worker("coordinator.js")
 
 console.group("Loading Workers")
-for (let i = 0; i < concurrency; i++) {
+for (let pid = 1; pid <= concurrency; pid++) {
   const fuzzer = new Worker("fuzzy.js")
 
-  fuzzer.postMessage({ sab, pid: i })
+  fuzzer.postMessage({ sab, pid })
   fuzzer.onmessage = () => {
-    console.log(`Loaded pid ${i} (${loaded + 1}/${concurrency})`)
+    console.log(`Loaded pid ${pid} (${loaded + 1}/${concurrency})`)
     if (++loaded === concurrency) {
       coordinator.postMessage({ sab, concurrency })
       console.groupEnd()

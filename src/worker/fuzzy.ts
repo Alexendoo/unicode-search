@@ -1,9 +1,8 @@
 import { names, length } from "../data/names"
-import { Offset, FuzzerState, CoordinatorState } from "../shared/memory"
+import { Offset } from "../shared/memory"
+import { lock } from "../shared/mutex"
 
 function main(mem: Int32Array, pid: number) {
-  const outIndex = Offset.InputEnd + pid * Offset.ResultEnd
-
   let turn = 0
   while (true) {
     Atomics.wait(mem, Offset.Turn, turn)
@@ -22,13 +21,12 @@ function main(mem: Int32Array, pid: number) {
 
       const { name, codepoint } = names[index]
 
-      // TODO record + check turn
-      Atomics.store(mem, outIndex + Offset.Codepoint, codepoint)
+      lock(mem, Offset.Mutex)
 
-      Atomics.store(mem, outIndex + Offset.Fuzzer, FuzzerState.Complete)
-      Atomics.store(mem, Offset.Coordinator, CoordinatorState.HasResult)
+      Atomics.store(mem, Offset.Codepoint, codepoint)
+
+      Atomics.store(mem, Offset.Coordinator, 1)
       Atomics.wake(mem, Offset.Coordinator, 1)
-      Atomics.wait(mem, outIndex + Offset.Fuzzer, FuzzerState.Complete)
     }
 
     // console.log("done")

@@ -1,5 +1,6 @@
-import { Offset, CoordinatorState, FuzzerState } from "../shared/memory"
+import { Offset } from "../shared/memory"
 import { length, names } from "../data/names"
+import { unlock } from "../shared/mutex";
 
 function main(mem: Int32Array, concurrency: number) {
   let turn = 0
@@ -7,48 +8,19 @@ function main(mem: Int32Array, concurrency: number) {
     Atomics.wait(mem, Offset.Turn, turn)
     turn = Atomics.load(mem, Offset.Turn)
 
-    const rec = []
+    const rec: number[] = []
 
     while (true) {
       if (Atomics.load(mem, Offset.Turn) !== turn) {
         break
       }
 
-      Atomics.wait(mem, Offset.Coordinator, CoordinatorState.Idle)
-      Atomics.store(mem, Offset.Coordinator, CoordinatorState.Scanning)
+      Atomics.wait(mem, Offset.Coordinator, 0)
 
-      for (
-        let outIndex = Offset.InputEnd;
-        outIndex < Offset.InputEnd + concurrency * Offset.ResultEnd;
-        outIndex += Offset.ResultEnd
-      ) {
-        if (
-          Atomics.load(mem, outIndex + Offset.Fuzzer) === FuzzerState.Fuzzing
-        ) {
-          continue
-        }
+      const codepoint = Atomics.load(mem, Offset.Codepoint)
+      rec.push(codepoint)
 
-        const codepoint = Atomics.load(mem, outIndex + Offset.Codepoint)
-        rec.push(codepoint)
-
-        Atomics.store(mem, outIndex + Offset.Fuzzer, FuzzerState.Fuzzing)
-        Atomics.wake(mem, outIndex + Offset.Fuzzer, 1)
-      }
-
-      const prev = Atomics.compareExchange(
-        mem,
-        Offset.Coordinator,
-        CoordinatorState.Scanning,
-        CoordinatorState.Idle,
-      )
-
-      if (prev === CoordinatorState.HasResult) {
-        continue
-      }
-
-      if (Atomics.load(mem, Offset.Index) >= length) {
-        break
-      }
+      unlock(mem, Offset.Mutex)
     }
 
     console.log("rec", rec)
