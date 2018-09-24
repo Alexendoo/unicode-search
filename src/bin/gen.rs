@@ -45,13 +45,13 @@
 /// | ve$    | 6 | 5 |
 ///
 /// Since we don't need to know where in the combined string our suffix is, only
-/// which codepoint is corresponds to we can join the entries for "e$", losing
+/// which codepoint it corresponds to we can join the entries for "e$", losing
 /// the information that there is a suffix at index 7. This costs a few bytes
 /// per entry since the codepoint array is now an array of arrays, however since
-/// there are around 18x fewer entries in total for this data set the trade-off
+/// there are around 18x fewer entries in total for this dataset the trade-off
 /// is well worth it.
 ///
-/// After removing duplicates and the suffixes the remaining data is:
+/// After removing duplicates and the temporary suffixes the remaining data is:
 ///
 /// - The combined string S = "one$five$",
 /// - The suffix array A,
@@ -96,13 +96,7 @@
 /// the table separately. This allows us to deduplicate the many occurrences of
 /// words such as "LETTER" that appear in the middle of names. This reduction
 /// makes both the tables A and C smaller as well as the combined string S,
-/// drastically reducing the total size requirement.
-///
-/// Additionally a small extra saving can be had by removing duplicate suffixes
-/// from the same codepoint, for example in "LEFT SQUARE BRACKET" when split
-/// into words "LEFT$", "SQUARE$" and "BRACKET$" the suffix "T$" appears twice.
-/// Only one entry is needed to discover the codepoint contains the suffix "T$",
-/// so the other is removed.
+/// drastically reducing the space requirement.
 ///
 /// This means that multiword searches will no longer work directly since no
 /// suffixes contain spaces. Instead we also split the input pattern into words
@@ -113,6 +107,12 @@
 /// the final result is codepoints that match both "LATIN" and "LETTER". This
 /// means that word order of the input pattern no longer has an effect on the
 /// result, allowing "LATIN LETTER" to match "LATIN SMALL LETTER A".
+///
+/// Additionally, a small extra saving can be had by removing duplicate
+/// codepoints for a single suffix.  For example in "LEFT SQUARE BRACKET" when
+/// split into words "LEFT$", "SQUARE$" and "BRACKET$" the suffix "T$" appears
+/// twice. The "T$" suffix is already deduplicated however the codepoint for
+/// LEFT SQUARE BRACKET will appear twice in C[i], this is simply removed.
 
 extern crate ucd_raw;
 
