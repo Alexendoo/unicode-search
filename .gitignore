@@ -3,5 +3,5 @@
 *.rs.bk
 client/wasm
 node_modules
-src/generated.rs
+src/generated
 target
