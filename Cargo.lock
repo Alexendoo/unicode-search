@@ -7,9 +7,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 name = "general-suffix"
 version = "0.1.0"
 dependencies = [
+ "leb128 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "ucd-raw 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "wee_alloc 0.4.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
+
+[[package]]
+name = "leb128"
+version = "0.2.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "libc"
@@ -72,6 +78,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [metadata]
 "checksum cfg-if 0.1.4 (registry+https://github.com/rust-lang/crates.io-index)" = "efe5c877e17a9c717a0bf3613b2709f723202c4e4675cc8f12926ded29bcb17e"
+"checksum leb128 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)" = "667858d20b00532d1f54049323beb1e352df59664d16aa9c2de8a9e257d1e994"
 "checksum libc 0.2.42 (registry+https://github.com/rust-lang/crates.io-index)" = "b685088df2b950fccadf07a7187c8ef846a959c142338a48f9dc0b94517eb5f1"
 "checksum memory_units 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = "8452105ba047068f40ff7093dd1d9da90898e63dd61736462e9cdda6a90ad3c3"
 "checksum ucd-raw 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)" = "a42b4f60373d1ae9efa1bb0761116dd96d5bf6533306891fce1138b791d8e01f"
