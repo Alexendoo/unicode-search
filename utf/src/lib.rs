@@ -1,33 +1,37 @@
 #![no_std]
-#![feature(alloc, core_intrinsics, panic_implementation, lang_items)]
+#![feature(alloc, core_intrinsics, panic_handler, lang_items, alloc_error_handler)]
 #![feature(const_fn, const_string_new, const_vec_new)]
 
-#[macro_use]
 extern crate alloc;
 extern crate wee_alloc;
 
-mod generated;
 mod table;
 
-use alloc::Vec;
+use alloc::vec::Vec;
 use table::Table;
 
+// Use `wee_alloc` as the global allocator.
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
-#[panic_implementation]
+// Need to provide a tiny `panic` implementation for `#![no_std]`.
+// This translates into an `unreachable` instruction that will
+// raise a `trap` the WebAssembly execution if we panic at runtime.
+#[panic_handler]
 #[no_mangle]
-pub fn panic(_info: &core::panic::PanicInfo) -> ! {
+pub fn panic(_info: &::core::panic::PanicInfo) -> ! {
     unsafe {
-        core::intrinsics::abort();
+        ::core::intrinsics::abort();
     }
 }
 
-#[lang = "oom"]
+// Need to provide an allocation error handler which just aborts
+// the execution with trap.
+#[alloc_error_handler]
 #[no_mangle]
-pub extern "C" fn oom() -> ! {
+pub extern "C" fn oom(_: ::core::alloc::Layout) -> ! {
     unsafe {
-        core::intrinsics::abort();
+        ::core::intrinsics::abort();
     }
 }
 

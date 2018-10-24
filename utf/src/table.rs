@@ -1,14 +1,14 @@
-use alloc::Vec;
+use alloc::vec::Vec;
 
 #[derive(Debug)]
-pub struct Entry {
+pub struct Entry<'a> {
     pub index: u32,
-    pub codepoint: u32,
+    pub codepoint: &'a [u32],
 }
 
 pub struct Table<'a> {
     pub combined: &'a [u8],
-    pub entries: &'a [Entry],
+    pub entries: &'a [Entry<'a>],
 }
 
 impl<'a> Table<'a> {

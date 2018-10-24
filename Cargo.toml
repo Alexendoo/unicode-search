@@ -1,23 +1,6 @@
-[package]
-name = "general-suffix"
-version = "0.1.0"
-authors = ["Alex Macleod <alex@macleod.io>"]
+[workspace]
 
-[lib]
-crate-type = ["cdylib"]
-
-[[bin]]
-name = "gen"
-path = "src/bin/gen.rs"
-required-features = ["gen"]
-
-[features]
-gen = [
-    "leb128",
-    "ucd-raw",
+members = [
+    "gen",
+    "utf",
 ]
-
-[dependencies]
-leb128 = { version = "0.2", optional = true }
-ucd-raw = { version = "0.5", optional = true }
-wee_alloc = "0.4"

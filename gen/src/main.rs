@@ -169,7 +169,7 @@ fn main() {
     let mut visited_words = HashMap::new();
     let mut temp_suffixes = Vec::new();
 
-    let out = File::create("src/generated.bin").unwrap();
+    let out = File::create("utf/src/generated.bin").unwrap();
     let mut out = BufWriter::new(out);
 
     for character in char_iter() {

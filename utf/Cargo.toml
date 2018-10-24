@@ -1,0 +1,8 @@
+[package]
+name = "utf"
+version = "0.0.0"
+authors = ["Alex Macleod <alex@macleod.io>"]
+publish = false
+
+[dependencies]
+wee_alloc = "0.4"

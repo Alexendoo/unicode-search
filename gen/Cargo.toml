@@ -1,0 +1,9 @@
+[package]
+name = "gen"
+version = "0.0.0"
+authors = ["Alex Macleod <alex@macleod.io>"]
+publish = false
+
+[dependencies]
+leb128 = "0.2"
+ucd-raw = "0.5"
