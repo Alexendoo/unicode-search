@@ -113,18 +113,14 @@
 /// split into words "LEFT$", "SQUARE$" and "BRACKET$" the suffix "T$" appears
 /// twice. The "T$" suffix is already deduplicated however the codepoint for
 /// LEFT SQUARE BRACKET will appear twice in C[i], this is simply removed.
-
-
-// TODO:
-// - investigate LEB128 encoding, potential savings for codepoints array
-// - investigate fm-index/wavelet-trees
-
 extern crate leb128;
 extern crate ucd_raw;
 
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::BufWriter;
+use std::io::Write;
+use std::path::Path;
 use std::time::Instant;
 use ucd_raw::Character;
 use ucd_raw::CHARACTERS;
@@ -134,6 +130,12 @@ struct TempSuffix<'a> {
     suffix: &'a str,
     index: usize,
     codepoints: Vec<u32>,
+}
+
+fn out_file<P: AsRef<Path>>(path: P) -> BufWriter<File> {
+    let file = File::create(path).unwrap();
+
+    BufWriter::new(file)
 }
 
 fn char_iter() -> impl Iterator<Item = &'static Character> {
@@ -169,8 +171,8 @@ fn main() {
     let mut visited_words = HashMap::new();
     let mut temp_suffixes = Vec::new();
 
-    let out = File::create("utf/src/generated.bin").unwrap();
-    let mut out = BufWriter::new(out);
+    let mut combined_out = out_file("utf/src/generated.combined");
+    let mut leb_out = out_file("utf/src/generated.leb");
 
     for character in char_iter() {
         for word in character.name.split_whitespace() {
@@ -218,17 +220,19 @@ fn main() {
     println!("after: {}", temp_suffixes.len());
 
     for suffix in temp_suffixes {
-        leb128::write::unsigned(&mut out, suffix.index as u64).unwrap();
-        leb128::write::unsigned(&mut out, suffix.codepoints.len() as u64).unwrap();
+        leb128::write::unsigned(&mut leb_out, suffix.index as u64).unwrap();
+        leb128::write::unsigned(&mut leb_out, suffix.codepoints.len() as u64).unwrap();
 
         let mut last = 0;
         for codepoint in suffix.codepoints {
             let delta = codepoint - last;
             last = codepoint;
 
-            leb128::write::unsigned(&mut out, delta as u64).unwrap();
+            leb128::write::unsigned(&mut leb_out, delta as u64).unwrap();
         }
     }
+
+    combined_out.write_all(combined.as_bytes()).unwrap();
 
     println!("Generated in {:?}", start.elapsed());
 }
