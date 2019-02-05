@@ -2,18 +2,14 @@ const continuationBit = 1 << 7;
 const lowBitsMask = ~continuationBit & 0xff;
 
 /**
- * @template {ArrayBufferView} T
+ * Consume a ReadableStream of LEB128 bytes into an Array of numbers
  *
  * @param {ReadableStream<Uint8Array>} stream
- * @param {number} length of the returned ArrayBufferView
- * @param {new (length: number) => T} Type
- *
- * @returns {T}
+ * @returns {Promise<number[]>}
  */
-export async function decompress(stream, length, Type) {
+export async function decompress(stream) {
     const reader = stream.getReader();
-    const output = new Type(length);
-    let outIndex = 0;
+    const output = [];
 
     let result = 0;
     let shift = 0;
@@ -29,7 +25,7 @@ export async function decompress(stream, length, Type) {
             result |= (byte & lowBitsMask) << shift;
 
             if ((byte & continuationBit) === 0) {
-                output[outIndex++] = result;
+                output.push(result);
                 result = shift = 0;
                 continue;
             }
