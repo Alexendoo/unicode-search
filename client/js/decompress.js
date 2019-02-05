@@ -5,11 +5,10 @@ const lowBitsMask = ~continuationBit & 0xff;
  * Consume a readable stream of unsigned LEB128 encoded bytes, writing the
  * results into the provided buffer
  *
- * @template {ArrayBufferView} T
  * @param {ReadableStream<Uint8Array>} stream A stream of concatenated unsigned
  * LEB128 encoded values
- * @param {T} buffer An ArrayBuffer view to write the decoded values to
- * @returns {T} the passed in `buffer`
+ * @param {Uint32Array} buffer A preallocated Uint32Array to write the decoded
+ * values into
  */
 export async function decompress(stream, buffer) {
     const reader = stream.getReader();
@@ -22,7 +21,7 @@ export async function decompress(stream, buffer) {
         const { done, value } = await reader.read();
 
         if (done) {
-            return buffer;
+            return;
         }
 
         for (const byte of value) {
