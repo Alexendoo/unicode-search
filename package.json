@@ -9,8 +9,7 @@
     "url": "https://github.com/Alexendoo/utf.git"
   },
   "dependencies": {
-    "prettier": "^1.13.5",
-    "typescript": "~2.9.2"
+    "prettier": "^1.16.4"
   },
   "scripts": {
     "build": "cargo build --target wasm32-unknown-unknown --lib --release -Z unstable-options --out-dir client/wasm",

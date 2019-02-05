@@ -1,8 +1,0 @@
-{
-  "compilerOptions": {
-    "module": "esnext",
-    "noFallthroughCasesInSwitch": true,
-    "noEmit": true,
-    "target": "es2018"
-  }
-}
