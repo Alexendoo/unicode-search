@@ -118,6 +118,7 @@ extern crate ucd_raw;
 
 use std::collections::HashMap;
 use std::fs::File;
+use std::fs::create_dir_all;
 use std::io::BufWriter;
 use std::io::Write;
 use std::path::Path;
@@ -133,6 +134,12 @@ struct TempSuffix<'a> {
 }
 
 fn out_file<P: AsRef<Path>>(path: P) -> BufWriter<File> {
+    let path = path.as_ref();
+
+    if let Some(parent) = path.parent() {
+        create_dir_all(parent).unwrap();
+    }
+
     let file = File::create(path).unwrap();
 
     BufWriter::new(file)
@@ -171,12 +178,13 @@ fn main() {
     let mut visited_words = HashMap::new();
     let mut temp_suffixes = Vec::new();
 
-    let mut combined_out = out_file("utf/src/generated.combined");
-    let mut leb_out = out_file("utf/src/generated.leb");
+    let mut combined_out = out_file("client/data/generated.combined");
+    let mut leb_out = out_file("client/data/generated.leb");
+    let mut lengths_out = out_file("client/data/lengths.js");
 
     for character in char_iter() {
         for word in character.name.split_whitespace() {
-            let mut start;
+            let start;
 
             if visited_words.contains_key(word) {
                 start = visited_words[word];
@@ -218,6 +226,12 @@ fn main() {
     }
 
     println!("after: {}", temp_suffixes.len());
+
+    let counts = temp_suffixes.iter().map(|suffix| {
+        2 + suffix.codepoints.len()
+    });
+
+    writeln!(lengths_out, "export const bufferLength = {};", counts.sum::<usize>()).unwrap();
 
     for suffix in temp_suffixes {
         leb128::write::unsigned(&mut leb_out, suffix.index as u64).unwrap();

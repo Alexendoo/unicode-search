@@ -1,7 +1,6 @@
 .vscode
 *.log
 *.rs.bk
-client/wasm
+client/data
 node_modules
-utf/src/generated*
 target

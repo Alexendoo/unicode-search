@@ -7,10 +7,10 @@ const lowBitsMask = ~continuationBit & 0xff;
  *
  * @param {ReadableStream<Uint8Array>} stream A stream of concatenated unsigned
  * LEB128 encoded values
- * @param {Uint32Array} buffer A preallocated Uint32Array to write the decoded
+ * @param {Uint32Array} buffer A pre-allocated Uint32Array to write the decoded
  * values into
  */
-export async function decompress(stream, buffer) {
+async function leb128decode(stream, buffer) {
     const reader = stream.getReader();
 
     let index = 0;
@@ -36,4 +36,37 @@ export async function decompress(stream, buffer) {
             shift += 7;
         }
     }
+}
+
+export async function decode(stream, bufferLength) {
+    const buffer = new Uint32Array(bufferLength);
+
+    console.time("decode");
+
+    await leb128decode(stream, buffer);
+
+    const out = [];
+
+    let i = 0;
+    while (i < buffer.length) {
+        const index = buffer[i++];
+        const length = buffer[i++];
+
+        let last = 0;
+        const codepoints = buffer.slice(i, i + length).map(x => {
+            const result = last + x;
+
+            last = result;
+
+            return result;
+        });
+
+        i += length;
+
+        out.push({ index, codepoints });
+    }
+
+    console.timeEnd("decode");
+
+    return out;
 }
