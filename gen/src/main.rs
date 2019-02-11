@@ -117,8 +117,8 @@ extern crate leb128;
 extern crate ucd_raw;
 
 use std::collections::HashMap;
-use std::fs::File;
 use std::fs::create_dir_all;
+use std::fs::File;
 use std::io::BufWriter;
 use std::io::Write;
 use std::path::Path;
@@ -178,9 +178,8 @@ fn main() {
     let mut visited_words = HashMap::new();
     let mut temp_suffixes = Vec::new();
 
-    let mut combined_out = out_file("client/data/generated.combined");
-    let mut leb_out = out_file("client/data/generated.leb");
-    let mut lengths_out = out_file("client/data/lengths.js");
+    let mut combined_out = out_file("client/data/combined.txt");
+    let mut leb_out = out_file("client/data/table.bin");
 
     for character in char_iter() {
         for word in character.name.split_whitespace() {

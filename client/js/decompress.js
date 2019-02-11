@@ -2,42 +2,9 @@ const continuationBit = 1 << 7;
 const lowBitsMask = ~continuationBit & 0xff;
 
 /**
- * Consume a readable stream of unsigned LEB128 encoded bytes, writing the
- * results into the provided buffer
- *
- * @param {ReadableStream<Uint8Array>} stream A stream of concatenated unsigned
- * LEB128 encoded values
- * @param {Uint32Array} buffer A pre-allocated Uint32Array to write the decoded
- * values into
+ * Create a transform stream that decodes LEB128 encoded unsigned integers into
+ * Uint32Arrays
  */
-export async function leb128decode(stream, buffer) {
-    const reader = stream.getReader();
-
-    let index = 0;
-    let result = 0;
-    let shift = 0;
-
-    while (true) {
-        const { done, value } = await reader.read();
-
-        if (done) {
-            return;
-        }
-
-        for (const byte of value) {
-            result |= (byte & lowBitsMask) << shift;
-
-            if ((byte & continuationBit) === 0) {
-                buffer[index++] = result;
-                result = shift = 0;
-                continue;
-            }
-
-            shift += 7;
-        }
-    }
-}
-
 export function leb128decoder(bufLength = 2048) {
     let index = 0;
     let result = 0;
@@ -45,6 +12,10 @@ export function leb128decoder(bufLength = 2048) {
 
     let buffer = new Uint32Array(bufLength);
 
+    /**
+     * @param {Uint8Array} chunk
+     * @param {TransformStreamDefaultController<Uint32Array>} controller
+     */
     function transform(chunk, controller) {
         for (const byte of chunk) {
             if (index === bufLength) {
@@ -65,6 +36,9 @@ export function leb128decoder(bufLength = 2048) {
         }
     }
 
+    /**
+     * @param {TransformStreamDefaultController<Uint32Array>} controller
+     */
     function flush(controller) {
         if (index > 0) {
             controller.enqueue(buffer.subarray(0, index));
@@ -74,40 +48,11 @@ export function leb128decoder(bufLength = 2048) {
     return new TransformStream({ transform, flush });
 }
 
-export async function decode(stream, bufferLength) {
-    const buffer = new Uint32Array(bufferLength);
-
-    console.time("decode");
-
-    await leb128decode(stream, buffer);
-
-    const out = [];
-
-    let i = 0;
-    while (i < buffer.length) {
-        const index = buffer[i++];
-        const length = buffer[i++];
-
-        let last = 0;
-        const codepoints = buffer.slice(i, i + length).map(x => {
-            const result = last + x;
-
-            last = result;
-
-            return result;
-        });
-
-        i += length;
-
-        out.push({ index, codepoints });
-    }
-
-    console.timeEnd("decode");
-
-    return out;
-}
-
-export function decompressor() {
+/**
+ * Create a transform stream that unpacks a stream of Uint32Arrays into
+ * individual table entries
+ */
+export function unpacker() {
     const HAS_NONE = 0;
     const HAS_INDEX = 1;
     const HAS_CODEPOINTS = 2;
@@ -120,6 +65,10 @@ export function decompressor() {
     let lastCodepoint = 0;
     let state = HAS_NONE;
 
+    /**
+     * @param {Uint32Array} chunk
+     * @param {TransformStreamDefaultController<object>} controller
+     */
     function transform(chunk, controller) {
         for (const u32 of chunk) {
             switch (state) {
