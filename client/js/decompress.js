@@ -10,7 +10,7 @@ const lowBitsMask = ~continuationBit & 0xff;
  * @param {Uint32Array} buffer A pre-allocated Uint32Array to write the decoded
  * values into
  */
-async function leb128decode(stream, buffer) {
+export async function leb128decode(stream, buffer) {
     const reader = stream.getReader();
 
     let index = 0;
@@ -36,6 +36,42 @@ async function leb128decode(stream, buffer) {
             shift += 7;
         }
     }
+}
+
+export function leb128decoder(bufLength = 2048) {
+    let index = 0;
+    let result = 0;
+    let shift = 0;
+
+    let buffer = new Uint32Array(bufLength);
+
+    function transform(chunk, controller) {
+        for (const byte of chunk) {
+            if (index === bufLength) {
+                controller.enqueue(buffer);
+                buffer = new Uint32Array(bufLength);
+                index = 0;
+            }
+
+            result |= (byte & lowBitsMask) << shift;
+
+            if ((byte & continuationBit) === 0) {
+                buffer[index++] = result;
+                result = shift = 0;
+                continue;
+            }
+
+            shift += 7;
+        }
+    }
+
+    function flush(controller) {
+        if (index > 0) {
+            controller.enqueue(buffer.subarray(0, index));
+        }
+    }
+
+    return new TransformStream({ transform, flush });
 }
 
 export async function decode(stream, bufferLength) {
@@ -69,4 +105,51 @@ export async function decode(stream, bufferLength) {
     console.timeEnd("decode");
 
     return out;
+}
+
+export function decompressor() {
+    const HAS_NONE = 0;
+    const HAS_INDEX = 1;
+    const HAS_CODEPOINTS = 2;
+
+    let current = {
+        index: 0,
+        codepoints: null,
+    };
+    let codepointIndex = 0;
+    let lastCodepoint = 0;
+    let state = HAS_NONE;
+
+    function transform(chunk, controller) {
+        for (const u32 of chunk) {
+            switch (state) {
+                case HAS_NONE:
+                    current.index = u32;
+
+                    state = HAS_INDEX;
+                    break;
+
+                case HAS_INDEX:
+                    current.codepoints = new Uint32Array(u32);
+
+                    state = HAS_CODEPOINTS;
+                    break;
+
+                case HAS_CODEPOINTS:
+                    lastCodepoint += u32;
+                    current.codepoints[codepointIndex++] = lastCodepoint;
+
+                    if (codepointIndex === current.codepoints.length) {
+                        controller.enqueue(current);
+
+                        codepointIndex = lastCodepoint = 0;
+                        current = { index: 0, codepoints: null };
+
+                        state = HAS_NONE;
+                    }
+                    break;
+            }
+        }
+    }
+    return new TransformStream({ transform });
 }

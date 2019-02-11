@@ -1,16 +1,30 @@
-import { decode } from "./decompress.js";
-import { bufferLength } from "../data/lengths.js";
+import { decompressor, leb128decoder } from "./decompress.js";
 
 async function main() {
+    console.time("main")
     const [table, combined] = await Promise.all([
         fetch("data/generated.leb"),
         fetch("data/generated.combined").then(r => r.text()),
     ]);
 
-    const xs = await decode(table.body, bufferLength);
+    const reader = table.body
+        .pipeThrough(leb128decoder())
+        .pipeThrough(decompressor())
+        .getReader();
+    const a = [];
 
-    window.combined = combined
-    window.xs = xs
+    while (true) {
+        const { done, value } = await reader.read();
+
+        if (done) {
+            break;
+        }
+
+        a.push(value);
+    }
+
+    window.a = a;
+    console.timeEnd("main")
 }
 
 main();

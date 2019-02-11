@@ -227,12 +227,6 @@ fn main() {
 
     println!("after: {}", temp_suffixes.len());
 
-    let counts = temp_suffixes.iter().map(|suffix| {
-        2 + suffix.codepoints.len()
-    });
-
-    writeln!(lengths_out, "export const bufferLength = {};", counts.sum::<usize>()).unwrap();
-
     for suffix in temp_suffixes {
         leb128::write::unsigned(&mut leb_out, suffix.index as u64).unwrap();
         leb128::write::unsigned(&mut leb_out, suffix.codepoints.len() as u64).unwrap();
