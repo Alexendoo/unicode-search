@@ -1,17 +1,16 @@
-use alloc::vec::Vec;
-
-#[derive(Debug)]
-pub struct Entry<'a> {
+#[derive(Debug, Default)]
+pub struct Entry {
     pub index: u32,
-    pub codepoint: &'a [u32],
+    pub codepoints: Vec<u32>,
 }
 
-pub struct Table<'a> {
-    pub combined: &'a [u8],
-    pub entries: &'a [Entry<'a>],
+#[derive(Debug, Default)]
+pub struct Table {
+    pub combined: Vec<u8>,
+    pub entries: Vec<Entry>,
 }
 
-impl<'a> Table<'a> {
+impl Table {
     fn slice_from(&self, start: usize, limit: usize) -> &[u8] {
         let end = usize::min(start + limit, self.combined.len());
 
@@ -51,16 +50,16 @@ impl<'a> Table<'a> {
         (start, right)
     }
 
-    pub fn codepoints(&self, vec: &mut Vec<u32>, substring: &[u8]) {
-        let (start, end) = self.find_range(substring);
+    // pub fn codepoints(&self, vec: &mut Vec<u32>, substring: &[u8]) {
+    //     let (start, end) = self.find_range(substring);
 
-        vec.clear();
+    //     vec.clear();
 
-        for entry in self.entries[start..end].into_iter() {
-            vec.push(entry.codepoint);
-        }
+    //     for entry in self.entries[start..end].into_iter() {
+    //         vec.push(entry.codepoint);
+    //     }
 
-        vec.sort_unstable();
-        vec.dedup();
-    }
+    //     vec.sort_unstable();
+    //     vec.dedup();
+    // }
 }
