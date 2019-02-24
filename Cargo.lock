@@ -4,14 +4,6 @@ version = "0.1.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
-name = "gen"
-version = "0.0.0"
-dependencies = [
- "leb128 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)",
- "ucd-raw 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
 name = "lazy_static"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -69,6 +61,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 name = "utf"
 version = "0.0.0"
 dependencies = [
+ "leb128 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "ucd-raw 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "wasm-bindgen 0.2.37 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
