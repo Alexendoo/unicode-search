@@ -4,3 +4,4 @@
 client/data
 node_modules
 target
+dist

@@ -1,4 +1,6 @@
 import { unpacker, leb128decoder } from "./decompress.js";
+import tableURL from "../data/table.bin"
+import combinedURL from "../data/combined.txt"
 
 function findRange(entries, combined, substring) {
     let left = 0;
@@ -42,8 +44,8 @@ function findRange(entries, combined, substring) {
 async function main() {
     console.time("main");
     const [tableResponse, combined] = await Promise.all([
-        fetch("data/table.bin"),
-        fetch("data/combined.txt").then(r => r.text()),
+        fetch(tableURL),
+        fetch(combinedURL).then(r => r.text()),
     ]);
 
     const reader = tableResponse.body
@@ -68,6 +70,10 @@ async function main() {
     window.findRange = findRange;
 
     console.timeEnd("main");
+
+    const wasm = await import("../../target/wpkg/utf");
+
+    window.wasm = wasm;
 }
 
 main();
