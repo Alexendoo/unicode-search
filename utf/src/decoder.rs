@@ -2,11 +2,10 @@ use crate::table::{Entry, Table};
 use std::mem;
 use wasm_bindgen::prelude::*;
 
-#[derive(Debug, Default)]
+#[derive(Default)]
 struct Decoder {
     buffer: Vec<u32>,
 
-    index: usize,
     shift: u32,
     result: u32,
 }
@@ -36,7 +35,7 @@ impl Decoder {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialEq)]
 enum Has {
     None,
     Index,
@@ -50,8 +49,8 @@ impl Default for Has {
 }
 
 #[wasm_bindgen]
-#[derive(Debug, Default)]
-struct Unpacker {
+#[derive(Default)]
+pub struct Unpacker {
     decoder: Decoder,
 
     has: Has,
@@ -66,7 +65,6 @@ struct Unpacker {
 
 #[wasm_bindgen]
 impl Unpacker {
-    #[wasm_bindgen]
     pub fn transform(&mut self, bytes: &[u8]) {
         let chunk = self.decoder.transform(bytes);
 
@@ -103,8 +101,8 @@ impl Unpacker {
         }
     }
 
-    #[wasm_bindgen]
     pub fn flush(self) -> Table {
+        assert_eq!(self.has, Has::None);
         self.table
     }
 }

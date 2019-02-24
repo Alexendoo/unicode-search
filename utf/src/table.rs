@@ -1,15 +1,21 @@
-#[derive(Debug, Default)]
+use wasm_bindgen::prelude::*;
+use std::ops::Range;
+use crate::log;
+
+#[derive(Default)]
 pub struct Entry {
-    pub index: u32,
-    pub codepoints: Vec<u32>,
+    pub(crate) index: u32,
+    pub(crate) codepoints: Vec<u32>,
 }
 
-#[derive(Debug, Default)]
+#[wasm_bindgen]
+#[derive(Default)]
 pub struct Table {
-    pub combined: Vec<u8>,
-    pub entries: Vec<Entry>,
+    pub(crate) combined: Vec<u8>,
+    pub(crate) entries: Vec<Entry>,
 }
 
+#[wasm_bindgen]
 impl Table {
     fn slice_from(&self, start: usize, limit: usize) -> &[u8] {
         let end = usize::min(start + limit, self.combined.len());
@@ -17,7 +23,7 @@ impl Table {
         &self.combined[start..end]
     }
 
-    fn find_range(&self, substring: &[u8]) -> (usize, usize) {
+    fn find_range(&self, substring: &[u8]) -> Range<usize> {
         // https://en.wikipedia.org/wiki/Suffix_array#Applications
         let mut left = 0;
         let mut right = self.entries.len();
@@ -47,7 +53,15 @@ impl Table {
             }
         }
 
-        (start, right)
+        start..right
+    }
+
+    fn codepoints(&self, substring: &[u8]) {
+        let range = self.find_range(substring);
+
+        for entry in self.entries[range].into_iter() {
+            log(format!("{}", 1));
+        }
     }
 
     // pub fn codepoints(&self, vec: &mut Vec<u32>, substring: &[u8]) {
