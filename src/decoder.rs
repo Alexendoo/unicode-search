@@ -65,6 +65,11 @@ pub struct Unpacker {
 
 #[wasm_bindgen]
 impl Unpacker {
+    #[wasm_bindgen(constructor)]
+    pub fn new() -> Self {
+        Self::default()
+    }
+
     pub fn transform(&mut self, bytes: &[u8]) {
         let chunk = self.decoder.transform(bytes);
 

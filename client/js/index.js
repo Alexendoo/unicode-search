@@ -1,6 +1,6 @@
 import { unpacker, leb128decoder } from "./decompress.js";
-import tableURL from "../data/table.bin"
-import combinedURL from "../data/combined.txt"
+import tableURL from "../data/table.bin";
+import combinedURL from "../data/combined.txt";
 
 function findRange(entries, combined, substring) {
     let left = 0;
@@ -43,16 +43,16 @@ function findRange(entries, combined, substring) {
 
 async function main() {
     console.time("main");
-    const [tableResponse, combined] = await Promise.all([
+    const [tableResponse, combined, wasm] = await Promise.all([
         fetch(tableURL),
         fetch(combinedURL).then(r => r.text()),
+        import("../../target/wpkg/utf"),
     ]);
 
-    const reader = tableResponse.body
-        .pipeThrough(leb128decoder())
-        .pipeThrough(unpacker())
-        .getReader();
-    const table = [];
+    wasm.init();
+
+    const reader = tableResponse.body.getReader();
+    const unpacker = new wasm.Unpacker();
 
     while (true) {
         const { done, value } = await reader.read();
@@ -61,19 +61,14 @@ async function main() {
             break;
         }
 
-        table.push(value);
+        unpacker.transform(value);
     }
 
-    window.table = table;
+    window.table = unpacker.flush();
+
     window.combined = combined;
-
-    window.findRange = findRange;
-
-    console.timeEnd("main");
-
-    const wasm = await import("../../target/wpkg/utf");
-
     window.wasm = wasm;
+    console.timeEnd("main");
 }
 
 main();

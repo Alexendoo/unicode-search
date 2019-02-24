@@ -16,7 +16,7 @@ module.exports = {
         new WasmPackPlugin({
             crateDirectory: __dirname,
 
-            extraArgs: "--dev --out-dir target/wpkg",
+            extraArgs: "--out-dir target/wpkg",
         }),
     ],
     mode: "development",

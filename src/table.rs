@@ -56,7 +56,7 @@ impl Table {
         start..right
     }
 
-    fn codepoints(&self, substring: &[u8]) {
+    pub fn codepoints(&self, substring: &[u8]) {
         let range = self.find_range(substring);
 
         for entry in self.entries[range].into_iter() {
