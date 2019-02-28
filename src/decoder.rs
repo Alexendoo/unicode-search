@@ -121,7 +121,7 @@ mod tests {
     fn unpack() {
         let mut unpacker = Unpacker::new();
 
-        for chunk in test_data::table.chunks(5) {
+        for chunk in test_data::TABLE.chunks(5) {
             unpacker.transform(chunk);
         }
 

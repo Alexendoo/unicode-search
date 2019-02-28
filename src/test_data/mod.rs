@@ -1,7 +1,11 @@
+//! Exports a smaller table generated from a reduced set of codepoints,
+//! specifically characters represented by char::is_ascii_graphic:
+//! U+0021 '!' ... U+007E '~'.
+
 use crate::table::Entry;
 
-pub(crate) const table: &[u8] = include_bytes!("./table.bin");
-pub(crate) const combined: &str = include_str!("./combined.txt");
+pub(crate) const TABLE: &[u8] = include_bytes!("./table.bin");
+pub(crate) const COMBINED: &str = include_str!("./combined.txt");
 
 pub(crate) fn expected_entries() -> Vec<Entry> {
     vec![
