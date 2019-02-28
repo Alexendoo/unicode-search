@@ -63,8 +63,12 @@ impl Table {
         &self.entries[range]
     }
 
-    pub fn codepoints(&self, substring: &[u8]) {
-        for entry in self.find(substring) {
+    pub fn dump(&self) {
+        log(format!("{:?}", self))
+    }
+
+    pub fn codepoints(&self, substring: &str) {
+        for entry in self.find(substring.as_bytes()) {
             log(format!("{:?}", entry));
         }
     }

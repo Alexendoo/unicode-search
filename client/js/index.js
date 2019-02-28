@@ -43,15 +43,17 @@ function findRange(entries, combined, substring) {
 
 async function main() {
     console.time("main");
-    const [tableResponse, combined, wasm] = await Promise.all([
-        fetch(tableURL),
-        fetch(combinedURL).then(r => r.text()),
-        import("../../target/wpkg/utf"),
-    ]);
+    const wasmPromise = import("../../target/wpkg/utf");
+    const readerPromise = fetch(tableURL).then(resp => resp.body.getReader());
+    const combinedPromise = fetch(combinedURL)
+        .then(resp => resp.arrayBuffer())
+        .then(buffer => new Uint8Array(buffer));
+
+    const wasm = await wasmPromise;
 
     wasm.init();
 
-    const reader = tableResponse.body.getReader();
+    const reader = await readerPromise;
     const unpacker = new wasm.Unpacker();
 
     while (true) {
@@ -64,9 +66,8 @@ async function main() {
         unpacker.transform(value);
     }
 
-    window.table = unpacker.flush();
+    window.table = unpacker.flush(await combinedPromise);
 
-    window.combined = combined;
     window.wasm = wasm;
     console.timeEnd("main");
 }

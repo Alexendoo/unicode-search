@@ -108,6 +108,7 @@ impl Unpacker {
 
     pub fn flush(mut self, combined: &[u8]) -> Table {
         assert_eq!(self.has, Has::None);
+
         self.table.combined = combined.to_vec();
 
         self.table
