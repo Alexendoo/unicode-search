@@ -32,7 +32,7 @@ impl Table {
             let mid = (left + right) / 2;
             let entry = &self.entries[mid];
 
-            if substring > &self.slice_from(entry.index as usize, substring.len()) {
+            if substring > self.slice_from(entry.index as usize, substring.len()) {
                 left = mid + 1;
             } else {
                 right = mid;
@@ -59,8 +59,8 @@ impl Table {
     pub fn codepoints(&self, substring: &[u8]) {
         let range = self.find_range(substring);
 
-        for entry in self.entries[range].into_iter() {
-            log(format!("{}", 1));
+        for entry in &self.entries[range] {
+            log(format!("{:?}", entry));
         }
     }
 

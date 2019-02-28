@@ -18,7 +18,7 @@ impl Decoder {
         self.buffer.clear();
 
         for byte in bytes {
-            let bits = (byte & LOW_BITS_MASK) as u32;
+            let bits = u32::from(byte & LOW_BITS_MASK);
             self.result |= bits << self.shift;
 
             if byte & CONTINUATION_BIT == 0 {
