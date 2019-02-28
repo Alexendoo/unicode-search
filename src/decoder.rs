@@ -111,3 +111,25 @@ impl Unpacker {
         self.table
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::Unpacker;
+    use crate::test_data;
+
+    #[test]
+    fn unpack() {
+        let mut unpacker = Unpacker::new();
+
+        for chunk in test_data::table.chunks(5) {
+            unpacker.transform(chunk);
+        }
+
+        let table = unpacker.flush();
+
+        let expected_entries = test_data::expected_entries();
+        let actual_entries = table.entries;
+
+        assert_eq!(actual_entries, expected_entries);
+    }
+}

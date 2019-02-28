@@ -1,3 +1,6 @@
+#[cfg(test)]
+mod test_data;
+
 mod decoder;
 mod table;
 

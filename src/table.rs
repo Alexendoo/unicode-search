@@ -1,15 +1,15 @@
-use wasm_bindgen::prelude::*;
-use std::ops::Range;
 use crate::log;
+use std::ops::Range;
+use wasm_bindgen::prelude::*;
 
-#[derive(Default)]
+#[derive(Debug, Default, PartialEq)]
 pub struct Entry {
     pub(crate) index: u32,
     pub(crate) codepoints: Vec<u32>,
 }
 
 #[wasm_bindgen]
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct Table {
     pub(crate) combined: Vec<u8>,
     pub(crate) entries: Vec<Entry>,
