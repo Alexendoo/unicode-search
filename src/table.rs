@@ -1,10 +1,11 @@
 use crate::log;
+use std::collections::BTreeSet;
 use std::ops::Range;
 use wasm_bindgen::prelude::*;
 
 #[derive(Debug, Default, PartialEq)]
 pub struct Entry {
-    pub(crate) index: u32,
+    pub(crate) index: usize,
     pub(crate) codepoints: Vec<u32>,
 }
 
@@ -56,10 +57,14 @@ impl Table {
         start..right
     }
 
-    pub fn codepoints(&self, substring: &[u8]) {
+    fn find(&self, substring: &[u8]) -> &[Entry] {
         let range = self.find_range(substring);
 
-        for entry in &self.entries[range] {
+        &self.entries[range]
+    }
+
+    pub fn codepoints(&self, substring: &[u8]) {
+        for entry in self.find(substring) {
             log(format!("{:?}", entry));
         }
     }
@@ -76,4 +81,41 @@ impl Table {
     //     vec.sort_unstable();
     //     vec.dedup();
     // }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::test_data;
+
+    fn get_table() -> Table {
+        let mut unpacker = crate::decoder::Unpacker::new();
+
+        unpacker.transform(test_data::TABLE);
+
+        unpacker.flush(test_data::COMBINED)
+    }
+
+    #[test]
+    fn find_single() {
+        let table = get_table();
+
+        let mut codepoints = BTreeSet::new();
+
+        for entry in dbg!(table.find(b"Q")) {
+            let s = &table.combined[entry.index..];
+
+            for &codepoint in &entry.codepoints {
+                codepoints.insert(codepoint);
+            }
+
+            dbg!(String::from_utf8_lossy(s));
+        }
+
+        dbg!(&codepoints);
+
+        for codepoint in codepoints.into_iter() {
+            dbg!(std::char::from_u32(codepoint));
+        }
+    }
 }

@@ -5,7 +5,7 @@
 use crate::table::Entry;
 
 pub(crate) const TABLE: &[u8] = include_bytes!("./table.bin");
-pub(crate) const COMBINED: &str = include_str!("./combined.txt");
+pub(crate) const COMBINED: &[u8] = include_bytes!("./combined.txt");
 
 pub(crate) fn expected_entries() -> Vec<Entry> {
     vec![

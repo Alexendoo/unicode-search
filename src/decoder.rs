@@ -57,7 +57,7 @@ pub struct Unpacker {
 
     last_codepoint: u32,
 
-    current_index: u32,
+    current_index: usize,
     current_codepoints: Vec<u32>,
 
     table: Table,
@@ -76,7 +76,7 @@ impl Unpacker {
         for &n in chunk {
             match self.has {
                 Has::None => {
-                    self.current_index = n;
+                    self.current_index = n as usize;
 
                     self.has = Has::Index;
                 }
@@ -106,8 +106,10 @@ impl Unpacker {
         }
     }
 
-    pub fn flush(self) -> Table {
+    pub fn flush(mut self, combined: &[u8]) -> Table {
         assert_eq!(self.has, Has::None);
+        self.table.combined = combined.to_vec();
+
         self.table
     }
 }
@@ -117,19 +119,27 @@ mod tests {
     use super::Unpacker;
     use crate::test_data;
 
-    #[test]
-    fn unpack() {
+    fn unpack_with_chunk_size(chunk_size: usize) {
         let mut unpacker = Unpacker::new();
 
-        for chunk in test_data::TABLE.chunks(5) {
+        for chunk in test_data::TABLE.chunks(chunk_size) {
             unpacker.transform(chunk);
         }
 
-        let table = unpacker.flush();
+        let table = unpacker.flush(test_data::COMBINED);
 
         let expected_entries = test_data::expected_entries();
         let actual_entries = table.entries;
 
         assert_eq!(actual_entries, expected_entries);
+    }
+
+    #[test]
+    fn unpack() {
+        unpack_with_chunk_size(1);
+        unpack_with_chunk_size(2);
+        unpack_with_chunk_size(3);
+        unpack_with_chunk_size(1024);
+        unpack_with_chunk_size(std::usize::MAX);
     }
 }
