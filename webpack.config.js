@@ -1,77 +1,24 @@
-const CSSExtractPlugin = require("mini-css-extract-plugin")
-const HtmlWebpackPlugin = require("html-webpack-plugin")
-const path = require("path")
-const rimraf = require("rimraf")
+const path = require("path");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const WasmPackPlugin = require("@wasm-tool/wasm-pack-plugin");
 
-const dir = (...pathSegments) => path.resolve(__dirname, ...pathSegments)
+module.exports = {
+    entry: "./client/js/index.js",
+    output: {
+        path: path.resolve(__dirname, "dist"),
+        filename: "index.js",
+    },
+    module: {
+        rules: [{ test: /\.(txt|bin)$/, use: "file-loader" }],
+    },
+    plugins: [
+        new HtmlWebpackPlugin(),
+        new WasmPackPlugin({
+            crateDirectory: __dirname,
 
-rimraf.sync("./dist/*")
-
-/** @type {import('webpack').Configuration} */
-const base = {
-  output: {
-    path: dir("dist"),
-  },
-
-  resolve: {
-    extensions: [".ts", ".js", ".json"],
-  },
-
-  devServer: {
-    overlay: true,
-  },
-
-  module: {
-    rules: [
-      {
-        test: /\.ts$/,
-        loader: "ts-loader",
-      },
-      {
-        test: /\.css$/,
-        use: [CSSExtractPlugin.loader, "css-loader"],
-      },
+            extraArgs: "--out-dir target/wpkg",
+        }),
     ],
-  },
-}
-
-/** @type {import('webpack').Configuration} */
-const main = {
-  ...base,
-
-  entry: {
-    main: "./src/index/index.ts",
-  },
-
-  plugins: [
-    new HtmlWebpackPlugin({
-      template: "src/index.html",
-      inject: false,
-      minify: {
-        collapseWhitespace: true,
-      },
-    }),
-    new CSSExtractPlugin({
-      filename: "style.css",
-    }),
-  ],
-}
-
-/** @type {import('webpack').Configuration} */
-const worker = {
-  ...base,
-
-  entry: {
-    fuzzy: "./src/worker/fuzzy.ts",
-    coordinator: "./src/worker/coordinator.ts",
-  },
-
-  performance: {
-    maxAssetSize: 2e6,
-    maxEntrypointSize: 2e6,
-  },
-
-  target: "webworker",
-}
-
-module.exports = [main, worker]
+    mode: "development",
+    devtool: "source-map",
+};

@@ -1,5 +1,7 @@
 .vscode
 *.log
-dist
+*.rs.bk
+client/data
 node_modules
-ucd.*.xml
+target
+dist
