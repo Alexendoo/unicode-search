@@ -5,7 +5,7 @@ authors = ["Alex Macleod <alex@macleod.io>"]
 edition = "2018"
 
 [lib]
-crate-type = ["cdylib"]
+crate-type = ["cdylib", "lib"]
 
 [[bin]]
 name = "gen"
@@ -13,10 +13,11 @@ required-features = ["gen"]
 
 [features]
 default = []
-gen = ["leb128", "ucd-raw"]
+gen = ["byteorder", "ucd-raw"]
 
 [dependencies]
-wasm-bindgen = "0.2"
 console_error_panic_hook = "0.1"
-leb128 = { version = "0.2", optional = true }
+wasm-bindgen = "0.2"
+
+byteorder = { version = "1", optional = true }
 ucd-raw = { version = "0.5", optional = true }
