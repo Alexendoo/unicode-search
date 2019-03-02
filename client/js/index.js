@@ -1,118 +1,54 @@
-import { unpacker, leb128decoder } from "./decompress.js";
+import boundsURL from "../data/bounds.bin";
+import codepointsURL from "../data/codepoints.bin";
+import namesURL from "../data/names.txt";
 import tableURL from "../data/table.bin";
-import combinedURL from "../data/combined.txt";
 
-function findRange(entries, combined, substring) {
-    let left = 0;
-    let right = entries.length;
+import "../index.html";
 
-    function slice(start) {
-        return combined.slice(start, start + substring.length);
-    }
+async function fetchBytes(url) {
+    const response = await fetch(url);
+    const buffer = await response.arrayBuffer();
 
-    while (left < right) {
-        const mid = Math.floor((left + right) / 2);
-        const entry = entries[mid];
+    return new Uint8Array(buffer);
+}
 
-        if (substring > slice(entry.index)) {
-            left = mid + 1;
-        } else {
-            right = mid;
-        }
-    }
+async function fetchString(url) {
+    const response = await fetch(url);
 
-    const start = left;
-    right = entries.length;
-
-    while (left < right) {
-        const mid = Math.floor((left + right) / 2);
-        const entry = entries[mid];
-
-        if (substring < slice(entry.index)) {
-            right = mid;
-        } else {
-            left = mid + 1;
-        }
-    }
-
-    return {
-        start: start,
-        end: right,
-    };
+    return response.text();
 }
 
 async function main() {
-    console.time("main");
-    const wasmPromise = import("../../target/wpkg/utf");
-    const readerPromise = fetch(tableURL).then(resp => resp.body.getReader());
-    const combinedPromise = fetch(combinedURL)
-        .then(resp => resp.arrayBuffer())
-        .then(buffer => new Uint8Array(buffer));
+    console.time("download");
+    const [wasm, bounds, names, table, codepoints] = await Promise.all([
+        import("../pkg/utf"),
+        fetchBytes(boundsURL),
+        fetchString(namesURL),
+        fetchBytes(tableURL),
+        fetchBytes(codepointsURL),
+    ]);
+    console.timeEnd("download");
 
-    const wasm = await wasmPromise;
+    const splitNames = names.split("\n");
 
+    console.time("points")
+    const view = new DataView(codepoints.buffer);
+    const points = Array.from({ length: view.byteLength / 4 }, (_, i) => {
+        return {
+            codepoint: view.getUint32(i * 4, true),
+            name: splitNames[i],
+        };
+    });
+    console.timeEnd("points")
+
+    console.time("searcher");
     wasm.init();
+    const searcher = new wasm.Searcher(names, table, bounds);
+    console.timeEnd("searcher");
 
-    const reader = await readerPromise;
-    const unpacker = new wasm.Unpacker();
-
-    while (true) {
-        const { done, value } = await reader.read();
-
-        if (done) {
-            break;
-        }
-
-        unpacker.transform(value);
-    }
-
-    window.table = unpacker.flush(await combinedPromise);
-
-    window.wasm = wasm;
-    console.timeEnd("main");
+    window.searcher = searcher;
+    window.names = names;
+    window.points = points
 }
 
 main();
-
-// const input = document.getElementById("chars");
-// const template = document.getElementById("char--template");
-// const display = document.querySelector("main");
-// const radios = document.querySelectorAll("input[name=type]");
-
-// let type;
-
-// input.addEventListener("input", () => sendInput());
-
-// for (let i = 0; i < radios.length; i++) {
-//     const radio = radios[i];
-
-//     if (radio.checked) type = radio.value;
-
-//     radio.addEventListener("change", event => {
-//         type = event.target.value;
-//     });
-// }
-
-// function createCharDetails({ character, name, block, codePoint, bytes }) {
-//     template.content.querySelector(".char--literal").textContent = character;
-//     template.content.querySelector(".char--name").textContent = name;
-//     template.content.querySelector(".char--block").textContent = block;
-//     template.content.querySelector(".char--code").textContent = String(
-//         codePoint,
-//     );
-//     template.content.querySelector(".char--bytes").textContent = bytes;
-
-//     const node = document.importNode(template.content, true);
-//     display.appendChild(node);
-// }
-
-// /**
-//  * remove all of the child elements from node
-//  *
-//  * @param {Node} node
-//  */
-// function clearChildren(node) {
-//     while (node.firstChild) {
-//         node.removeChild(node.firstChild);
-//     }
-// }

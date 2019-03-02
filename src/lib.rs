@@ -31,30 +31,36 @@ unsafe fn cast_bytes(mut le_bytes: Vec<u8>) -> Vec<u32> {
 
 #[wasm_bindgen]
 #[derive(Debug, Default)]
-pub struct Table {
+pub struct Searcher {
     text: Vec<u8>,
     indicies: Vec<u32>,
     bounds: Vec<u32>,
 }
 
 #[wasm_bindgen]
-impl Table {
+impl Searcher {
     #[wasm_bindgen(constructor)]
     pub fn new(text: String, indicies: Vec<u8>, bounds: Vec<u8>) -> Self {
+        let text = text.into_bytes();
+        let indicies = unsafe { cast_bytes(indicies) };
+        let bounds = unsafe { cast_bytes(bounds) };
+
         Self {
-            text: text.into_bytes(),
-            indicies: unsafe { cast_bytes(indicies) },
-            bounds: unsafe { cast_bytes(bounds) },
+            text,
+            indicies,
+            bounds,
         }
     }
 
-    pub fn search(&self, substring: &str) -> Vec<u32> {
+    pub fn indicies(&self, substring: &str) -> Vec<u32> {
         let indicies = self.find(substring.as_bytes());
 
-        indicies
-            .iter()
-            .map(|&i| self.index_to_codepoint(i))
-            .collect()
+        let mut codepoints: Vec<u32> = indicies.iter().map(|&i| self.codepoint_index(i)).collect();
+
+        codepoints.sort_unstable();
+        codepoints.dedup();
+
+        codepoints
     }
 
     fn find(&self, substring: &[u8]) -> &[u32] {
@@ -96,10 +102,8 @@ impl Table {
         &self.text[start..end]
     }
 
-    fn index_to_codepoint(&self, index: u32) -> u32 {
-        match self.bounds.binary_search(&index) {
-            Ok(i) => self.bounds[i],
-            Err(i) => self.bounds[i - 1],
-        }
+    #[allow(clippy::cast_possible_truncation)]
+    fn codepoint_index(&self, index: u32) -> u32 {
+        self.bounds.binary_search(&index).unwrap_or_else(|i| i - 1) as u32
     }
 }

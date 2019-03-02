@@ -1,5 +1,4 @@
 const path = require("path");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
 const WasmPackPlugin = require("@wasm-tool/wasm-pack-plugin");
 
 module.exports = {
@@ -9,14 +8,19 @@ module.exports = {
         filename: "index.js",
     },
     module: {
-        rules: [{ test: /\.(txt|bin)$/, use: "file-loader" }],
+        rules: [
+            {
+                test: /\.(html|txt|bin)$/,
+                loader: "file-loader",
+                options: { name: "[name].[ext]" },
+            },
+        ],
     },
     plugins: [
-        new HtmlWebpackPlugin(),
         new WasmPackPlugin({
             crateDirectory: __dirname,
 
-            extraArgs: "--out-dir target/wpkg",
+            extraArgs: "--out-dir client/pkg",
         }),
     ],
     mode: "development",

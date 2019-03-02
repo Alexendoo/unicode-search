@@ -115,7 +115,6 @@
 //! LEFT SQUARE BRACKET will appear twice in C[i], this is simply removed.
 
 use byteorder::{LittleEndian, WriteBytesExt};
-use std::collections::HashMap;
 use std::fs::create_dir_all;
 use std::fs::File;
 use std::io::BufWriter;
@@ -177,11 +176,13 @@ fn main() {
     let mut combined_out = out_file("names.txt");
     let mut table_out = out_file("table.bin");
     let mut bounds = out_file("bounds.bin");
+    let mut codepoints = out_file("codepoints.bin");
 
     for character in char_iter() {
         let start = combined.len() as u32;
         let name = character.name;
 
+        codepoints.write_u32::<LittleEndian>(character.codepoint).unwrap();
         bounds.write_u32::<LittleEndian>(start).unwrap();
 
         combined.push_str(name);
