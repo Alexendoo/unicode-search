@@ -113,9 +113,6 @@
 /// split into words "LEFT$", "SQUARE$" and "BRACKET$" the suffix "T$" appears
 /// twice. The "T$" suffix is already deduplicated however the codepoint for
 /// LEFT SQUARE BRACKET will appear twice in C[i], this is simply removed.
-extern crate leb128;
-extern crate ucd_raw;
-
 use std::collections::HashMap;
 use std::fs::create_dir_all;
 use std::fs::File;
@@ -127,10 +124,9 @@ use ucd_raw::Character;
 use ucd_raw::CHARACTERS;
 
 #[derive(Debug)]
-struct TempSuffix<'a> {
+struct Suffix<'a> {
     suffix: &'a str,
     index: usize,
-    codepoints: Vec<u32>,
 }
 
 fn out_file<P: AsRef<Path>>(path: P) -> BufWriter<File> {
@@ -175,68 +171,34 @@ fn main() {
     let start = Instant::now();
 
     let mut combined = String::new();
-    let mut visited_words = HashMap::new();
     let mut temp_suffixes = Vec::new();
 
-    let mut combined_out = out_file("client/data/combined.txt");
-    let mut leb_out = out_file("client/data/table.bin");
+    let mut combined_out = out_file("client/data/combined3.txt");
+    let mut leb_out = out_file("client/data/table3.bin");
 
     for character in char_iter() {
-        for word in character.name.split_whitespace() {
-            let start;
+        let start = combined.len();
+        let name = character.name;
 
-            if visited_words.contains_key(word) {
-                start = visited_words[word];
-            } else {
-                start = combined.len();
+        combined.push_str(name);
+        combined.push('\n');
 
-                visited_words.insert(word, start);
-                combined.push_str(word);
-                combined.push('\n');
-            }
-
-            for (offset, suffix) in suffixes(word) {
-                temp_suffixes.push(TempSuffix {
-                    suffix,
-                    index: start + offset,
-                    codepoints: vec![character.codepoint],
-                });
-            }
+        for (offset, suffix) in suffixes(name) {
+            temp_suffixes.push(Suffix {
+                suffix,
+                index: start + offset,
+            });
         }
     }
 
     temp_suffixes.sort_unstable_by_key(|temp_suffix| temp_suffix.suffix);
 
-    println!("length before dedup: {}", temp_suffixes.len());
-
-    temp_suffixes.dedup_by(|a, b| {
-        let equal = a.suffix == b.suffix;
-
-        if equal {
-            b.codepoints.extend_from_slice(&a.codepoints);
-        }
-
-        equal
-    });
-
-    for suffix in &mut temp_suffixes {
-        suffix.codepoints.sort_unstable();
-        suffix.codepoints.dedup();
-    }
-
-    println!("after: {}", temp_suffixes.len());
+    println!("length: {}", temp_suffixes.len());
 
     for suffix in temp_suffixes {
-        leb128::write::unsigned(&mut leb_out, suffix.index as u64).unwrap();
-        leb128::write::unsigned(&mut leb_out, suffix.codepoints.len() as u64).unwrap();
-
-        let mut last = 0;
-        for codepoint in suffix.codepoints {
-            let delta = codepoint - last;
-            last = codepoint;
-
-            leb128::write::unsigned(&mut leb_out, delta as u64).unwrap();
-        }
+        // leb128::write::unsigned(&mut leb_out, suffix.index as u64).unwrap();
+        let written = leb_out.write(&(suffix.index as u32).to_le_bytes()).unwrap();
+        assert_eq!(written, 4);
     }
 
     combined_out.write_all(combined.as_bytes()).unwrap();
