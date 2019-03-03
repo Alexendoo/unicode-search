@@ -31,7 +31,7 @@ async function main() {
 
     const splitNames = names.split("\n");
 
-    console.time("points")
+    console.time("points");
     const view = new DataView(codepoints.buffer);
     const points = Array.from({ length: view.byteLength / 4 }, (_, i) => {
         return {
@@ -39,16 +39,30 @@ async function main() {
             name: splitNames[i],
         };
     });
-    console.timeEnd("points")
+    console.timeEnd("points");
 
     console.time("searcher");
     wasm.init();
     const searcher = new wasm.Searcher(names, table, bounds);
     console.timeEnd("searcher");
 
+    function search() {
+        console.time("search");
+        searcher.indicies(" ");
+        console.timeEnd("search");
+    }
+
+    window.bench = () => {
+        console.time("bench");
+        for (let i = 0; i < 1000; i++) {
+            searcher.indicies(" ");
+        }
+        console.timeEnd("bench");
+    };
+
     window.searcher = searcher;
     window.names = names;
-    window.points = points
+    window.points = points;
 }
 
 main();

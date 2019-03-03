@@ -1,5 +1,8 @@
 #![warn(clippy::pedantic)]
+#![allow(clippy::cast_possible_truncation)]
 
+use bit_set::BitSet;
+use std::cell::RefCell;
 use std::mem;
 use wasm_bindgen::prelude::*;
 
@@ -35,6 +38,9 @@ pub struct Searcher {
     text: Vec<u8>,
     indicies: Vec<u32>,
     bounds: Vec<u32>,
+
+    // For allocation reuse
+    bits: RefCell<BitSet>,
 }
 
 #[wasm_bindgen]
@@ -45,22 +51,29 @@ impl Searcher {
         let indicies = unsafe { cast_bytes(indicies) };
         let bounds = unsafe { cast_bytes(bounds) };
 
+        let len = bounds.len();
+
         Self {
             text,
             indicies,
             bounds,
+
+            bits: RefCell::new(BitSet::with_capacity(len)),
+            ..Self::default()
         }
     }
 
     pub fn indicies(&self, substring: &str) -> Vec<u32> {
         let indicies = self.find(substring.as_bytes());
 
-        let mut codepoints: Vec<u32> = indicies.iter().map(|&i| self.codepoint_index(i)).collect();
+        let mut bits = self.bits.borrow_mut();
+        bits.clear();
 
-        codepoints.sort_unstable();
-        codepoints.dedup();
+        for index in indicies.iter().map(|&i| self.codepoint_index(i)) {
+            bits.insert(index);
+        }
 
-        codepoints
+        bits.iter().map(|i| i as u32).collect()
     }
 
     fn find(&self, substring: &[u8]) -> &[u32] {
@@ -102,8 +115,7 @@ impl Searcher {
         &self.text[start..end]
     }
 
-    #[allow(clippy::cast_possible_truncation)]
-    fn codepoint_index(&self, index: u32) -> u32 {
-        self.bounds.binary_search(&index).unwrap_or_else(|i| i - 1) as u32
+    fn codepoint_index(&self, index: u32) -> usize {
+        self.bounds.binary_search(&index).unwrap_or_else(|i| i - 1)
     }
 }

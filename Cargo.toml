@@ -16,6 +16,7 @@ default = []
 gen = ["byteorder", "ucd-raw"]
 
 [dependencies]
+bit-set = "0.5"
 console_error_panic_hook = "0.1"
 wasm-bindgen = "0.2"
 
