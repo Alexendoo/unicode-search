@@ -11,7 +11,7 @@
     "dependencies": {
         "@wasm-tool/wasm-pack-plugin": "^0.2.3",
         "file-loader": "^3.0.1",
-        "prettier": "^1.16.4",
+        "prettier": "^1.18.2",
         "webpack": "^4.35.3",
         "webpack-cli": "^3.2.3",
         "webpack-dev-server": "^3.2.0"
