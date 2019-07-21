@@ -1,1 +1,3 @@
-new Worker("/js/worker.js")
+const worker = new Worker("/js/worker.js");
+
+worker.onmessage = console.log;
