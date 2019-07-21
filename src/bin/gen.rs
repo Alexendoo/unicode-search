@@ -175,7 +175,7 @@ fn main() {
 
     let mut combined_out = out_file("names.txt");
     let mut table_out = out_file("table.bin");
-    let mut bounds = out_file("bounds.bin");
+    let mut bounds = out_file("bounds2.bin");
     let mut codepoints = out_file("codepoints.bin");
 
     for character in char_iter() {
@@ -189,6 +189,7 @@ fn main() {
         combined.push('\n');
 
         for (offset, suffix) in suffixes(name) {
+            bounds.write_u32::<LittleEndian>(start).unwrap();
             temp_suffixes.push(Suffix {
                 suffix,
                 index: start + offset as u32,

@@ -5,6 +5,7 @@ module.exports = {
     entry: "./client/js/index.js",
     output: {
         path: path.resolve(__dirname, "dist"),
+        webassemblyModuleFilename: "search.wasm",
         filename: "index.js",
     },
     module: {
@@ -13,6 +14,17 @@ module.exports = {
                 test: /\.(html|txt|bin)$/,
                 loader: "file-loader",
                 options: { name: "[name].[ext]" },
+            },
+            {
+                test: /\.js$/,
+                exclude: /node_modules/,
+                use: {
+                    loader: "babel-loader",
+                    options: {
+                        presets: ["@babel/preset-react"],
+                        plugins: ["@babel/plugin-syntax-dynamic-import"],
+                    },
+                },
             },
         ],
     },

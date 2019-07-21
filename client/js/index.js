@@ -5,6 +5,9 @@ import tableURL from "../data/table.bin";
 
 import "../index.html";
 
+import React, { useState } from "react";
+import ReactDOM from "react-dom";
+
 async function fetchBytes(url) {
     const response = await fetch(url);
     const buffer = await response.arrayBuffer();
@@ -33,7 +36,7 @@ async function main() {
 
     console.time("points");
     const view = new DataView(codepoints.buffer);
-    const points = Array.from({ length: view.byteLength / 4 }, (_, i) => {
+    const characters = Array.from({ length: view.byteLength / 4 }, (_, i) => {
         return {
             codepoint: view.getUint32(i * 4, true),
             name: splitNames[i],
@@ -46,23 +49,47 @@ async function main() {
     const searcher = new wasm.Searcher(names, table, bounds);
     console.timeEnd("searcher");
 
+    window.searcher = searcher;
+    window.points = characters;
+
+    ReactDOM.render(
+        <Main searcher={searcher} characters={characters} />,
+        document.getElementById("main"),
+    );
+}
+main();
+
+function Main({ searcher, characters }) {
+    const [input, setInput] = useState("");
+
     function search() {
         console.time("search");
-        searcher.indicies(" ");
+        const indicies = searcher.indicies(input.toUpperCase());
         console.timeEnd("search");
+
+        return Array.prototype.slice.call(indicies, 0, 500);
     }
 
-    window.bench = () => {
-        console.time("bench");
-        for (let i = 0; i < 1000; i++) {
-            searcher.indicies(" ");
-        }
-        console.timeEnd("bench");
-    };
+    const indicies = input ? search() : [];
 
-    window.searcher = searcher;
-    window.names = names;
-    window.points = points;
+    return (
+        <div>
+            <input
+                onChange={event => setInput(event.target.value)}
+                value={input}
+            />
+            {indicies.map(index => (
+                <Character character={characters[index]} key={index} />
+            ))}
+        </div>
+    );
 }
 
-main();
+function Character({ character }) {
+    return (
+        <div className="character">
+            <div>codepoint: {character.codepoint}</div>
+            <div>name: {character.name}</div>
+        </div>
+    );
+}
