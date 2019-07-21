@@ -8,8 +8,24 @@ use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
 extern "C" {
-    #[wasm_bindgen(js_namespace = console)]
-    pub fn log(s: String);
+    #[wasm_bindgen(js_namespace = console, js_name = log)]
+    fn console_log(s: String);
+
+    #[wasm_bindgen(js_namespace = performance)]
+    fn now() -> usize;
+}
+
+#[allow(unused_macros)]
+macro_rules! log {
+    ($val:expr) => {
+        console_log(format!(
+            "[{}:{}] {} = {:#?}",
+            file!(),
+            line!(),
+            stringify!($val),
+            $val
+        ))
+    };
 }
 
 #[wasm_bindgen]
@@ -23,8 +39,8 @@ unsafe fn cast_bytes(mut le_bytes: Vec<u8>) -> Vec<u32> {
     let len = le_bytes.len();
     let cap = le_bytes.capacity();
 
-    assert_eq!(len % 4, 0);
-    assert_eq!(cap % 4, 0);
+    assert_eq!(len % 4, 0, "found len: {}", len);
+    assert_eq!(cap % 4, 0, "found cap: {}", cap);
 
     mem::forget(le_bytes);
 
@@ -48,6 +64,7 @@ impl Searcher {
     #[wasm_bindgen(constructor)]
     pub fn new(text: String, indicies: Vec<u8>, bounds: Vec<u8>) -> Self {
         let text = text.into_bytes();
+
         let indicies = unsafe { cast_bytes(indicies) };
         let bounds = unsafe { cast_bytes(bounds) };
 
@@ -116,6 +133,6 @@ impl Searcher {
     }
 
     fn codepoint_index(&self, index: u32) -> usize {
-        self.bounds.binary_search(&index).unwrap_or_else(|i| i - 1)
+        self.bounds[index as usize] as usize
     }
 }
