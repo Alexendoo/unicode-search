@@ -10,6 +10,6 @@
     },
     "scripts": {
         "gen": "cargo run --bin gen --release --features gen",
-        "build": "wasm-pack build --out-dir client/pkg --target no-modules"
+        "build": "wasm-pack build --out-dir client/pkg --target web"
     }
 }
