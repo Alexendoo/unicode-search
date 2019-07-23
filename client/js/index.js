@@ -2,48 +2,52 @@ import React, { useState, useEffect } from "react";
 import { render } from "react-dom";
 import { FixedSizeList as List } from "react-window";
 
-function useDocumentHeight() {
+function useWindowHeight() {
     const [height, setHeight] = useState(() => window.innerHeight);
 
     useEffect(() => {
         function handleHeightChange() {
-            setHeight(window.innerHeight)
+            setHeight(window.innerHeight);
         }
 
-        window.addEventListener("resize", handleHeightChange)
+        window.addEventListener("resize", handleHeightChange);
 
-        return () => window.removeEventListener("resize", handleHeightChange)
-    })
+        return () => window.removeEventListener("resize", handleHeightChange);
+    }, []);
 
-    return height
+    return height;
 }
 
 function Main({ searcher, names }) {
     const [pattern, setPattern] = useState("");
-    const height = useDocumentHeight() - 50;
+    const height = useWindowHeight() - 50;
 
-    let resultIndicies;
+    let resultIndicies = new Uint32Array();
     if (pattern.length > 0) {
         resultIndicies = searcher.indicies(pattern.toUpperCase());
-    } else {
-        resultIndicies = new Uint32Array();
     }
-
 
     return (
         <div>
-            <input
-                type="text"
-                value={pattern}
-                onChange={e => setPattern(e.target.value)}
-            />
+            <div className="input-bar">
+                <span>{">"}</span>
+                <input
+                    autoFocus
+                    autoComplete="off"
+                    type="text"
+                    value={pattern}
+                    onChange={e => setPattern(e.target.value)}
+                />
+            </div>
             <List
                 height={height}
                 width="100%"
                 itemCount={resultIndicies.length}
-                itemSize={100}
+                itemSize={32}
             >
-                {({ index, style }) => <div style={style}>{names[index]}</div>}
+                {({ index, style }) => (
+                    <div style={style}>{names[resultIndicies[index]]}</div>
+                )}
             </List>
         </div>
     );
