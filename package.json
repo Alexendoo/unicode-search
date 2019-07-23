@@ -10,6 +10,20 @@
     },
     "scripts": {
         "gen": "cargo run --bin gen --release --features gen",
-        "build": "wasm-pack build --out-dir client/pkg --target web"
+        "build": "wasm-pack build --out-dir client/pkg"
+    },
+    "dependencies": {
+        "@babel/core": "^7.5.5",
+        "@babel/plugin-syntax-dynamic-import": "^7.2.0",
+        "@babel/preset-react": "^7.0.0",
+        "babel-loader": "^8.0.6",
+        "react": "^16.8.6",
+        "react-dom": "^16.8.6",
+        "react-virtualized": "^9.21.1",
+        "react-window": "^1.8.5",
+        "webpack": "^4.37.0"
+    },
+    "devDependencies": {
+        "webpack-cli": "^3.3.6"
     }
 }

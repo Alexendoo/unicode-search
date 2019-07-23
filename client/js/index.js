@@ -1,4 +1,53 @@
-import init, { set_panic_hook, Searcher } from "../pkg/utf.js";
+import React, { useState, useEffect } from "react";
+import { render } from "react-dom";
+import { FixedSizeList as List } from "react-window";
+
+function useDocumentHeight() {
+    const [height, setHeight] = useState(() => window.innerHeight);
+
+    useEffect(() => {
+        function handleHeightChange() {
+            setHeight(window.innerHeight)
+        }
+
+        window.addEventListener("resize", handleHeightChange)
+
+        return () => window.removeEventListener("resize", handleHeightChange)
+    })
+
+    return height
+}
+
+function Main({ searcher, names }) {
+    const [pattern, setPattern] = useState("");
+    const height = useDocumentHeight() - 50;
+
+    let resultIndicies;
+    if (pattern.length > 0) {
+        resultIndicies = searcher.indicies(pattern.toUpperCase());
+    } else {
+        resultIndicies = new Uint32Array();
+    }
+
+
+    return (
+        <div>
+            <input
+                type="text"
+                value={pattern}
+                onChange={e => setPattern(e.target.value)}
+            />
+            <List
+                height={height}
+                width="100%"
+                itemCount={resultIndicies.length}
+                itemSize={100}
+            >
+                {({ index, style }) => <div style={style}>{names[index]}</div>}
+            </List>
+        </div>
+    );
+}
 
 async function download(name, format = "bytes") {
     const response = await fetch(`/data/${name}`);
@@ -13,39 +62,23 @@ async function download(name, format = "bytes") {
 }
 
 (async function() {
-    const [indicies, codepoints, names, table] = await Promise.all([
+    const [pkg, indicies, codepoints, namesCombied, table] = await Promise.all([
+        import("../pkg/utf.js"),
         download("indicies.bin"),
         download("codepoints.bin"),
         download("names.txt", "text"),
         download("table.bin"),
     ]);
 
-    await init();
-    set_panic_hook();
+    pkg.set_panic_hook();
 
-    console.log(table, indicies);
-    const searcher = new Searcher(names, table, indicies);
+    const searcher = new pkg.Searcher(namesCombied, table, indicies);
     window.s = searcher;
 
-    const input = document.getElementById("search");
-    const result = document.getElementById("result");
+    const names = namesCombied.split("\n");
 
-    const chars = names.split("\n");
-    window.chars = chars;
-
-    input.oninput = () => {
-        const pattern = input.value.toUpperCase();
-
-        if (pattern.length > 0) {
-            let indicies = searcher.indicies(pattern);
-
-            let text = "";
-
-            for (let i = 0; i < indicies.length; i++) {
-                text += chars[indicies[i]] + "\n";
-            }
-
-            result.textContent = text;
-        }
-    };
+    render(
+        <Main searcher={searcher} names={names} />,
+        document.querySelector("main"),
+    );
 })();
