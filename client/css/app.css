@@ -3,24 +3,25 @@ body {
     margin: 0;
     /* prettier-ignore */
     font-family:
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    Roboto,
-    "Open Sans",
-    arial,
-    "Courier New",
-    "DejaVu Sans",
-    "Noto Sans",
-    "Helvetica Neue",
-    sans-serif,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        "Open Sans",
+        arial,
+        "Courier New",
+        "DejaVu Sans",
+        "Noto Sans",
+        "Helvetica Neue",
+        sans-serif,
 
-    "Apple Color Emoji",
-    "Segoe UI Emoji",
-    "Emoji One",
-    "Noto Color Emoji";
+        "Apple Color Emoji",
+        "Segoe UI Emoji",
+        "Emoji One",
+        "Noto Color Emoji";
+    font-size: 18px;
+    line-height: 24px;
     text-rendering: optimizeLegibility;
-    /* overflow-y: hidden; */
 }
 
 *,
@@ -36,6 +37,26 @@ input {
 .input-bar {
     font-size: 32px;
     height: 50px;
+}
+
+.char {
+    text-overflow: ellipsis;
+}
+
+.codepoint {
+    display: inline-block;
+    width: 100px;
+    text-align: right;
+}
+
+.literal {
+    display: inline-block;
+    width: 80px;
+    text-align: center;
+}
+
+.name {
+    display: inline-block;
 }
 
 /* #chars {
