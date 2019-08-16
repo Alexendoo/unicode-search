@@ -9,7 +9,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-    - name: Build
-      run: cargo build --verbose
-    - name: Run tests
-      run: cargo test --verbose
+    - name: Gen
+      run: yarn gen
+    - name: Build WASM
+      run: yarn build
+    - name: Webpack
+      run: yarn webpack
