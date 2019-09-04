@@ -20,7 +20,7 @@ jobs:
         run: |
           yarn gen
           yarn build
-          yarn webpack
+          yarn webpack -p
 
       - name: Setup SSH
         env:
