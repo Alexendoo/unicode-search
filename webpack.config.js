@@ -9,7 +9,7 @@ module.exports = {
         path: path.resolve(__dirname, "client/dist"),
         webassemblyModuleFilename: "search.wasm",
         filename: "[name].js",
-        publicPath: "/dist/",
+        publicPath: "dist/",
     },
     module: {
         rules: [
