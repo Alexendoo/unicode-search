@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { render } from "react-dom";
 import { FixedSizeList as List } from "react-window";
 
@@ -43,18 +43,6 @@ function Main({ searcher, parts }) {
         resultIndicies = searcher.indicies(pattern.toUpperCase());
     }
 
-    const inputRef = useRef(null);
-
-    useEffect(() => {
-        function focusInput() {
-            inputRef.current.focus();
-        }
-
-        document.addEventListener("keydown", focusInput);
-
-        return () => document.removeEventListener("keydown", focusInput);
-    }, []);
-
     return (
         <div>
             <div className="input-bar">
@@ -63,7 +51,6 @@ function Main({ searcher, parts }) {
                     autoComplete="off"
                     autoFocus
                     onChange={e => setPattern(e.target.value)}
-                    ref={inputRef}
                     type="text"
                     value={pattern}
                 />
