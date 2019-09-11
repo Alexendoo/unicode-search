@@ -9,13 +9,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-    - name: Install wasm-pack
-      run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
-    - name: Yarn install
-      run: yarn install
-    - name: Generate search index
-      run: yarn gen
-    - name: Build WASM
-      run: yarn build
-    - name: Webpack
-      run: yarn webpack
+    - run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+    - run: yarn install
+    - run: yarn lint
+    - run: yarn gen
+    - run: yarn build
+    - run: yarn webpack
