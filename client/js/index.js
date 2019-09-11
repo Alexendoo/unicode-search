@@ -1,21 +1,5 @@
-import React, { useState, useEffect, useRef, useLayoutEffect } from "react";
+import React, { useState, useRef, useLayoutEffect } from "react";
 import { render } from "react-dom";
-
-function useWindowHeight() {
-    const [height, setHeight] = useState(() => window.innerHeight);
-
-    useEffect(() => {
-        function handleHeightChange() {
-            setHeight(window.innerHeight);
-        }
-
-        window.addEventListener("resize", handleHeightChange);
-
-        return () => window.removeEventListener("resize", handleHeightChange);
-    }, []);
-
-    return height;
-}
 
 function Entry({ style, index, parts }) {
     const codepoint = parts.codepoints[index];
@@ -93,7 +77,6 @@ function List({ indicies, parts }) {
 
 function Main({ searcher, parts }) {
     const [pattern, setPattern] = useState("");
-    const height = useWindowHeight() - 50;
 
     let resultIndicies = new Uint32Array();
     if (pattern.length > 0) {
@@ -106,7 +89,6 @@ function Main({ searcher, parts }) {
                 <span>{">"}</span>
                 <input
                     autoComplete="off"
-                    autoFocus
                     onChange={e => setPattern(e.target.value)}
                     type="text"
                     value={pattern}
