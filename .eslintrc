@@ -1,11 +1,5 @@
 {
-    "extends": [
-        "eslint:recommended",
-        "plugin:import/errors",
-        "plugin:import/warnings",
-        "plugin:jsx-a11y/recommended",
-        "plugin:react/recommended"
-    ],
+    "extends": ["airbnb", "airbnb/hooks"],
     "root": true,
     "parserOptions": {
         "ecmaVersion": 2020,
@@ -18,19 +12,17 @@
         "browser": true,
         "es6": true
     },
-    "plugins": [
-        "react-hooks"
-    ],
     "rules": {
-        "react-hooks/exhaustive-deps": "warn",
-        "react-hooks/rules-of-hooks": "error",
-        "react/prop-types": [
-            0
-        ]
-    },
-    "settings": {
-        "react": {
-            "version": "detect"
-        }
+        "arrow-parens": ["error", "as-needed"],
+        "indent": ["error", 4],
+        "quotes": ["error", "double"],
+        "react/jsx-indent-props": ["error", 4],
+        "react/jsx-indent": [
+            "error",
+            4,
+            { "checkAttributes": true, "indentLogicalExpressions": true }
+        ],
+        "react/prop-types": ["off"],
+        "wrap-iife": ["off"]
     }
 }

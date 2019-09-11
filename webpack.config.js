@@ -6,17 +6,20 @@ const path = require("path");
  * @type {import("webpack").Configuration}
  */
 module.exports = {
-    entry: "./client/js/index.js",
+    entry: "./client/js/index.jsx",
     output: {
         path: path.resolve(__dirname, "client/dist"),
         webassemblyModuleFilename: "search.wasm",
         filename: "[name].js",
         publicPath: "dist/",
     },
+    resolve: {
+        extensions: [".js", ".jsx"],
+    },
     module: {
         rules: [
             {
-                test: /\.js$/,
+                test: /\.jsx?$/,
                 exclude: /node_modules|pkg/,
                 use: {
                     loader: "babel-loader",
