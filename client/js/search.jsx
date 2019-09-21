@@ -1,7 +1,7 @@
 import React, { useRef, useState, useLayoutEffect } from "react";
 import Entry from "./entry";
 
-export default function Search({ indicies, parts }) {
+function SearchList({ indicies, parts }) {
     const itemHeight = 24;
 
     const root = useRef(null);
@@ -55,6 +55,30 @@ export default function Search({ indicies, parts }) {
     return (
         <div style={rootStyle} ref={root}>
             {items}
+        </div>
+    );
+}
+
+export default function Search({ parts }) {
+    const [pattern, setPattern] = useState("");
+
+    let resultIndicies = new Uint32Array();
+    if (pattern.length > 0 && parts !== null) {
+        resultIndicies = parts.searcher.indicies(pattern.toUpperCase());
+    }
+
+    return (
+        <div>
+            <div className="input-bar">
+                <span>{">"}</span>
+                <input
+                    autoComplete="off"
+                    onChange={e => setPattern(e.target.value)}
+                    type="text"
+                    value={pattern}
+                />
+            </div>
+            <SearchList indicies={resultIndicies} parts={parts} />
         </div>
     );
 }
