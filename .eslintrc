@@ -1,5 +1,10 @@
 {
-    "extends": ["airbnb", "airbnb/hooks"],
+    "extends": [
+        "airbnb",
+        "airbnb/hooks",
+        "plugin:prettier/recommended",
+        "prettier/react"
+    ],
     "root": true,
     "parserOptions": {
         "ecmaVersion": 2020,
@@ -13,16 +18,6 @@
         "es6": true
     },
     "rules": {
-        "arrow-parens": ["error", "as-needed"],
-        "indent": ["error", 4],
-        "quotes": ["error", "double"],
-        "react/jsx-indent-props": ["error", 4],
-        "react/jsx-indent": [
-            "error",
-            4,
-            { "checkAttributes": true, "indentLogicalExpressions": true }
-        ],
-        "react/prop-types": ["off"],
-        "wrap-iife": ["off"]
+        "react/prop-types": ["off"]
     }
 }
