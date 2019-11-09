@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 async function download(name, BufferType) {
-    const response = await fetch(`data/${name}`);
+    const response = await fetch(`/data/${name}`);
 
     if (!BufferType) {
         return response.text();
