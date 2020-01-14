@@ -14,7 +14,7 @@
         "lint": "eslint --ext js,jsx ."
     },
     "dependencies": {
-        "@babel/core": "^7.7.7",
+        "@babel/core": "^7.8.3",
         "@babel/plugin-syntax-dynamic-import": "^7.7.4",
         "@babel/preset-react": "^7.7.4",
         "@reach/router": "^1.2.1",
