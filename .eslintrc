@@ -17,7 +17,11 @@
         "browser": true,
         "es6": true
     },
+    "globals": {
+        "wasm_bindgen": true
+    },
     "rules": {
-        "react/prop-types": ["off"]
+        "react/prop-types": ["off"],
+        "camelcase": ["off"]
     }
 }

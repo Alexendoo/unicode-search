@@ -1,6 +1,7 @@
 /* eslint-env node */
 
 const path = require("path");
+const WorkerPlugin = require("worker-plugin");
 
 /**
  * @type {import("webpack").Configuration}
@@ -9,7 +10,6 @@ module.exports = {
     entry: "./client/js/index.jsx",
     output: {
         path: path.resolve(__dirname, "client/dist"),
-        webassemblyModuleFilename: "search.wasm",
         filename: "[name].js",
         publicPath: "dist/",
     },
@@ -20,7 +20,7 @@ module.exports = {
         rules: [
             {
                 test: /\.jsx?$/,
-                exclude: /node_modules|pkg/,
+                exclude: /node_modules|wasm/,
                 use: {
                     loader: "babel-loader",
                     options: {
@@ -31,6 +31,11 @@ module.exports = {
             },
         ],
     },
+    plugins: [
+        new WorkerPlugin({
+            globalObject: false,
+        }),
+    ],
     mode: "development",
     devtool: "source-map",
 };

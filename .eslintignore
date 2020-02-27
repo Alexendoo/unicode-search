@@ -1,4 +1,4 @@
 target
 client/data
 client/dist
-client/pkg
+client/wasm
