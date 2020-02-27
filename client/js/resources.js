@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 /** @type {import("../wasm/utf")} */
-const { Searcher, set_panic_hook } = wasm_bindgen;
+const { Searcher } = wasm_bindgen;
 
 async function downloadAll() {
     const [codepoints, namesCombied] = await Promise.all([
@@ -11,8 +11,6 @@ async function downloadAll() {
         fetch("/data/names.txt").then(res => res.text()),
         wasm_bindgen("/wasm/utf_bg.wasm"),
     ]);
-
-    set_panic_hook();
 
     const names = namesCombied.split("\n");
     window.names = names;
