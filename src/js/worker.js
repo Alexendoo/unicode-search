@@ -1,14 +1,18 @@
 /* eslint-env worker */
 
-importScripts("/wasm/utf.js");
+import init, { Searcher } from "../../intermediate/wasm/utf";
 
-/** @type {import("../wasm/utf")} */
-const { Searcher } = wasm_bindgen;
+onmessage = async ({ data: { module, names, chunkSize } }) => {
+    await init(module);
 
-async function setup() {
-    await wasm_bindgen("/wasm/utf_bg.wasm");
+    const searcher = new Searcher(names.length, 1, chunkSize, 0);
+    names.forEach(name => searcher.add_line(name));
 
-    console.log(Searcher);
-}
+    onmessage = ({ data: { pattern, chunk, epoch } }) => {
+        const result = searcher.search(pattern, chunk);
 
-setup();
+        console.log("worker:result", { epoch });
+        postMessage({ result, epoch }, null, [result]);
+    };
+    postMessage(null);
+};

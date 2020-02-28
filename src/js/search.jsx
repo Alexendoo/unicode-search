@@ -1,8 +1,14 @@
-import React, { useRef, useState, useLayoutEffect } from "react";
+import React, {
+    useRef,
+    useState,
+    useLayoutEffect,
+    useEffect,
+    useReducer,
+} from "react";
 import SearchEntry from "./search-entry";
 import InputBar from "./input-bar";
 
-function SearchList({ indicies, parts }) {
+function SearchList({ results, parts }) {
     const itemHeight = 24;
 
     const root = useRef(null);
@@ -28,19 +34,19 @@ function SearchList({ indicies, parts }) {
         window.addEventListener("scroll", calculateRange);
 
         return () => window.removeEventListener("scroll", calculateRange);
-    }, [indicies]);
+    }, [results]);
 
     const rootStyle = {
-        height: itemHeight * indicies.length,
+        height: itemHeight * results.length,
         position: "relative",
     };
 
     const items = Array.from(
         {
-            length: Math.min(range.length, indicies.length),
+            length: Math.min(range.length, results.length),
         },
         (_, i) => {
-            const index = indicies[i + range.start];
+            const { index } = results[i + range.start];
 
             const style = {
                 position: "absolute",
@@ -65,18 +71,47 @@ function SearchList({ indicies, parts }) {
     );
 }
 
+let markn = 0;
+
 export default function Search({ parts }) {
     const [pattern, setPattern] = useState("");
+    const [results, setResults] = useState([]);
 
-    let resultIndicies = new Uint32Array();
-    if (pattern.length > 0 && parts !== null) {
-        resultIndicies = parts.searcher.indicies(pattern.toUpperCase());
-    }
+    useEffect(() => {
+        setResults([]);
+
+        if (parts === null) return;
+
+        const searcher = parts.searchPool;
+
+        if (pattern === "") {
+            searcher.clear();
+            return;
+        }
+
+        markn += 1;
+        const localMark = markn;
+        const mark = `search:${localMark}:start`;
+        performance.mark(mark);
+
+        searcher.search(pattern, matches => {
+            setResults(old => {
+                const sorted = old
+                    .concat(matches)
+                    .sort((a, b) => b.score - a.score);
+                performance.measure(`search:${localMark}:result`, mark);
+
+                return sorted;
+            });
+        });
+
+        return () => console.log("DEAD");
+    }, [pattern, parts]);
 
     return (
         <div>
             <InputBar value={pattern} onChange={setPattern} />
-            <SearchList indicies={resultIndicies} parts={parts} />
+            <SearchList results={results} parts={parts} />
         </div>
     );
 }

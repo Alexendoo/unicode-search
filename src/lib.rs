@@ -12,15 +12,7 @@ extern "C" {
 
 #[allow(unused_macros)]
 macro_rules! log {
-    ($val:expr) => {
-        console_log(format!(
-            "[{}:{}] {} = {:#?}",
-            file!(),
-            line!(),
-            stringify!($val),
-            $val
-        ))
-    };
+    ($($t:tt)*) => (console_log(&format_args!($($t)*).to_string()))
 }
 
 #[wasm_bindgen(start)]
@@ -28,9 +20,8 @@ pub fn start() {
     std::panic::set_hook(Box::new(console_error_panic_hook::hook));
 }
 
-#[wasm_bindgen]
 #[derive(Serialize, Deserialize, Debug)]
-pub struct SearchResult {
+struct SearchResult {
     index: usize,
     score: i32,
     indices: Vec<usize>,
@@ -41,8 +32,8 @@ pub struct SearchResult {
 pub struct Searcher {
     names: Vec<String>,
 
+    num_workers: usize,
     chunk_size: usize,
-    chunk_count: usize,
     chunk_offset: usize,
 }
 
@@ -51,15 +42,15 @@ impl Searcher {
     #[wasm_bindgen(constructor)]
     pub fn new(
         capacity: usize,
+        num_workers: usize,
         chunk_size: usize,
-        chunk_count: usize,
         chunk_offset: usize,
     ) -> Self {
         Self {
             names: Vec::with_capacity(capacity),
 
+            num_workers,
             chunk_size,
-            chunk_count,
             chunk_offset,
         }
     }
@@ -73,7 +64,7 @@ impl Searcher {
     }
 
     pub fn search(&self, pattern: &str, chunk: usize) -> Vec<u8> {
-        let start_index = chunk * self.chunk_size * self.chunk_count + self.chunk_offset;
+        let start_index = chunk * self.chunk_size;
 
         let results: Vec<SearchResult> = self
             .names
@@ -83,13 +74,13 @@ impl Searcher {
             .take(self.chunk_size)
             .filter_map(|(index, name)| {
                 fuzzy_indices(name, pattern).map(|(score, indices)| SearchResult {
-                    index: index + start_index,
+                    index: index + 0, // TODO: offset
                     score: score as i32,
                     indices,
                 })
             })
             .collect();
 
-        bincode::serialize(&results).unwrap()
+        serde_json::to_vec(&results).unwrap()
     }
 }
