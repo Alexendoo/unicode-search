@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
+import init, { Searcher } from "../../intermediate/wasm/utf";
 
-/** @type {import("../wasm/utf")} */
-const { Searcher } = wasm_bindgen;
+import wasm from "../../intermediate/wasm/utf_bg.wasm";
+import "../css/app.css";
 
 async function downloadAll() {
     const [codepoints, namesCombied] = await Promise.all([
@@ -9,7 +10,7 @@ async function downloadAll() {
             async res => new Uint32Array(await res.arrayBuffer()),
         ),
         fetch("/data/names.txt").then(res => res.text()),
-        wasm_bindgen("/wasm/utf_bg.wasm"),
+        init(wasm),
     ]);
 
     const names = namesCombied.split("\n");

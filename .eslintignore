@@ -1,4 +1,3 @@
+dist
+intermediate
 target
-client/data
-client/dist
-client/wasm

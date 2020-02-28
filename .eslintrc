@@ -23,5 +23,10 @@
     "rules": {
         "react/prop-types": ["off"],
         "camelcase": ["off"]
+    },
+    "settings": {
+        "import/ignore": [
+            "intermediate"
+        ]
     }
 }

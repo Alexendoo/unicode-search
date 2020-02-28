@@ -1,7 +1,7 @@
 .vscode
 *.log
 *.rs.bk
-client/data
+dist
+intermediate
 node_modules
 target
-dist

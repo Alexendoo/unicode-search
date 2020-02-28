@@ -25,7 +25,7 @@ struct Suffix<'a> {
 }
 
 fn out_file<P: AsRef<Path>>(path: P) -> BufWriter<File> {
-    let dir = Path::new("client/data");
+    let dir = Path::new("intermediate/data");
     let path = dir.join(path);
 
     create_dir_all(dir).unwrap();
