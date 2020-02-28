@@ -37,9 +37,12 @@ module.exports = {
                 test: /intermediate\/.*\.js$/,
             },
             {
-                test: /\.(bin|wasm)$/,
+                test: /\.(txt|bin|wasm)$/,
                 type: "javascript/auto",
                 loader: "file-loader",
+                options: {
+                    name: "[name].[contenthash].[ext]",
+                },
             },
             {
                 test: /\.css$/,
@@ -60,6 +63,9 @@ module.exports = {
         }),
         new CleanWebpackPlugin(),
     ],
-    mode: "production",
     devtool: "source-map",
+    devServer: {
+        overlay: true,
+        historyApiFallback: true,
+    },
 };

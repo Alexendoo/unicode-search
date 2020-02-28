@@ -13,5 +13,5 @@ jobs:
     - run: yarn install
     - run: yarn lint
     - run: yarn gen
+    - run: yarn wasm
     - run: yarn build
-    - run: yarn webpack

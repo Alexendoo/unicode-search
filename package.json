@@ -10,8 +10,10 @@
     },
     "scripts": {
         "gen": "cargo run --bin gen --release --features gen",
-        "build": "wasm-pack build --out-dir intermediate/wasm --target web",
-        "lint": "eslint --ext js,jsx ."
+        "wasm": "wasm-pack build --out-dir intermediate/wasm --target web",
+        "build": "webpack -p",
+        "lint": "eslint --ext js,jsx .",
+        "watch": "webpack-dev-server"
     },
     "dependencies": {
         "@babel/core": "^7.7.2",
@@ -38,6 +40,7 @@
         "react-dom": "^16.11.0",
         "webpack": "^4.41.2",
         "webpack-cli": "^3.3.10",
+        "webpack-dev-server": "^3.10.3",
         "worker-plugin": "^3.2.0"
     }
 }

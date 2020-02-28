@@ -1,16 +1,18 @@
 import { useEffect, useState } from "react";
 import init, { Searcher } from "../../intermediate/wasm/utf";
 
-import wasm from "../../intermediate/wasm/utf_bg.wasm";
+import wasmUrl from "../../intermediate/wasm/utf_bg.wasm";
+import codepointsUrl from "../../intermediate/data/codepoints.bin";
+import namesUrl from "../../intermediate/data/names.txt";
 import "../css/app.css";
 
 async function downloadAll() {
     const [codepoints, namesCombied] = await Promise.all([
-        fetch("/data/codepoints.bin").then(
+        fetch(codepointsUrl).then(
             async res => new Uint32Array(await res.arrayBuffer()),
         ),
-        fetch("/data/names.txt").then(res => res.text()),
-        init(wasm),
+        fetch(namesUrl).then(res => res.text()),
+        init(wasmUrl),
     ]);
 
     const names = namesCombied.split("\n");
