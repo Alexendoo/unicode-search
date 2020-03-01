@@ -1,9 +1,10 @@
+import { Router, Link } from "@reach/router";
 import React from "react";
 import { render } from "react-dom";
-import { Router, Link } from "@reach/router";
-import Search from "./search";
-import useResources from "./resources";
+
 import Chars from "./chars";
+import useResources from "./resources";
+import Search from "./search";
 
 function Index() {
     return (

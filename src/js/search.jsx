@@ -1,12 +1,7 @@
-import React, {
-    useRef,
-    useState,
-    useLayoutEffect,
-    useEffect,
-    useReducer,
-} from "react";
-import SearchEntry from "./search-entry";
+import React, { useRef, useState, useLayoutEffect, useEffect } from "react";
+
 import InputBar from "./input-bar";
+import SearchEntry from "./search-entry";
 
 function SearchList({ results, parts }) {
     const itemHeight = 24;
@@ -71,41 +66,15 @@ function SearchList({ results, parts }) {
     );
 }
 
-let markn = 0;
-
 export default function Search({ parts }) {
     const [pattern, setPattern] = useState("");
     const [results, setResults] = useState([]);
+    window.results = results;
 
     useEffect(() => {
-        setResults([]);
-
         if (parts === null) return;
 
-        const searcher = parts.searchPool;
-
-        if (pattern === "") {
-            searcher.clear();
-            return;
-        }
-
-        markn += 1;
-        const localMark = markn;
-        const mark = `search:${localMark}:start`;
-        performance.mark(mark);
-
-        searcher.search(pattern, matches => {
-            setResults(old => {
-                const sorted = old
-                    .concat(matches)
-                    .sort((a, b) => b.score - a.score);
-                performance.measure(`search:${localMark}:result`, mark);
-
-                return sorted;
-            });
-        });
-
-        return () => console.log("DEAD");
+        parts.searchPool.search(pattern, setResults);
     }, [pattern, parts]);
 
     return (

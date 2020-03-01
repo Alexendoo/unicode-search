@@ -12,7 +12,7 @@ extern "C" {
 
 #[allow(unused_macros)]
 macro_rules! log {
-    ($($t:tt)*) => (console_log(&format_args!($($t)*).to_string()))
+    ($($t:tt)*) => (console_log(format_args!($($t)*).to_string()))
 }
 
 #[wasm_bindgen(start)]
@@ -32,26 +32,19 @@ struct SearchResult {
 pub struct Searcher {
     names: Vec<String>,
 
-    num_workers: usize,
-    chunk_size: usize,
-    chunk_offset: usize,
+    offset_mult: usize,
+    offset_add: usize,
 }
 
 #[wasm_bindgen]
 impl Searcher {
     #[wasm_bindgen(constructor)]
-    pub fn new(
-        capacity: usize,
-        num_workers: usize,
-        chunk_size: usize,
-        chunk_offset: usize,
-    ) -> Self {
+    pub fn new(capacity: usize, offset_mult: usize, offset_add: usize) -> Self {
         Self {
             names: Vec::with_capacity(capacity),
 
-            num_workers,
-            chunk_size,
-            chunk_offset,
+            offset_mult,
+            offset_add,
         }
     }
 
@@ -59,22 +52,14 @@ impl Searcher {
         self.names.push(line)
     }
 
-    pub fn dbg(&self) {
-        log!(self)
-    }
-
-    pub fn search(&self, pattern: &str, chunk: usize) -> Vec<u8> {
-        let start_index = chunk * self.chunk_size;
-
+    pub fn search(&self, pattern: &str) -> Vec<u8> {
         let results: Vec<SearchResult> = self
             .names
             .iter()
             .enumerate()
-            .skip(start_index)
-            .take(self.chunk_size)
             .filter_map(|(index, name)| {
                 fuzzy_indices(name, pattern).map(|(score, indices)| SearchResult {
-                    index: index + 0, // TODO: offset
+                    index: index * self.offset_mult + self.offset_add,
                     score: score as i32,
                     indices,
                 })

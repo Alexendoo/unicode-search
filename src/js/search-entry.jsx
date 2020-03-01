@@ -1,4 +1,5 @@
 import React from "react";
+
 import Entry from "./entry";
 
 export default function SearchEntry({ style, index, parts }) {

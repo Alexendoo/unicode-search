@@ -3,13 +3,9 @@
 export default class SearchPool {
     /**
      * @param {Array<Worker>} pool
-     * @param {number} namesLength
-     * @param {number} chunkSize
      */
-    constructor(pool, namesLength, chunkSize) {
+    constructor(pool) {
         this.pool = pool;
-        this.namesLength = namesLength;
-        this.chunkSize = chunkSize;
         this.epoch = 0;
         this.decoder = new TextDecoder();
     }
@@ -27,45 +23,48 @@ export default class SearchPool {
      */
     search(pattern, callback) {
         this.epoch += 1;
+        const received = [];
+
+        if (pattern === "") {
+            callback([]);
+            return;
+        }
 
         this.pool.forEach(worker => {
-            let chunk = 0;
+            worker.postMessage({ pattern, epoch: this.epoch });
 
-            const send = epoch => {
-                worker.postMessage({ pattern, epoch, chunk });
-
-                chunk += 1;
-            };
-
-            const onMessage = ({ data }) => {
-                console.log("onMessage", {
-                    dataEpoch: data.epoch,
-                    thisEpoch: this.epoch,
-                    chunk,
-                    limit: this.namesLength / this.chunkSize,
-                });
-
+            worker.onmessage = ({ data }) => {
                 if (data.epoch !== this.epoch) {
                     // Old event, ignore it
                     return;
                 }
 
+                console.time("Receive");
                 const text = this.decoder.decode(data.result);
                 const json = JSON.parse(text);
-                callback(json);
+                received.push(json);
+                console.timeEnd("Receive");
 
-                if (chunk * this.chunkSize > this.namesLength) {
-                    // Finished
-                    console.log("finished");
-                    worker.onmessage = null;
-                    return;
+                if (received.length === this.pool.length) {
+                    // Done
+                    console.time("Done");
+                    const matches = received.flat();
+                    matches.sort((a, b) => {
+                        const scoreDiff = b.score - a.score;
+
+                        if (scoreDiff === 0) {
+                            return b.index - a.index;
+                        }
+
+                        return scoreDiff;
+                    });
+
+                    console.timeEnd("Done");
+                    console.time("Callback");
+                    callback(matches);
+                    console.timeEnd("Callback");
                 }
-
-                send(this.epoch);
             };
-
-            worker.onmessage = onMessage;
-            send(this.epoch);
         });
     }
 }

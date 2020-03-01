@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
-import init, { Collector } from "../../intermediate/wasm/utf";
 
-import wasmUrl from "../../intermediate/wasm/utf_bg.wasm";
 import codepointsUrl from "../../intermediate/data/codepoints.bin";
 import namesUrl from "../../intermediate/data/names.txt";
-import "../css/app.css";
-import SearchPool from "./search-pool";
+import init, { Collector } from "../../intermediate/wasm/utf";
+import wasmUrl from "../../intermediate/wasm/utf_bg.wasm";
 
-const CHUNK_SIZE = 4096;
+import SearchPool from "./search-pool";
+import splitArray from "./util/split-array";
+
+import "../css/app.css";
 
 async function createWorker(name, initialData) {
     /** @type {Worker} */
@@ -35,23 +36,28 @@ async function downloadAll() {
         init(wasmUrl),
     ]);
 
+    /** @type {string[]} */
     const names = namesCombied.split("\n");
     window.names = names;
 
+    const numWorkers = navigator.hardwareConcurrency;
+
     const pool = await Promise.all(
-        // TODO: use navigator.hardwareConcurrency
-        Array.from({ length: 1 }, (_, i) => {
-            return createWorker(`Worker ${i}`, {
-                names,
-                // eslint-disable-next-line no-underscore-dangle
-                module: init.__wbindgen_wasm_module,
-                chunkSize: CHUNK_SIZE,
-            });
-        }),
+        splitArray(names, navigator.hardwareConcurrency).map(
+            (nameChunk, workerNumber) =>
+                createWorker(`Worker ${workerNumber}`, {
+                    names: nameChunk,
+                    workerNumber,
+                    numWorkers,
+
+                    // eslint-disable-next-line no-underscore-dangle
+                    module: init.__wbindgen_wasm_module,
+                }),
+        ),
     );
     window.pool = pool;
 
-    const searchPool = new SearchPool(pool, names.length, CHUNK_SIZE);
+    const searchPool = new SearchPool(pool);
 
     return { names, codepoints, searchPool, Collector };
 }
