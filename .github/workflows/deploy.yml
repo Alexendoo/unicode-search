@@ -21,6 +21,7 @@ jobs:
         run: |
           yarn gen
           yarn wasm
+          yarn lint --max-warnings 0
           yarn build
 
       - name: Setup SSH
@@ -33,4 +34,4 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
 
       - name: Deploy
-        run: rsync -rtv --delete-after client/ deploy@macleod.io:/var/www/utf/
+        run: rsync -rtv --delete-after dist/ deploy@macleod.io:/var/www/utf/
