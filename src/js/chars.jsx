@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import InputBar from "./input-bar";
+
 import CharEntry from "./char-entry";
+import InputBar from "./input-bar";
 
 export default function Chars({ parts }) {
     const [chars, setChars] = useState("");

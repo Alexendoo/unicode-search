@@ -1,8 +1,9 @@
-import React, { useRef, useState, useLayoutEffect } from "react";
-import SearchEntry from "./search-entry";
-import InputBar from "./input-bar";
+import React, { useRef, useState, useLayoutEffect, useEffect } from "react";
 
-function SearchList({ indicies, parts }) {
+import InputBar from "./input-bar";
+import SearchEntry from "./search-entry";
+
+function SearchList({ results, parts }) {
     const itemHeight = 24;
 
     const root = useRef(null);
@@ -28,19 +29,19 @@ function SearchList({ indicies, parts }) {
         window.addEventListener("scroll", calculateRange);
 
         return () => window.removeEventListener("scroll", calculateRange);
-    }, [indicies]);
+    }, [results]);
 
     const rootStyle = {
-        height: itemHeight * indicies.length,
+        height: itemHeight * results.length,
         position: "relative",
     };
 
     const items = Array.from(
         {
-            length: Math.min(range.length, indicies.length),
+            length: Math.min(range.length, results.length),
         },
         (_, i) => {
-            const index = indicies[i + range.start];
+            const { index } = results[i + range.start];
 
             const style = {
                 position: "absolute",
@@ -67,16 +68,19 @@ function SearchList({ indicies, parts }) {
 
 export default function Search({ parts }) {
     const [pattern, setPattern] = useState("");
+    const [results, setResults] = useState([]);
+    window.results = results;
 
-    let resultIndicies = new Uint32Array();
-    if (pattern.length > 0 && parts !== null) {
-        resultIndicies = parts.searcher.indicies(pattern.toUpperCase());
-    }
+    useEffect(() => {
+        if (parts === null) return;
+
+        parts.searchPool.search(pattern, setResults);
+    }, [pattern, parts]);
 
     return (
         <div>
             <InputBar value={pattern} onChange={setPattern} />
-            <SearchList indicies={resultIndicies} parts={parts} />
+            <SearchList results={results} parts={parts} />
         </div>
     );
 }

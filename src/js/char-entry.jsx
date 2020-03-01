@@ -1,4 +1,5 @@
 import React from "react";
+
 import Entry from "./entry";
 
 function codepointToIndex(codepoint, codepoints) {

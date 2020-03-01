@@ -17,7 +17,30 @@
         "browser": true,
         "es6": true
     },
+    "globals": {
+        "wasm_bindgen": true
+    },
     "rules": {
-        "react/prop-types": ["off"]
+        "react/prop-types": ["off"],
+        "consistent-return": ["off"],
+        "camelcase": ["off"],
+        "import/order": [
+            "error",
+            {
+                "alphabetize": { "order": "asc" },
+                "groups": [
+                    "builtin",
+                    "external",
+                    "internal",
+                    "parent",
+                    "sibling",
+                    "index"
+                ],
+                "newlines-between": "always"
+            }
+        ]
+    },
+    "settings": {
+        "import/ignore": ["intermediate"]
     }
 }
