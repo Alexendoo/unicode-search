@@ -12,10 +12,10 @@ onmessage = async ({ data: { module, names, workerNumber, numWorkers } }) => {
     onmessage = ({ data: { pattern, epoch } }) => {
         const timeStr = `worker:${workerNumber}:search`;
         console.time(timeStr);
-        const result = searcher.search(pattern);
+        const { buffer } = searcher.search(pattern);
         console.timeEnd(timeStr);
 
-        postMessage({ result, epoch }, null, [result]);
+        postMessage({ buffer, epoch }, [buffer]);
     };
     postMessage(null);
 };

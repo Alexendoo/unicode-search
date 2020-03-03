@@ -40,7 +40,7 @@ export default class SearchPool {
                 }
 
                 console.time("Receive");
-                const text = this.decoder.decode(data.result);
+                const text = this.decoder.decode(new Uint8Array(data.buffer));
                 const json = JSON.parse(text);
                 received.push(json);
                 console.timeEnd("Receive");
