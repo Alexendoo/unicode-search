@@ -8,10 +8,12 @@ import Search from "./search";
 
 function Index() {
     return (
-        <nav>
-            <Link to="/search">search</Link>
-            <Link to="/chars">chars</Link>
-        </nav>
+        <React.StrictMode>
+            <nav>
+                <Link to="/search">search</Link>
+                <Link to="/chars">chars</Link>
+            </nav>
+        </React.StrictMode>
     );
 }
 
