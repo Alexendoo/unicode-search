@@ -1,5 +1,7 @@
 import React, { useRef, useState, useLayoutEffect, useEffect } from "react";
 
+import { SearchResults } from "../../intermediate/wasm/utf";
+
 import InputBar from "./input-bar";
 import SearchEntry from "./search-entry";
 
@@ -32,16 +34,16 @@ function SearchList({ results, parts }) {
     }, [results]);
 
     const rootStyle = {
-        height: itemHeight * results.length,
+        height: itemHeight * results.length(),
         position: "relative",
     };
 
     const items = Array.from(
         {
-            length: Math.min(range.length, results.length),
+            length: Math.min(range.length, results.length()),
         },
         (_, i) => {
-            const { index } = results[i + range.start];
+            const { index } = results.get(i + range.start);
 
             const style = {
                 position: "absolute",
@@ -68,7 +70,7 @@ function SearchList({ results, parts }) {
 
 export default function Search({ parts }) {
     const [pattern, setPattern] = useState("");
-    const [results, setResults] = useState([]);
+    const [results, setResults] = useState(() => SearchResults.empty());
     window.results = results;
 
     useEffect(() => {

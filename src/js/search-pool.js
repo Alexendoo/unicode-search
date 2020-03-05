@@ -1,3 +1,5 @@
+import { Collector, SearchResults } from "../../intermediate/wasm/utf";
+
 /* eslint-disable no-param-reassign */
 
 export default class SearchPool {
@@ -23,12 +25,13 @@ export default class SearchPool {
      */
     search(pattern, callback) {
         this.epoch += 1;
-        const received = [];
 
         if (pattern === "") {
-            callback([]);
+            callback(SearchResults.empty());
             return;
         }
+
+        const collector = new Collector(this.pool.length);
 
         this.pool.forEach(worker => {
             worker.postMessage({ pattern, epoch: this.epoch });
@@ -40,28 +43,17 @@ export default class SearchPool {
                 }
 
                 console.time("Receive");
-                const text = this.decoder.decode(new Uint8Array(data.buffer));
-                const json = JSON.parse(text);
-                received.push(json);
+                const done = collector.collect(new Uint8Array(data.buffer));
                 console.timeEnd("Receive");
 
-                if (received.length === this.pool.length) {
+                if (done) {
                     // Done
                     console.time("Done");
-                    const matches = received.flat();
-                    matches.sort((a, b) => {
-                        const scoreDiff = b.score - a.score;
-
-                        if (scoreDiff === 0) {
-                            return b.index - a.index;
-                        }
-
-                        return scoreDiff;
-                    });
-
+                    const results = collector.build();
                     console.timeEnd("Done");
+
                     console.time("Callback");
-                    callback(matches);
+                    callback(results);
                     console.timeEnd("Callback");
                 }
             };

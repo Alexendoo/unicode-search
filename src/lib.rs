@@ -1,6 +1,7 @@
 #![warn(clippy::pedantic)]
 
 use fuzzy_matcher::skim::fuzzy_indices;
+use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
 
@@ -20,10 +21,11 @@ pub fn start() {
     std::panic::set_hook(Box::new(console_error_panic_hook::hook));
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-struct SearchResult {
-    index: usize,
-    score: i32,
+#[wasm_bindgen]
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct SearchResult {
+    pub index: usize,
+    pub score: i32,
     indices: Vec<usize>,
 }
 
@@ -53,7 +55,7 @@ impl Searcher {
     }
 
     pub fn search(&self, pattern: &str) -> Vec<u8> {
-        let results: Vec<SearchResult> = self
+        let mut results: Vec<SearchResult> = self
             .names
             .iter()
             .enumerate()
@@ -66,6 +68,69 @@ impl Searcher {
             })
             .collect();
 
-        serde_json::to_vec(&results).unwrap()
+        results.sort_unstable_by_key(|result| (result.score, result.index));
+
+        bincode::serialize(&results).unwrap()
+    }
+}
+
+#[wasm_bindgen]
+pub struct Collector {
+    target_length: usize,
+    sub_results: Vec<Vec<SearchResult>>,
+}
+
+#[wasm_bindgen]
+impl Collector {
+    #[wasm_bindgen(constructor)]
+    pub fn new(target_length: usize) -> Self {
+        Self {
+            target_length,
+            sub_results: Vec::with_capacity(target_length),
+        }
+    }
+
+    pub fn collect(&mut self, blob: &[u8]) -> bool {
+        let sub_result = bincode::deserialize(blob).unwrap();
+
+        self.sub_results.push(sub_result);
+
+        self.sub_results.len() == self.target_length
+    }
+
+    pub fn build(self) -> SearchResults {
+        assert!(self.target_length == self.sub_results.len());
+
+        let results: Vec<SearchResult> = self.sub_results
+            .into_iter()
+            .kmerge_by(|a, b| (a.score, a.index) > (b.score, b.index))
+            .collect();
+
+        SearchResults {
+            results,
+        }
+    }
+}
+
+#[wasm_bindgen]
+#[derive(Clone)]
+pub struct SearchResults {
+    results: Vec<SearchResult>,
+}
+
+#[wasm_bindgen]
+impl SearchResults {
+    pub fn empty() -> Self {
+        Self {
+            results: Vec::new(),
+        }
+    }
+
+    pub fn get(&self, index: usize) -> SearchResult {
+        self.results[index].clone()
+    }
+
+    pub fn length(&self) -> usize {
+        self.results.len()
     }
 }

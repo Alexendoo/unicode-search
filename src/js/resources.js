@@ -59,6 +59,8 @@ async function downloadAll() {
 
     const searchPool = new SearchPool(pool);
 
+    window.Collector = Collector;
+
     return { names, codepoints, searchPool, Collector };
 }
 

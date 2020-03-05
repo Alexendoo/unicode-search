@@ -20,6 +20,10 @@ function Index() {
 function Routes() {
     const parts = useResources();
 
+    if (!parts) {
+        return <div>loading...</div>;
+    }
+
     return (
         <Router>
             <Index path="/" />
