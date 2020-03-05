@@ -29,6 +29,12 @@ pub struct SearchResult {
     indices: Vec<usize>,
 }
 
+impl SearchResult {
+    fn comparable(&self) -> impl Ord {
+        (-self.score, self.index)
+    }
+}
+
 #[wasm_bindgen]
 #[derive(Debug)]
 pub struct Searcher {
@@ -68,7 +74,7 @@ impl Searcher {
             })
             .collect();
 
-        results.sort_unstable_by_key(|result| (result.score, result.index));
+        results.sort_unstable_by_key(|result| result.comparable());
 
         bincode::serialize(&results).unwrap()
     }
@@ -101,14 +107,13 @@ impl Collector {
     pub fn build(self) -> SearchResults {
         assert!(self.target_length == self.sub_results.len());
 
-        let results: Vec<SearchResult> = self.sub_results
+        let results: Vec<SearchResult> = self
+            .sub_results
             .into_iter()
-            .kmerge_by(|a, b| (a.score, a.index) > (b.score, b.index))
+            .kmerge_by(|a, b| a.comparable() < b.comparable())
             .collect();
 
-        SearchResults {
-            results,
-        }
+        SearchResults { results }
     }
 }
 
