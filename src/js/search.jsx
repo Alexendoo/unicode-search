@@ -71,12 +71,15 @@ function SearchList({ results, parts }) {
 export default function Search({ parts }) {
     const [pattern, setPattern] = useState("");
     const [results, setResults] = useState(() => SearchResults.empty());
-    window.results = results;
 
     useEffect(() => {
-        if (parts === null) return;
+        parts.searchPool.search(pattern, newResult => {
+            setResults(oldResult => {
+                oldResult.free();
 
-        parts.searchPool.search(pattern, setResults);
+                return newResult;
+            });
+        });
     }, [pattern, parts]);
 
     return (
