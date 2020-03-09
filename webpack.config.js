@@ -34,9 +34,6 @@ module.exports = {
                 ],
             },
             {
-                test: /intermediate\/.*\.js$/,
-            },
-            {
                 test: /\.(txt|bin|wasm)$/,
                 type: "javascript/auto",
                 loader: "file-loader",
