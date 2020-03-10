@@ -24,12 +24,17 @@ pub fn start() {
 #[wasm_bindgen]
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct SearchResult {
-    pub index: usize,
-    pub score: i32,
+    index: usize,
+    score: i32,
     indices: Vec<usize>,
 }
 
+#[wasm_bindgen]
 impl SearchResult {
+    pub fn index(&self) -> usize {
+        self.index
+    }
+
     fn comparable(&self) -> impl Ord {
         (-self.score, self.index)
     }

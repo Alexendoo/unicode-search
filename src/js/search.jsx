@@ -2,8 +2,8 @@ import React, { useRef, useState, useLayoutEffect, useEffect } from "react";
 
 import { SearchResults } from "../../intermediate/wasm/utf";
 
+import Entry from "./entry";
 import InputBar from "./input-bar";
-import SearchEntry from "./search-entry";
 
 function SearchList({ results, parts }) {
     const itemHeight = 24;
@@ -43,7 +43,12 @@ function SearchList({ results, parts }) {
             length: Math.min(range.length, results.length()),
         },
         (_, i) => {
-            const { index } = results.get(i + range.start);
+            const result = results.get(i + range.start);
+
+            const index = result.index();
+
+            const codepoint = parts.codepoints[index];
+            const name = parts.names[index];
 
             const style = {
                 position: "absolute",
@@ -51,11 +56,11 @@ function SearchList({ results, parts }) {
             };
 
             return (
-                <SearchEntry
-                    index={index}
-                    parts={parts}
+                <Entry
                     key={index}
                     style={style}
+                    codepoint={codepoint}
+                    name={name}
                 />
             );
         },
