@@ -78,8 +78,8 @@ export default function Search({ parts }) {
     const [results, setResults] = useState(() => SearchResults.empty());
 
     useEffect(() => {
-        parts.searchPool.search(pattern, newResult => {
-            setResults(oldResult => {
+        parts.searchPool.search(pattern, (newResult) => {
+            setResults((oldResult) => {
                 oldResult.free();
 
                 return newResult;

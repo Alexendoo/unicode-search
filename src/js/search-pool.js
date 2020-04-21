@@ -14,7 +14,7 @@ export default class SearchPool {
 
     clear() {
         this.epoch += 1;
-        this.pool.forEach(worker => {
+        this.pool.forEach((worker) => {
             worker.onmessage = null;
         });
     }
@@ -33,7 +33,7 @@ export default class SearchPool {
 
         const collector = new Collector(this.pool.length);
 
-        this.pool.forEach(worker => {
+        this.pool.forEach((worker) => {
             worker.postMessage({ pattern, epoch: this.epoch });
 
             worker.onmessage = ({ data }) => {

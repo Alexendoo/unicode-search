@@ -6,7 +6,7 @@ export default function InputBar({ onChange, value }) {
             <span>{">"}</span>
             <input
                 autoComplete="off"
-                onChange={e => onChange(e.target.value)}
+                onChange={(e) => onChange(e.target.value)}
                 type="text"
                 value={value}
             />
