@@ -30,9 +30,9 @@ async function createWorker(name, initialData) {
 async function downloadAll() {
     const [codepoints, namesCombied] = await Promise.all([
         fetch(codepointsUrl).then(
-            async res => new Uint32Array(await res.arrayBuffer()),
+            async (res) => new Uint32Array(await res.arrayBuffer()),
         ),
-        fetch(namesUrl).then(res => res.text()),
+        fetch(namesUrl).then((res) => res.text()),
         init(wasmUrl),
     ]);
 
