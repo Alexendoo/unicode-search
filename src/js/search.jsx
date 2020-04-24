@@ -1,4 +1,10 @@
-import React, { useRef, useState, useLayoutEffect, useEffect } from "react";
+import React, {
+    useRef,
+    useState,
+    useLayoutEffect,
+    useEffect,
+    StrictMode,
+} from "react";
 import { render } from "react-dom";
 
 import { SearchResults } from "../../intermediate/wasm/utf";
@@ -104,7 +110,11 @@ function App() {
         return <div>loading...</div>;
     }
 
-    return <Search parts={parts} />;
+    return (
+        <StrictMode>
+            <Search parts={parts} />
+        </StrictMode>
+    );
 }
 
 render(<App />, document.getElementById("app"));
