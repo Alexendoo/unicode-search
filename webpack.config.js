@@ -5,13 +5,23 @@ const HtmlPlugin = require("html-webpack-plugin");
 const CssPlugin = require("mini-css-extract-plugin");
 const WorkerPlugin = require("worker-plugin");
 
+function page(filename) {
+    return new HtmlPlugin({
+        template: `./src/pages/${filename}.jsx`,
+        filename,
+        inject: false,
+    });
+}
+
 /**
  * @type {import("webpack").Configuration}
  */
 module.exports = {
-    entry: "./src/js/index.jsx",
+    entry: {
+        search: "./src/js/search.jsx",
+    },
     output: {
-        filename: "[name].[contenthash].js",
+        filename: "static/[name].[contenthash].js",
     },
     resolve: {
         extensions: [".js", ".jsx"],
@@ -38,7 +48,7 @@ module.exports = {
                 type: "javascript/auto",
                 loader: "file-loader",
                 options: {
-                    name: "[name].[contenthash].[ext]",
+                    name: "static/[name].[contenthash].[ext]",
                 },
             },
             {
@@ -48,12 +58,10 @@ module.exports = {
         ],
     },
     plugins: [
-        new HtmlPlugin({
-            template: "src/index.ejs",
-            inject: false,
-        }),
+        page("index.html"),
+        page("search.html"),
         new CssPlugin({
-            filename: "[name].[contenthash].css",
+            filename: "static/[contenthash].css",
         }),
         new WorkerPlugin({
             globalObject: "self",
@@ -63,6 +71,10 @@ module.exports = {
     devtool: "source-map",
     devServer: {
         overlay: true,
-        historyApiFallback: true,
+        before(app) {
+            app.get(/^\/(?:search|chars)$/, (req, res) => {
+                res.redirect(`${req.url}.html`);
+            });
+        },
     },
 };

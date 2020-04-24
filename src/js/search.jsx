@@ -1,9 +1,11 @@
 import React, { useRef, useState, useLayoutEffect, useEffect } from "react";
+import { render } from "react-dom";
 
 import { SearchResults } from "../../intermediate/wasm/utf";
 
 import Entry from "./entry";
 import InputBar from "./input-bar";
+import useResources from "./resources";
 
 function SearchList({ results, parts }) {
     const itemHeight = 24;
@@ -94,3 +96,15 @@ export default function Search({ parts }) {
         </div>
     );
 }
+
+function App() {
+    const parts = useResources();
+
+    if (!parts) {
+        return <div>loading...</div>;
+    }
+
+    return <Search parts={parts} />;
+}
+
+render(<App />, document.getElementById("app"));
