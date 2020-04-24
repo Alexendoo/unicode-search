@@ -1,15 +1,20 @@
 import React from "react";
 
-import { asset, renderStatic, Head } from "./shared";
+import { assetLoader, renderStatic, Head } from "./shared";
 
 export default ({ compilation }) => {
+    const asset = assetLoader(compilation);
+
     const app = (
         <html lang="en">
             <Head>
                 <title>Character Information Search</title>
 
-                <link rel="stylesheet" href={asset(/css$/, compilation)} />
-                <script defer src={asset(/search.*js$/, compilation)} />
+                {/* TODO: crossorigin needs to match */}
+                <link rel="preload" href={asset(/.wasm$/)} as="fetch" />
+
+                <link rel="stylesheet" href={asset(/css$/)} />
+                <script defer src={asset(/search.*js$/)} />
             </Head>
 
             <body>

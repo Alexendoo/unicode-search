@@ -1,8 +1,7 @@
-import { Collector, SearchResults } from "../../intermediate/wasm/utf";
+import splitArray from "./util/split-array";
+import { Collector, SearchResults } from "./wasm";
 
-/* eslint-disable no-param-reassign */
-
-export default class SearchPool {
+class SearchPool {
     /**
      * @param {Array<Worker>} pool
      */
@@ -15,6 +14,7 @@ export default class SearchPool {
     clear() {
         this.epoch += 1;
         this.pool.forEach((worker) => {
+            // eslint-disable-next-line no-param-reassign
             worker.onmessage = null;
         });
     }
@@ -36,6 +36,7 @@ export default class SearchPool {
         this.pool.forEach((worker) => {
             worker.postMessage({ pattern, epoch: this.epoch });
 
+            // eslint-disable-next-line no-param-reassign
             worker.onmessage = ({ data }) => {
                 if (data.epoch !== this.epoch) {
                     // Old event, ignore it
@@ -59,4 +60,41 @@ export default class SearchPool {
             };
         });
     }
+}
+
+async function createWorker(initialData) {
+    /** @type {Worker} */
+    const worker = await new Promise((resolve, reject) => {
+        const pendingWorker = new Worker("./worker", {
+            name: `Worker ${initialData.workerNumber}`,
+            type: "module",
+        });
+
+        pendingWorker.postMessage(initialData);
+
+        pendingWorker.onmessage = () => resolve(pendingWorker);
+        pendingWorker.onerror = reject;
+    });
+
+    worker.onerror = null;
+    worker.onmessage = null;
+
+    return worker;
+}
+
+export default async function loadPool(names, module) {
+    const numWorkers = navigator.hardwareConcurrency;
+
+    const workers = await Promise.all(
+        splitArray(names, numWorkers).map((nameChunk, workerNumber) =>
+            createWorker({
+                names: nameChunk,
+                workerNumber,
+                numWorkers,
+                module,
+            }),
+        ),
+    );
+
+    return new SearchPool(workers);
 }

@@ -1,7 +1,7 @@
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
-export function asset(re, compilation) {
+function asset(re, compilation) {
     const keys = Object.keys(compilation.assets);
 
     const matches = keys.filter((key) => re.test(key));
@@ -15,6 +15,8 @@ export function asset(re, compilation) {
 
     return matches[0];
 }
+
+export const assetLoader = (compiliation) => (re) => asset(re, compiliation);
 
 export function Head({ children }) {
     return (

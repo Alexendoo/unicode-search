@@ -7,11 +7,11 @@ import React, {
 } from "react";
 import { render } from "react-dom";
 
-import { SearchResults } from "../../intermediate/wasm/utf";
-
 import Entry from "./entry";
+import * as files from "./files";
 import InputBar from "./input-bar";
-import useResources from "./resources";
+import loadPool from "./search-pool";
+import initWasm, { SearchResults } from "./wasm";
 
 function SearchList({ results, parts }) {
     const itemHeight = 24;
@@ -88,7 +88,7 @@ export default function Search({ parts }) {
     useEffect(() => {
         parts.searchPool.search(pattern, (newResult) => {
             setResults((oldResult) => {
-                oldResult.free();
+                if (oldResult.ptr !== 0) oldResult.free();
 
                 return newResult;
             });
@@ -103,18 +103,28 @@ export default function Search({ parts }) {
     );
 }
 
-function App() {
-    const parts = useResources();
+(async function start() {
+    const codepoints = fetch(files.codepoints)
+        .then((res) => res.arrayBuffer())
+        .then((buffer) => new Uint32Array(buffer));
+    const names = fetch(files.names)
+        .then((res) => res.text())
+        .then((text) => text.split("\n"));
+    const module = initWasm();
 
-    if (!parts) {
-        return <div>loading...</div>;
-    }
+    const searchPool = loadPool(await names, await module);
 
-    return (
+    const parts = {
+        codepoints: await codepoints,
+        module: await module,
+        names: await names,
+        searchPool: await searchPool,
+    };
+
+    render(
         <StrictMode>
             <Search parts={parts} />
-        </StrictMode>
+        </StrictMode>,
+        document.getElementById("app"),
     );
-}
-
-render(<App />, document.getElementById("app"));
+})();

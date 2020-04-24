@@ -1,13 +1,15 @@
 import React from "react";
 
-import { asset, renderStatic, Head } from "./shared";
+import { assetLoader, renderStatic, Head } from "./shared";
 
 export default ({ compilation }) => {
+    const asset = assetLoader(compilation);
+
     const app = (
         <html lang="en">
             <Head>
                 <title>Character Information</title>
-                <script defer src={asset(/css$/, compilation)} />
+                <script defer src={asset(/css$/)} />
             </Head>
 
             <body>

@@ -69,6 +69,7 @@ module.exports = {
         new CleanWebpackPlugin(),
     ],
     devtool: "source-map",
+    mode: "development",
     devServer: {
         overlay: true,
         before(app) {
