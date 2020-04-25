@@ -112,7 +112,7 @@ export default function Search({ parts }) {
         .then((text) => text.split("\n"));
     const module = initWasm();
 
-    const searchPool = loadPool(await names, await module);
+    const searchPool = loadPool(names, module);
 
     const parts = {
         codepoints: await codepoints,

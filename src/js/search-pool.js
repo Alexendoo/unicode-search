@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 import splitArray from "./util/split-array";
 import { Collector, SearchResults } from "./wasm";
 
@@ -14,7 +15,6 @@ class SearchPool {
     clear() {
         this.epoch += 1;
         this.pool.forEach((worker) => {
-            // eslint-disable-next-line no-param-reassign
             worker.onmessage = null;
         });
     }
@@ -36,63 +36,59 @@ class SearchPool {
         this.pool.forEach((worker) => {
             worker.postMessage({ pattern, epoch: this.epoch });
 
-            // eslint-disable-next-line no-param-reassign
             worker.onmessage = ({ data }) => {
                 if (data.epoch !== this.epoch) {
                     // Old event, ignore it
                     return;
                 }
 
-                console.time("Receive");
                 const done = collector.collect(new Uint8Array(data.buffer));
-                console.timeEnd("Receive");
 
                 if (done) {
-                    // Done
-                    console.time("Done");
                     const results = collector.build();
-                    console.timeEnd("Done");
 
-                    console.time("Callback");
                     callback(results);
-                    console.timeEnd("Callback");
                 }
             };
         });
     }
 }
 
-async function createWorker(initialData) {
-    /** @type {Worker} */
-    const worker = await new Promise((resolve, reject) => {
-        const pendingWorker = new Worker("./worker", {
-            name: `Worker ${initialData.workerNumber}`,
-            type: "module",
-        });
+function createWorker(number) {
+    return new Worker("./worker", {
+        name: `Worker ${number}`,
+        type: "module",
+    });
+}
 
-        pendingWorker.postMessage(initialData);
+async function loadWorker(worker, initialData) {
+    await new Promise((resolve, reject) => {
+        worker.postMessage(initialData);
 
-        pendingWorker.onmessage = () => resolve(pendingWorker);
-        pendingWorker.onerror = reject;
+        worker.onmessage = resolve;
+        worker.onerror = reject;
     });
 
-    worker.onerror = null;
     worker.onmessage = null;
-
-    return worker;
+    worker.onerror = null;
 }
 
 export default async function loadPool(names, module) {
     const numWorkers = navigator.hardwareConcurrency;
 
-    const workers = await Promise.all(
-        splitArray(names, numWorkers).map((nameChunk, workerNumber) =>
-            createWorker({
-                names: nameChunk,
-                workerNumber,
-                numWorkers,
-                module,
-            }),
+    const workers = Array.from({ length: numWorkers }, (_, workerNumber) =>
+        createWorker(workerNumber),
+    );
+
+    await Promise.all(
+        splitArray(await names, numWorkers).map(
+            async (nameChunk, workerNumber) =>
+                loadWorker(workers[workerNumber], {
+                    names: nameChunk,
+                    workerNumber,
+                    numWorkers,
+                    module: await module,
+                }),
         ),
     );
 
