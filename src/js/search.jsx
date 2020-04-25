@@ -13,6 +13,26 @@ import InputBar from "./input-bar";
 import loadPool from "./search-pool";
 import initWasm, { SearchResults } from "./wasm";
 
+function HighlightedEntry({ style, codepoint, name, highlight }) {
+    const chunks = [];
+
+
+    let current = 0;
+    highlight.forEach((index) => {
+        chunks.push(name.slice(current, index));
+        chunks.push(
+            <span className="highlight" key={index}>
+                {name[index]}
+            </span>,
+        );
+
+        current = index + 1;
+    });
+    chunks.push(name.slice(current));
+
+    return <Entry style={style} codepoint={codepoint} name={chunks} />;
+}
+
 function SearchList({ results, parts }) {
     const itemHeight = 24;
 
@@ -54,6 +74,7 @@ function SearchList({ results, parts }) {
             const result = results.get(i + range.start);
 
             const index = result.index();
+            const highlightIndices = result.indices();
 
             const codepoint = parts.codepoints[index];
             const name = parts.names[index];
@@ -64,11 +85,12 @@ function SearchList({ results, parts }) {
             };
 
             return (
-                <Entry
+                <HighlightedEntry
                     key={index}
                     style={style}
                     codepoint={codepoint}
                     name={name}
+                    highlight={highlightIndices}
                 />
             );
         },
@@ -120,6 +142,8 @@ export default function Search({ parts }) {
         names: await names,
         searchPool: await searchPool,
     };
+
+    window.parts = parts;
 
     render(
         <StrictMode>

@@ -59,6 +59,10 @@ input {
     display: inline-block;
 }
 
+.highlight {
+    color: red;
+}
+
 /* #chars {
     display: block;
     max-width: 376px;

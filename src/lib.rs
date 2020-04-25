@@ -35,6 +35,10 @@ impl SearchResult {
         self.index
     }
 
+    pub fn indices(&self) -> Vec<usize> {
+        self.indices.clone()
+    }
+
     fn comparable(&self) -> impl Ord {
         (-self.score, self.index)
     }
