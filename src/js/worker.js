@@ -8,7 +8,6 @@ onmessage = async ({ data: { module, names, workerNumber, numWorkers } }) => {
     const searcher = new Searcher(names.length, numWorkers, workerNumber);
     names.forEach((name) => searcher.add_line(name));
 
-    // TODO: Spin event loop to flush old epoch requests?
     onmessage = ({ data: { pattern, epoch } }) => {
         const timeStr = `worker:${workerNumber}:search`;
         console.time(timeStr);

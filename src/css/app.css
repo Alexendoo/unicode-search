@@ -40,7 +40,7 @@ input {
 }
 
 .char {
-    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .codepoint {
