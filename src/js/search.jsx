@@ -11,23 +11,24 @@ import Entry from "./entry";
 import * as files from "./files";
 import InputBar from "./input-bar";
 import loadPool from "./search-pool";
+import indicesToRanges from "./util/indices-to-ranges";
 import initWasm, { SearchResults } from "./wasm";
 
 function HighlightedEntry({ style, codepoint, name, highlight }) {
     const chunks = [];
 
-    let current = 0;
-    highlight.forEach((index) => {
-        chunks.push(name.slice(current, index));
+    let lastEnd = 0;
+    indicesToRanges(highlight).forEach(({ start, end }) => {
+        chunks.push(name.slice(lastEnd, start));
         chunks.push(
-            <span className="highlight" key={index}>
-                {name[index]}
+            <span className="highlight" key={start}>
+                {name.slice(start, end)}
             </span>,
         );
 
-        current = index + 1;
+        lastEnd = end;
     });
-    chunks.push(name.slice(current));
+    chunks.push(name.slice(lastEnd));
 
     return <Entry style={style} codepoint={codepoint} name={chunks} />;
 }
