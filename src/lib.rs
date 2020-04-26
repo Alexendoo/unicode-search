@@ -1,6 +1,6 @@
 #![warn(clippy::pedantic)]
 
-use fuzzy_matcher::skim::fuzzy_indices;
+use fuzzy_matcher::skim::SkimMatcherV2;
 use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use wasm_bindgen::prelude::*;
@@ -45,9 +45,10 @@ impl SearchResult {
 }
 
 #[wasm_bindgen]
-#[derive(Debug)]
 pub struct Searcher {
     names: Vec<String>,
+
+    matcher: SkimMatcherV2,
 
     offset_mult: usize,
     offset_add: usize,
@@ -60,6 +61,8 @@ impl Searcher {
         Self {
             names: Vec::with_capacity(capacity),
 
+            matcher: SkimMatcherV2::default().ignore_case(),
+
             offset_mult,
             offset_add,
         }
@@ -69,18 +72,40 @@ impl Searcher {
         self.names.push(line)
     }
 
+    fn search_word(&self, name: &str, pattern_word: &str, index: usize) -> Option<SearchResult> {
+        self.matcher
+            .fuzzy(name, pattern_word, true)
+            .map(|(score, indices)| SearchResult {
+                index: index * self.offset_mult + self.offset_add,
+                score: score as i32,
+                indices,
+            })
+    }
+
+    fn split_match(&self, name: &str, pattern: &str, index: usize) -> Option<SearchResult> {
+        let mut results = pattern
+            .split_ascii_whitespace()
+            .map(|word| self.search_word(name, word, index));
+
+        let mut first_result = results.next()??;
+        let indices = &mut first_result.indices;
+
+        for result in results {
+            indices.extend(result?.indices);
+        }
+
+        indices.sort_unstable();
+        indices.dedup();
+
+        Some(first_result)
+    }
+
     pub fn search(&self, pattern: &str) -> Vec<u8> {
         let mut results: Vec<SearchResult> = self
             .names
             .iter()
             .enumerate()
-            .filter_map(|(index, name)| {
-                fuzzy_indices(name, pattern).map(|(score, indices)| SearchResult {
-                    index: index * self.offset_mult + self.offset_add,
-                    score: score as i32,
-                    indices,
-                })
-            })
+            .filter_map(|(index, name)| self.split_match(name, pattern, index))
             .collect();
 
         results.sort_unstable_by_key(|result| result.comparable());

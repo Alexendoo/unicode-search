@@ -16,7 +16,6 @@ import initWasm, { SearchResults } from "./wasm";
 function HighlightedEntry({ style, codepoint, name, highlight }) {
     const chunks = [];
 
-
     let current = 0;
     highlight.forEach((index) => {
         chunks.push(name.slice(current, index));

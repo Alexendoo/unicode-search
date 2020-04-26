@@ -4,7 +4,6 @@ import init, { Searcher } from "../../intermediate/wasm/utf";
 
 onmessage = async ({ data: { module, names, workerNumber, numWorkers } }) => {
     await init(module);
-    console.log({ module, names, workerNumber, numWorkers });
 
     const searcher = new Searcher(names.length, numWorkers, workerNumber);
     names.forEach((name) => searcher.add_line(name));
