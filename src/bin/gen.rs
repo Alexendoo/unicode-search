@@ -1,12 +1,12 @@
 //! Generate 4 files:
-//! 
+//!
 //! ## names.txt
-//! 
+//!
 //! A newline (\n) seperated list of every codepoint name in order.
-//! 
+//!
 //! ## table.bin
-//! 
-//! A suffix table generated from the contents of names.txt, 
+//!
+//! A suffix table generated from the contents of names.txt,
 
 use byteorder::{LittleEndian, WriteBytesExt};
 use std::fs::create_dir_all;
@@ -25,7 +25,7 @@ struct Suffix<'a> {
 }
 
 fn out_file<P: AsRef<Path>>(path: P) -> BufWriter<File> {
-    let dir = Path::new("intermediate/data");
+    let dir = Path::new("target/data");
     let path = dir.join(path);
 
     create_dir_all(dir).unwrap();
