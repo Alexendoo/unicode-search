@@ -10,7 +10,7 @@ const WorkerPlugin = require("worker-plugin");
  */
 module.exports = {
     entry: {
-        search: "./src/js/search.jsx",
+        search: "./client/js/search.jsx",
     },
     output: {
         filename: "[name].[contenthash].js",
