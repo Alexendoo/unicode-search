@@ -9,7 +9,7 @@ export default ({ compilation }) => {
         <html lang="en">
             <Head>
                 <title>Character Information</title>
-                <script defer src={asset(/css$/)} />
+                <link rel="stylesheet" href={asset(/css$/)} />
             </Head>
 
             <body>

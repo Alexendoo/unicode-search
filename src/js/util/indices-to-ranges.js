@@ -10,6 +10,7 @@
  * ```
  *
  * @param {ArrayLike<number>} indices
+ * @returns {Array<{start: number, end: number}>}
  */
 export default function indicesToRanges(indices) {
     if (indices.length === 0)
