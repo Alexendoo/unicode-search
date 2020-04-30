@@ -1,17 +1,9 @@
 /* eslint-env node */
 
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
-const HtmlPlugin = require("html-webpack-plugin");
 const CssPlugin = require("mini-css-extract-plugin");
+const ManifestPlugin = require("webpack-manifest-plugin");
 const WorkerPlugin = require("worker-plugin");
-
-function page(filename) {
-    return new HtmlPlugin({
-        template: `./src/pages/${filename}.jsx`,
-        filename,
-        inject: false,
-    });
-}
 
 /**
  * @type {import("webpack").Configuration}
@@ -21,7 +13,7 @@ module.exports = {
         search: "./src/js/search.jsx",
     },
     output: {
-        filename: "static/[name].[contenthash].js",
+        filename: "[name].[contenthash].js",
     },
     resolve: {
         extensions: [".js", ".jsx"],
@@ -48,7 +40,8 @@ module.exports = {
                 type: "javascript/auto",
                 loader: "file-loader",
                 options: {
-                    name: "static/[name].[contenthash].[ext]",
+                    name: "[name].[contenthash].[ext]",
+                    esModule: false,
                 },
             },
             {
@@ -58,15 +51,14 @@ module.exports = {
         ],
     },
     plugins: [
-        page("index.html"),
-        page("search.html"),
         new CssPlugin({
-            filename: "static/[contenthash].css",
+            filename: "[contenthash].css",
         }),
         new WorkerPlugin({
             globalObject: "self",
         }),
         new CleanWebpackPlugin(),
+        new ManifestPlugin(),
     ],
     devtool: "source-map",
     mode: "development",
