@@ -1,6 +1,6 @@
 /* eslint-env worker */
 
-import init, { Searcher } from "../../intermediate/wasm/utf";
+import init, { Searcher } from "../../target/wasm/utf";
 
 onmessage = async ({ data: { module, names, workerNumber, numWorkers } }) => {
     await init(module);

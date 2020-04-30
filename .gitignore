@@ -1,7 +1,6 @@
 .vscode
 *.log
 *.rs.bk
-dist
-intermediate
+static
 node_modules
 target

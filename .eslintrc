@@ -49,6 +49,6 @@
         ]
     },
     "settings": {
-        "import/ignore": ["intermediate"]
+        "import/ignore": ["target"]
     }
 }

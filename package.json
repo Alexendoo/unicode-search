@@ -10,7 +10,7 @@
     },
     "scripts": {
         "gen": "cargo run --bin gen --release --features gen",
-        "wasm": "wasm-pack build --out-dir intermediate/wasm --target web",
+        "wasm": "wasm-pack build --out-dir target/wasm --target web",
         "build": "webpack -p",
         "lint": "eslint --ext js,jsx .",
         "watch": "webpack-dev-server"

@@ -1,11 +1,11 @@
 const express = require("express");
 const serveStatic = require("serve-static");
 
-const manifest = require("../dist/manifest.json");
+const manifest = require("../static/manifest.json");
 
 const app = express();
 
-app.use("/static", serveStatic("dist"));
+app.use("/static", serveStatic("static"));
 
 app.set("view engine", "ejs");
 app.set("views", "server/views");

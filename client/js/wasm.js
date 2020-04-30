@@ -1,8 +1,8 @@
-import init from "../../intermediate/wasm/utf";
+import init from "../../target/wasm/utf";
 
 import { wasm } from "./files";
 
-export * from "../../intermediate/wasm/utf";
+export * from "../../target/wasm/utf";
 
 export default async function initWasm() {
     await init(wasm);
