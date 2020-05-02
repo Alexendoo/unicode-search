@@ -47,9 +47,13 @@ impl Searcher {
 
             matcher: SkimMatcherV2::default().ignore_case(),
 
-            offset_mult: 0,
+            offset_mult: 1,
             offset_add: 0,
         }
+    }
+
+    pub fn names(&self) -> &[String] {
+        &self.names
     }
 
     fn search_word(&self, name: &str, pattern_word: &str, index: usize) -> Option<SearchResult> {
