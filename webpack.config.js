@@ -16,7 +16,7 @@ module.exports = {
     },
     output: {
         filename: "[name].[contenthash].js",
-        path: path.join(__dirname, "static"),
+        path: path.join(__dirname, "server/static"),
         publicPath: "/static/",
     },
     resolve: {

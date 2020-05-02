@@ -9,11 +9,10 @@
         "url": "https://github.com/Alexendoo/utf.git"
     },
     "scripts": {
-        "gen": "cargo run --bin gen --release --features gen",
-        "wasm": "wasm-pack build --out-dir target/wasm --target web",
+        "gen": "cargo run --bin gen --release",
+        "wasm": "wasm-pack build --out-dir target/wasm --target web wasm",
         "build": "webpack -p",
-        "lint": "eslint --ext js,jsx .",
-        "watch": "webpack-dev-server"
+        "lint": "eslint --ext js,jsx ."
     },
     "dependencies": {
         "ejs": "^3.1.2",
