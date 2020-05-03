@@ -2,13 +2,15 @@
 
 use anyhow::Result;
 use askama::Template;
+use byteorder::{LittleEndian, ReadBytesExt};
 use rocket::response::content::Html;
 use rocket::{get, routes, State};
 use rocket_contrib::serve::StaticFiles;
 use serde::Deserialize;
 use shared::Searcher;
-use std::fs;
-use std::io;
+use std::convert::TryFrom;
+use std::fs::File;
+use std::io::{self, Read};
 
 #[derive(Deserialize)]
 struct Manifest {
@@ -29,10 +31,32 @@ impl Manifest {
         ))?)
     }
 
-    fn load_file(path: &str) -> io::Result<Vec<u8>> {
-        let path = format!("./static/{}", path);
+    fn load_file(path: &str) -> io::Result<File> {
+        let server_dir = env!("CARGO_MANIFEST_DIR");
+        let path = server_dir.to_string() + path;
 
-        fs::read(path)
+        File::open(path)
+    }
+
+    fn load_file_string(path: &str) -> io::Result<String> {
+        let mut file = Manifest::load_file(path)?;
+
+        let mut string = String::new();
+        file.read_to_string(&mut string)?;
+
+        Ok(string)
+    }
+
+    fn load_file_u32(path: &str) -> io::Result<Vec<u32>> {
+        let mut file = Manifest::load_file(path)?;
+        let len = file.metadata()?.len() as usize;
+
+        assert_eq!(len % 4, 0);
+
+        let mut buf = vec![0; len / 4];
+        file.read_u32_into::<LittleEndian>(&mut buf)?;
+
+        Ok(buf)
     }
 }
 
@@ -46,7 +70,32 @@ fn index() -> Result<Html<String>> {
 }
 
 struct RenderedSearchResult<'a> {
+    literal: char,
     name: &'a str,
+}
+
+impl<'a> RenderedSearchResult<'a> {
+    fn new(pattern: &str, searcher: &'a Searcher, codepoints: &[u32]) -> Vec<Self> {
+        let mut results = searcher.search_words(&pattern);
+        results.truncate(100);
+
+        let names = searcher.names();
+
+        results
+            .into_iter()
+            .map(|result| {
+                let index = result.index();
+                let codepoint = codepoints[index];
+
+                let literal = char::try_from(codepoint).unwrap();
+
+                RenderedSearchResult {
+                    literal,
+                    name: &names[index],
+                }
+            })
+            .collect()
+    }
 }
 
 #[derive(Template)]
@@ -60,30 +109,15 @@ struct SearchTemplate<'a> {
 fn search(
     searcher: State<Searcher>,
     manifest: State<Manifest>,
-    // codepoints: State<Vec<u8>>,
-    pattern: String,
+    codepoints: State<Vec<u32>>,
+    pattern: Option<String>,
 ) -> Result<Html<String>> {
-    let mut results = searcher.search_words(&pattern);
-    results.truncate(100);
-
-    let names = searcher.names();
-
-    let rendered_results = results
-        .into_iter()
-        .map(|result| {
-            let index = result.index();
-            // let codepoint = codepoints[index];
-
-            // let literal =
-
-            RenderedSearchResult {
-                name: &names[index],
-            }
-        })
-        .collect();
+    let results = pattern
+        .map(|pat| RenderedSearchResult::new(&pat, &searcher, &codepoints))
+        .unwrap_or_default();
 
     let template = SearchTemplate {
-        results: rendered_results,
+        results,
         manifest: &manifest,
     };
 
@@ -92,16 +126,16 @@ fn search(
 
 fn main() -> Result<()> {
     let manifest = Manifest::new()?;
-    let names = Manifest::load_file(&manifest.names_txt)?;
-    // let codepoints = Manifest::load_file(&manifest.codepoints_bin)?;
+    let names = Manifest::load_file_string(&manifest.names_txt)?;
+    let codepoints = Manifest::load_file_u32(&manifest.codepoints_bin)?;
 
-    let searcher = Searcher::from_names(std::str::from_utf8(&names)?);
+    let searcher = Searcher::from_names(&names);
 
     const STATIC_DIR: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/static");
     let err = rocket::ignite()
         .manage(searcher)
         .manage(manifest)
-        // .manage(codepoints)
+        .manage(codepoints)
         .mount("/", routes![index, search])
         .mount("/static", StaticFiles::from(STATIC_DIR))
         .launch();
