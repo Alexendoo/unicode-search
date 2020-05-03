@@ -47,7 +47,7 @@ impl Manifest {
         Ok(string)
     }
 
-    fn load_file_u32(path: &str) -> io::Result<Vec<u32>> {
+    fn load_file_chars(path: &str) -> Result<Vec<char>> {
         let mut file = Manifest::load_file(path)?;
         let len = file.metadata()?.len() as usize;
 
@@ -56,7 +56,12 @@ impl Manifest {
         let mut buf = vec![0; len / 4];
         file.read_u32_into::<LittleEndian>(&mut buf)?;
 
-        Ok(buf)
+        let chars = buf
+            .into_iter()
+            .map(char::try_from)
+            .collect::<Result<_, _>>()?;
+
+        Ok(chars)
     }
 }
 
@@ -127,7 +132,7 @@ fn search(
 fn main() -> Result<()> {
     let manifest = Manifest::new()?;
     let names = Manifest::load_file_string(&manifest.names_txt)?;
-    let codepoints = Manifest::load_file_u32(&manifest.codepoints_bin)?;
+    let codepoints = Manifest::load_file_chars(&manifest.codepoints_bin)?;
 
     let searcher = Searcher::from_names(&names);
 
