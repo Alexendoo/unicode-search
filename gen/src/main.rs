@@ -76,14 +76,20 @@ fn main() {
         let start = combined.len() as u32;
         let name = character.name;
 
-        codepoints.write_u32::<LittleEndian>(character.codepoint).unwrap();
-        indicies.write_u32::<LittleEndian>(character_index as u32).unwrap();
+        codepoints
+            .write_u32::<LittleEndian>(character.codepoint)
+            .unwrap();
+        indicies
+            .write_u32::<LittleEndian>(character_index as u32)
+            .unwrap();
 
         combined.push_str(name);
         combined.push('\n');
 
         for (offset, suffix) in suffixes(name) {
-            indicies.write_u32::<LittleEndian>(character_index as u32).unwrap();
+            indicies
+                .write_u32::<LittleEndian>(character_index as u32)
+                .unwrap();
             temp_suffixes.push(Suffix {
                 suffix,
                 index: start + offset as u32,

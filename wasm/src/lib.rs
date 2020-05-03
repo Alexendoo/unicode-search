@@ -1,5 +1,5 @@
-pub use shared::*;
 use itertools::Itertools;
+pub use shared::*;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
