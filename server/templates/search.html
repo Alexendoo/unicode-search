@@ -9,8 +9,8 @@
     <title>Search</title>
 </head>
 <body>
-    <input type="text">
-    <div>
+    <input type="text" id="search" autocomplete="off">
+    <div id="results">
         {% for result in results %}
         <div class="char">
             <span class="literal">{{ result.literal }}</span>

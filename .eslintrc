@@ -1,27 +1,15 @@
 {
-    "extends": [
-        "airbnb",
-        "airbnb/hooks",
-        "plugin:prettier/recommended",
-        "prettier/react"
-    ],
+    "extends": ["airbnb-base", "plugin:prettier/recommended"],
     "root": true,
     "parserOptions": {
         "ecmaVersion": 2020,
-        "sourceType": "module",
-        "ecmaFeatures": {
-            "jsx": true
-        }
+        "sourceType": "module"
     },
     "env": {
         "browser": true,
         "es6": true
     },
-    "globals": {
-        "wasm_bindgen": true
-    },
     "rules": {
-        "react/prop-types": ["off"],
         "consistent-return": ["off"],
         "camelcase": ["off"],
         "import/order": [

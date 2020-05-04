@@ -1,5 +1,6 @@
 /* eslint-disable no-param-reassign */
-import splitArray from "./util/split-array";
+import splitArray from "../util/split-array";
+
 import { Collector, SearchResults } from "./wasm";
 
 class SearchPool {
@@ -9,7 +10,6 @@ class SearchPool {
     constructor(pool) {
         this.pool = pool;
         this.epoch = 0;
-        this.decoder = new TextDecoder();
     }
 
     clear() {
@@ -21,7 +21,7 @@ class SearchPool {
 
     /**
      * @param {string} pattern
-     * @param {function} callback
+     * @param {(results: SearchResults) => void} callback
      */
     search(pattern, callback) {
         this.epoch += 1;
@@ -55,7 +55,7 @@ class SearchPool {
 }
 
 function createWorker(number) {
-    return new Worker("./worker", {
+    return new Worker("../worker", {
         name: `Worker ${number}`,
         type: "module",
     });

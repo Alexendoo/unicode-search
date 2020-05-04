@@ -80,7 +80,7 @@ struct RenderedSearchResult<'a> {
 }
 
 impl<'a> RenderedSearchResult<'a> {
-    fn new(pattern: &str, searcher: &'a Searcher, codepoints: &[u32]) -> Vec<Self> {
+    fn new(pattern: &str, searcher: &'a Searcher, codepoints: &[char]) -> Vec<Self> {
         let mut results = searcher.search_words(&pattern);
         results.truncate(100);
 
@@ -90,9 +90,7 @@ impl<'a> RenderedSearchResult<'a> {
             .into_iter()
             .map(|result| {
                 let index = result.index();
-                let codepoint = codepoints[index];
-
-                let literal = char::try_from(codepoint).unwrap();
+                let literal = codepoints[index];
 
                 RenderedSearchResult {
                     literal,
@@ -114,7 +112,7 @@ struct SearchTemplate<'a> {
 fn search(
     searcher: State<Searcher>,
     manifest: State<Manifest>,
-    codepoints: State<Vec<u32>>,
+    codepoints: State<Vec<char>>,
     pattern: Option<String>,
 ) -> Result<Html<String>> {
     let results = pattern

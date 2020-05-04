@@ -12,26 +12,22 @@ const WorkerPlugin = require("worker-plugin");
  */
 module.exports = {
     entry: {
-        search: "./client/js/search.jsx",
+        search: "./client/js/search.js",
     },
     output: {
         filename: "[name].[contenthash].js",
         path: path.join(__dirname, "server/static"),
         publicPath: "/static/",
     },
-    resolve: {
-        extensions: [".js", ".jsx"],
-    },
     module: {
         rules: [
             {
-                test: /\.jsx?$/,
+                test: /\.js$/,
                 exclude: /node_modules/,
                 use: [
                     {
                         loader: "babel-loader",
                         options: {
-                            presets: ["@babel/preset-react"],
                             plugins: ["@babel/plugin-syntax-dynamic-import"],
                         },
                     },
@@ -66,12 +62,4 @@ module.exports = {
     ],
     devtool: "source-map",
     mode: "development",
-    devServer: {
-        overlay: true,
-        before(app) {
-            app.get(/^\/(?:search|chars)$/, (req, res) => {
-                res.redirect(`${req.url}.html`);
-            });
-        },
-    },
 };
