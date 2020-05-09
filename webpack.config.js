@@ -25,12 +25,8 @@ module.exports = {
                 test: /\.js$/,
                 exclude: /node_modules/,
                 use: [
-                    {
-                        loader: "babel-loader",
-                        options: {
-                            plugins: ["@babel/plugin-syntax-dynamic-import"],
-                        },
-                    },
+                    "babel-loader",
+
                     // https://github.com/webpack/webpack/issues/6719
                     require.resolve("@open-wc/webpack-import-meta-loader"),
                 ],

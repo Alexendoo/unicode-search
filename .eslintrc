@@ -26,14 +26,6 @@
                 ],
                 "newlines-between": "always"
             }
-        ],
-        "import/no-extraneous-dependencies": [
-            "error",
-            {
-                "devDependencies": ["client/**", "webpack.config.js"],
-                "optionalDependencies": false,
-                "peerDependencies": false
-            }
         ]
     },
     "settings": {

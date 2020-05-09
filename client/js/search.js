@@ -1,39 +1,28 @@
-import { SearchResults } from "../../target/wasm/utf";
+import { SearchResults } from "../../target/wasm/wasm";
 
-import createResult from "./search/create-result";
 import loadFiles from "./search/load-files";
 
 (async function start() {
     const { codepoints, names, pool } = await loadFiles();
 
-    /** @type {HTMLInputElement} */
-    const input = document.getElementById("search");
-    let resultsDiv = document.getElementById("results");
+    const elements = {
+        input: document.getElementById("search"),
+        results: document.getElementById("results"),
+    };
 
-    input.addEventListener("input", () => {
-        const pattern = input.value;
-        let previousResults = SearchResults.empty();
+    elements.input.addEventListener("input", () => {
+        const pattern = elements.input.value;
+        let results = SearchResults.empty();
 
-        pool.search(pattern, (results) => {
+        pool.search(pattern, (newResults) => {
             const newResultsDiv = document.createElement("div");
             newResultsDiv.id = "results";
 
-            document.body.replaceChild(newResultsDiv, resultsDiv);
-            resultsDiv = newResultsDiv;
+            document.body.replaceChild(newResultsDiv, elements.results);
+            elements.results = newResultsDiv;
 
-            previousResults.free();
-            previousResults = results;
-
-            const length = Math.min(results.length(), 100);
-
-            // eslint-disable-next-line no-plusplus
-            for (let i = 0; i < length; i++) {
-                const result = results.get(i);
-
-                const index = result.index();
-
-                resultsDiv.appendChild(createResult(index, names, codepoints));
-            }
+            results.free();
+            results = newResults;
         });
     });
 })();

@@ -68,6 +68,9 @@ impl SearchResults {
         }
     }
 
+    // TODO: create wrapper in JS that minimizes cloning on wasm side
+    // - mem::take and cache on JS side?
+    // - free old search results
     pub fn get(&self, index: usize) -> SearchResult {
         self.results[index].clone()
     }
