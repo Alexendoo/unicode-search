@@ -20,7 +20,7 @@
         "@babel/core": "^7.8.7",
         "@babel/preset-env": "^7.9.6",
         "@jest/globals": "^26.0.1",
-        "@open-wc/webpack-import-meta-loader": "^0.4.3",
+        "@open-wc/webpack-import-meta-loader": "^0.4.7",
         "babel-loader": "^8.0.6",
         "clean-webpack-plugin": "^3.0.0",
         "css-loader": "^3.5.3",
