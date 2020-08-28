@@ -7,7 +7,7 @@ publish = false
 
 [dependencies]
 anyhow = "1"
-askama = { version = "0.9" }
+askama = { version = "0.10" }
 byteorder = "1"
 rocket = { version = "0.4", default-features = false }
 rocket_contrib = { version = "0.4", default-features = false, features = ["serve"] }
