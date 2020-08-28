@@ -52,6 +52,7 @@ module.exports = {
         }),
         new WorkerPlugin({
             globalObject: "self",
+            filename: "worker.[hash].js",
         }),
         new CleanWebpackPlugin(),
         new ManifestPlugin(),
