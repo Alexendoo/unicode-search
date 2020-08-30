@@ -74,20 +74,22 @@ fn index() -> Result<Html<String>> {
     Ok(Html(IndexTemplate.render()?))
 }
 
+const PAGE_SIZE: usize = 50;
+
 struct RenderedSearchResult<'a> {
     literal: char,
     name: &'a str,
 }
 
 impl<'a> RenderedSearchResult<'a> {
-    fn new(pattern: &str, searcher: &'a Searcher, codepoints: &[char]) -> Vec<Self> {
-        let mut results = searcher.search_words(&pattern);
-        results.truncate(100);
+    fn new(pattern: &str, nth: usize, searcher: &'a Searcher, codepoints: &[char]) -> Vec<Self> {
+        let results = searcher.search_words(&pattern);
+
+        let page = results.chunks(PAGE_SIZE).nth(nth).unwrap_or_default();
 
         let names = searcher.names();
 
-        results
-            .into_iter()
+        page.iter()
             .map(|result| {
                 let index = result.index();
                 let literal = codepoints[index];
@@ -108,15 +110,18 @@ struct SearchTemplate<'a> {
     manifest: &'a Manifest,
 }
 
-#[get("/search?<pattern>")]
+#[get("/search?<pattern>&<page>")]
 fn search(
     searcher: State<Searcher>,
     manifest: State<Manifest>,
     codepoints: State<Vec<char>>,
     pattern: Option<String>,
+    page: Option<usize>,
 ) -> Result<Html<String>> {
+    let nth = page.unwrap_or(1) - 1;
+
     let results = pattern
-        .map(|pat| RenderedSearchResult::new(&pat, &searcher, &codepoints))
+        .map(|pat| RenderedSearchResult::new(&pat, nth, &searcher, &codepoints))
         .unwrap_or_default();
 
     let template = SearchTemplate {
