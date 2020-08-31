@@ -9,7 +9,7 @@
         "url": "https://github.com/Alexendoo/utf.git"
     },
     "scripts": {
-        "gen": "cargo run --bin gen --release",
+        "gen": "cargo run -p gen --release",
         "prewasm": "cargo build -p wasm --release --target wasm32-unknown-unknown",
         "wasm": "wasm-bindgen --out-dir target/wasm --target web target/wasm32-unknown-unknown/release/wasm.wasm",
         "build": "webpack -p",
