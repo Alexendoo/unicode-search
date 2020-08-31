@@ -9,7 +9,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
-    - run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+    - run: rustup target add wasm32-unknown-unknown
+    - run: cargo install wasm-bindgen-cli
     - run: yarn install
     - run: yarn gen
     - run: yarn wasm

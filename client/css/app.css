@@ -39,12 +39,6 @@ input {
     height: 50px;
 }
 
-.page {
-    contain: strict;
-    content-visibility: auto;
-    height: 2400px;
-}
-
 .char {
     white-space: nowrap;
     height: 24px;
