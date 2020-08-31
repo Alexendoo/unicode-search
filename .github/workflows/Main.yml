@@ -9,10 +9,19 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
+    - uses: actions/cache@v2
+      with:
+        path: |
+          ~/.cargo/bin
+          ~/.cargo/.crates.toml
+          ~/.cargo/.crates2.json
+        key: cargo-bin-cache
+
     - run: rustup target add wasm32-unknown-unknown
     - run: cargo install wasm-bindgen-cli
+
     - run: yarn install
     - run: yarn gen
     - run: yarn wasm
-    - run: yarn lint
+    # - run: yarn lint
     - run: yarn build
