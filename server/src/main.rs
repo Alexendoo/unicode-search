@@ -3,11 +3,12 @@
 use anyhow::Result;
 use askama::Template;
 use byteorder::{LittleEndian, ReadBytesExt};
+use rocket::http::uri::Origin;
 use rocket::response::content::Html;
-use rocket::{get, routes, State};
+use rocket::{get, routes, uri, State};
 use rocket_contrib::serve::StaticFiles;
 use serde::Deserialize;
-use shared::Searcher;
+use shared::{SearchResult, Searcher};
 use std::convert::TryFrom;
 use std::fs::File;
 use std::io::{self, Read};
@@ -82,12 +83,14 @@ struct RenderedSearchResult<'a> {
 }
 
 impl<'a> RenderedSearchResult<'a> {
-    fn new(pattern: &str, nth: usize, searcher: &'a Searcher, codepoints: &[char]) -> Vec<Self> {
-        let results = searcher.search_words(&pattern);
-
+    fn new(
+        results: &[SearchResult],
+        page: usize,
+        codepoints: &[char],
+        names: &'a [String],
+    ) -> Vec<Self> {
+        let nth = page.saturating_sub(1);
         let page = results.chunks(PAGE_SIZE).nth(nth).unwrap_or_default();
-
-        let names = searcher.names();
 
         page.iter()
             .map(|result| {
@@ -107,6 +110,8 @@ impl<'a> RenderedSearchResult<'a> {
 #[template(path = "search.html")]
 struct SearchTemplate<'a> {
     results: Vec<RenderedSearchResult<'a>>,
+    next_page: Origin<'a>,
+    last_page: Origin<'a>,
     manifest: &'a Manifest,
 }
 
@@ -118,14 +123,21 @@ fn search(
     pattern: Option<String>,
     page: Option<usize>,
 ) -> Result<Html<String>> {
-    let nth = page.unwrap_or(1) - 1;
-
-    let results = pattern
-        .map(|pat| RenderedSearchResult::new(&pat, nth, &searcher, &codepoints))
+    let all_results = pattern
+        .as_ref()
+        .map(|pattern| searcher.search_words(pattern))
         .unwrap_or_default();
+
+    let num_pages = all_results.len() / PAGE_SIZE + 1;
+    let page_number = page.unwrap_or(1).min(1).max(num_pages);
+
+    let results =
+        RenderedSearchResult::new(&all_results, page_number, &codepoints, searcher.names());
 
     let template = SearchTemplate {
         results,
+        next_page: todo!(),
+        last_page: todo!(),
         manifest: &manifest,
     };
 
