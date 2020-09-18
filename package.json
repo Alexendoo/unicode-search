@@ -33,7 +33,7 @@
         "jest": "^26.4.2",
         "mini-css-extract-plugin": "^0.11.0",
         "prettier": "^2.1.1",
-        "webpack": "^4.44.1",
+        "webpack": "^4.44.2",
         "webpack-cli": "^3.3.12",
         "webpack-manifest-plugin": "^2.2.0",
         "worker-plugin": "^5.0.0"
