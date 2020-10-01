@@ -63,7 +63,9 @@ fn main() -> Result<()> {
         .collect();
 
     let out = quote! {
-        pub const NAMES: &'static [(&'static str, u32)] = &[#name_tokens];
+        pub type Names = &'static [(&'static str, u32)];
+
+        pub const NAMES: Names = &[#name_tokens];
     };
 
     let names_filename = relative_path("../shared/src/names.rs");

@@ -1,3 +1,7 @@
+mod names;
+
+pub use names::{NAMES, Names};
+
 use fuzzy_matcher::skim::SkimMatcherV2;
 
 #[cfg(feature = "wasm")]
@@ -32,35 +36,29 @@ impl SearchResult {
 
 #[cfg_attr(feature = "wasm", wasm_bindgen)]
 pub struct Searcher {
-    names: Vec<String>,
-
+    names: Names,
     matcher: SkimMatcherV2,
 
-    offset_mult: usize,
-    offset_add: usize,
+    worker_num: usize,
+    total_workers: usize,
 }
 
 impl Searcher {
-    pub fn from_names(names: &str) -> Self {
+    pub fn from_names(names: Names) -> Self {
         Self {
-            names: names.lines().map(|s| s.to_string()).collect(),
-
+            names: names,
             matcher: SkimMatcherV2::default().ignore_case(),
 
-            offset_mult: 1,
-            offset_add: 0,
+            worker_num: 0,
+            total_workers: 1,
         }
-    }
-
-    pub fn names(&self) -> &[String] {
-        &self.names
     }
 
     fn search_word(&self, name: &str, pattern_word: &str, index: usize) -> Option<SearchResult> {
         self.matcher
             .fuzzy(name, pattern_word, true)
             .map(|(score, indices)| SearchResult {
-                index: index * self.offset_mult + self.offset_add,
+                index,
                 score: score as i32,
                 indices,
             })
@@ -89,7 +87,9 @@ impl Searcher {
             .names
             .iter()
             .enumerate()
-            .filter_map(|(index, name)| self.split_match(name, pattern, index))
+            .skip(self.worker_num)
+            .step_by(self.total_workers)
+            .filter_map(|(index, (name, _))| self.split_match(name, pattern, index))
             .collect();
 
         results.sort_unstable_by_key(|result| result.comparable());
@@ -102,19 +102,14 @@ impl Searcher {
 #[wasm_bindgen]
 impl Searcher {
     #[wasm_bindgen(constructor)]
-    pub fn new(capacity: usize, offset_mult: usize, offset_add: usize) -> Self {
+    pub fn new(worker_num: usize, total_workers: usize) -> Self {
         Self {
-            names: Vec::with_capacity(capacity),
-
+            names: NAMES,
             matcher: SkimMatcherV2::default().ignore_case(),
 
-            offset_mult,
-            offset_add,
+            worker_num,
+            total_workers,
         }
-    }
-
-    pub fn add_line(&mut self, line: String) {
-        self.names.push(line)
     }
 
     pub fn search(&self, pattern: &str) -> Vec<u8> {

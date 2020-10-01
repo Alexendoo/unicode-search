@@ -8,7 +8,7 @@ use rocket::response::content::Html;
 use rocket::{get, routes, uri, State};
 use rocket_contrib::serve::StaticFiles;
 use serde::Deserialize;
-use shared::{SearchResult, Searcher};
+use shared::{NAMES, Names, SearchResult, Searcher};
 use std::convert::TryFrom;
 use std::fs::File;
 use std::io::{self, Read};
@@ -87,7 +87,7 @@ impl<'a> RenderedSearchResult<'a> {
         results: &[SearchResult],
         page: usize,
         codepoints: &[char],
-        names: &'a [String],
+        names: Names,
     ) -> Vec<Self> {
         let nth = page.saturating_sub(1);
         let page = results.chunks(PAGE_SIZE).nth(nth).unwrap_or_default();
@@ -99,7 +99,7 @@ impl<'a> RenderedSearchResult<'a> {
 
                 RenderedSearchResult {
                     literal,
-                    name: &names[index],
+                    name: names[index].0,
                 }
             })
             .collect()
@@ -110,8 +110,8 @@ impl<'a> RenderedSearchResult<'a> {
 #[template(path = "search.html")]
 struct SearchTemplate<'a> {
     results: Vec<RenderedSearchResult<'a>>,
-    next_page: Origin<'a>,
-    last_page: Origin<'a>,
+    // next_page: Origin<'a>,
+    // last_page: Origin<'a>,
     manifest: &'a Manifest,
 }
 
@@ -132,12 +132,12 @@ fn search(
     let page_number = page.unwrap_or(1).min(1).max(num_pages);
 
     let results =
-        RenderedSearchResult::new(&all_results, page_number, &codepoints, searcher.names());
+        RenderedSearchResult::new(&all_results, page_number, &codepoints, NAMES);
 
     let template = SearchTemplate {
         results,
-        next_page: todo!(),
-        last_page: todo!(),
+        // next_page: 1,
+        // last_page: 2,
         manifest: &manifest,
     };
 
@@ -149,14 +149,14 @@ fn main() -> Result<()> {
     let names = Manifest::load_file_string(&manifest.names_txt)?;
     let codepoints = Manifest::load_file_chars(&manifest.codepoints_bin)?;
 
-    let searcher = Searcher::from_names(&names);
+    let searcher = Searcher::from_names(NAMES);
 
     const STATIC_DIR: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/static");
     let err = rocket::ignite()
         .manage(searcher)
         .manage(manifest)
         .manage(codepoints)
-        .mount("/", routes![index, search])
+        .mount("/", routes![index, search, codepoint::codepoint])
         .mount("/static", StaticFiles::from(STATIC_DIR))
         .launch();
 

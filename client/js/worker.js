@@ -2,11 +2,10 @@
 
 import init, { Searcher } from "../../target/wasm/wasm";
 
-onmessage = async ({ data: { module, names, workerNumber, numWorkers } }) => {
+onmessage = async ({ data: { module, workerNumber, numWorkers } }) => {
     await init(module);
 
-    const searcher = new Searcher(names.length, numWorkers, workerNumber);
-    names.forEach((name) => searcher.add_line(name));
+    const searcher = new Searcher(workerNumber, numWorkers);
 
     onmessage = ({ data: { pattern, epoch } }) => {
         const timeStr = `worker:${workerNumber}:search`;
