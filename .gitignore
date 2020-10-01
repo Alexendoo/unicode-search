@@ -4,3 +4,5 @@
 static
 node_modules
 target
+ucd-data
+shared/src/names.rs
