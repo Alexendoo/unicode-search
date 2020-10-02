@@ -1,8 +1,9 @@
-mod names;
+mod characters;
 
-pub use names::{NAMES, Names};
+pub use characters::{Character, Characters, CHARACTERS};
 
 use fuzzy_matcher::skim::SkimMatcherV2;
+use std::fmt::Write;
 
 #[cfg(feature = "wasm")]
 use serde::{Deserialize, Serialize};
@@ -36,7 +37,6 @@ impl SearchResult {
 
 #[cfg_attr(feature = "wasm", wasm_bindgen)]
 pub struct Searcher {
-    names: Names,
     matcher: SkimMatcherV2,
 
     worker_num: usize,
@@ -44,9 +44,8 @@ pub struct Searcher {
 }
 
 impl Searcher {
-    pub fn from_names(names: Names) -> Self {
+    pub fn new() -> Self {
         Self {
-            names: names,
             matcher: SkimMatcherV2::default().ignore_case(),
 
             worker_num: 0,
@@ -83,13 +82,12 @@ impl Searcher {
     }
 
     pub fn search_words(&self, pattern: &str) -> Vec<SearchResult> {
-        let mut results: Vec<SearchResult> = self
-            .names
+        let mut results: Vec<SearchResult> = CHARACTERS
             .iter()
             .enumerate()
             .skip(self.worker_num)
             .step_by(self.total_workers)
-            .filter_map(|(index, (name, _))| self.split_match(name, pattern, index))
+            .filter_map(|(index, name)| self.split_match(name.name, pattern, index))
             .collect();
 
         results.sort_unstable_by_key(|result| result.comparable());
@@ -102,9 +100,8 @@ impl Searcher {
 #[wasm_bindgen]
 impl Searcher {
     #[wasm_bindgen(constructor)]
-    pub fn new(worker_num: usize, total_workers: usize) -> Self {
+    pub fn constructor(worker_num: usize, total_workers: usize) -> Self {
         Self {
-            names: NAMES,
             matcher: SkimMatcherV2::default().ignore_case(),
 
             worker_num,
@@ -117,4 +114,34 @@ impl Searcher {
 
         bincode::serialize(&results).unwrap()
     }
+}
+
+pub fn render_search_results(
+    results: &[SearchResult],
+    page_size: usize,
+    page_number: usize,
+) -> String {
+    let characters = results
+        .chunks(page_size)
+        .nth(page_number)
+        .into_iter()
+        .flatten()
+        .map(|result| CHARACTERS[result.index]);
+
+    let mut out = String::new();
+    for character in characters {
+        write!(
+            out,
+            r#"
+            <div class="char">
+                <span class="literal">{}</span>
+                <span class="name">{}</span>
+            </div>"#,
+            character.literal(),
+            character.name
+        )
+        .unwrap();
+    }
+
+    out
 }

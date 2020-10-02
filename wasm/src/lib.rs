@@ -1,5 +1,6 @@
+pub use shared::{SearchResult, Searcher};
+
 use itertools::Itertools;
-pub use shared::*;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -54,6 +55,7 @@ impl Collector {
         SearchResults { results }
     }
 }
+
 #[wasm_bindgen]
 #[derive(Clone)]
 pub struct SearchResults {
