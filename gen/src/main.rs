@@ -25,7 +25,7 @@ fn out_file(path: &PathBuf) -> Result<BufWriter<File>> {
 fn rustfmt(file: &PathBuf) -> Result<()> {
     match Command::new("rustfmt").arg("--").arg(file).status() {
         Ok(status) => ensure!(status.success(), "rustfmt exit status: {:?}", status),
-        _ => panic!(),
+        _ => eprintln!("warning: rustfmt not found"),
     }
 
     Ok(())
@@ -57,18 +57,33 @@ fn main() -> Result<()> {
     // stable sort to keep canonical names first
     names.sort_by_key(|&(_, codepoint)| codepoint);
 
-    let name_tokens: TokenStream = names
+    names.truncate(50);
+
+    let characters: TokenStream = names
         .iter()
-        .map(|&(name, codepoint)| quote!( (#name, #codepoint), ))
+        .map(|&(name, codepoint)| quote!( Character { name: #name, codepoint: #codepoint }, ))
         .collect();
 
     let out = quote! {
-        pub type Names = &'static [(&'static str, u32)];
+        use std::convert::TryInto;
 
-        pub const NAMES: Names = &[#name_tokens];
+        #[derive(Copy, Clone)]
+        pub struct Character {
+            pub name: &'static str,
+            pub codepoint: u32,
+        }
+
+        impl Character {
+            pub fn literal(&self) -> char {
+                self.codepoint.try_into().unwrap()
+            }
+        }
+
+        pub type Characters = &'static [Character];
+        pub const CHARACTERS: Characters = &[#characters];
     };
 
-    let names_filename = relative_path("../shared/src/names.rs");
+    let names_filename = relative_path("../shared/src/characters.rs");
     let mut names_file = out_file(&names_filename)?;
 
     write!(
