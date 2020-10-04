@@ -3,20 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script defer src="{{ manifest.search_js }}"></script>
-    <link rel="stylesheet" href="{{ manifest.search_css }}">
+    <script defer src="/static/search.js"></script>
+    <link rel="stylesheet" href="/static/search.css">
 
     <title>Search</title>
 </head>
 <body>
     <input type="text" id="search" autocomplete="off">
     <div id="results">
-        {% for result in results %}
-        <div class="char">
-            <span class="literal">{{ result.literal }}</span>
-            <span class="name">{{ result.name }}</span>
-        </div>
-        {% endfor %}
+        {{ results|safe }}
     </div>
 
     <div class="pagination">

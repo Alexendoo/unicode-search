@@ -4,7 +4,6 @@ const path = require("path");
 
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const CssPlugin = require("mini-css-extract-plugin");
-const ManifestPlugin = require("webpack-manifest-plugin");
 const WorkerPlugin = require("worker-plugin");
 
 /**
@@ -15,7 +14,7 @@ module.exports = {
         search: "./client/js/search.js",
     },
     output: {
-        filename: "[name].[contenthash].js",
+        filename: "[name].js",
         path: path.join(__dirname, "server/static"),
         publicPath: "/static/",
     },
@@ -36,7 +35,7 @@ module.exports = {
                 type: "javascript/auto",
                 loader: "file-loader",
                 options: {
-                    name: "[name].[contenthash].[ext]",
+                    name: "[name].[ext]",
                     esModule: false,
                 },
             },
@@ -48,15 +47,14 @@ module.exports = {
     },
     plugins: [
         new CssPlugin({
-            filename: "[contenthash].css",
+            filename: "[name].css",
         }),
         new WorkerPlugin({
             globalObject: "self",
-            filename: "worker.[hash].js",
+            filename: "worker.js",
         }),
         new CleanWebpackPlugin(),
-        new ManifestPlugin(),
     ],
     devtool: "source-map",
-    mode: "development",
+    mode: "production",
 };

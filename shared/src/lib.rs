@@ -123,7 +123,7 @@ pub fn render_search_results(
 ) -> String {
     let characters = results
         .chunks(page_size)
-        .nth(page_number)
+        .nth(page_number.saturating_sub(1))
         .into_iter()
         .flatten()
         .map(|result| CHARACTERS[result.index]);
