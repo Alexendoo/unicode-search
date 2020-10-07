@@ -19,7 +19,7 @@
     "dependencies": {
         "@babel/core": "^7.11.4",
         "@babel/preset-env": "^7.11.0",
-        "@jest/globals": "^26.4.2",
+        "@jest/globals": "^26.5.2",
         "@open-wc/webpack-import-meta-loader": "^0.4.7",
         "babel-loader": "^8.0.6",
         "clean-webpack-plugin": "^3.0.0",
