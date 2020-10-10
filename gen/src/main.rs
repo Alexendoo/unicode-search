@@ -23,7 +23,11 @@ fn out_file(path: &PathBuf) -> Result<BufWriter<File>> {
 }
 
 fn rustfmt(file: &PathBuf) -> Result<()> {
-    match Command::new("rustfmt").arg("--").arg(file).status() {
+    match Command::new("rustfmt")
+        .args(&["--config", "max_width=1000", "--"])
+        .arg(file)
+        .status()
+    {
         Ok(status) => ensure!(status.success(), "rustfmt exit status: {:?}", status),
         _ => eprintln!("warning: rustfmt not found"),
     }
@@ -47,36 +51,28 @@ fn main() -> Result<()> {
             continue;
         }
 
-        names.push((row.name.as_str(), row.codepoint.value()));
+        names.push((row.name.as_str(), row.codepoint.scalar().unwrap()));
     }
 
     for row in &name_aliases {
-        names.push((row.alias.as_str(), row.codepoint.value()));
+        names.push((row.alias.as_str(), row.codepoint.scalar().unwrap()));
     }
 
     // stable sort to keep canonical names first
-    names.sort_by_key(|&(_, codepoint)| codepoint);
+    names.sort_by_key(|&(_, literal)| literal);
 
-    names.truncate(50);
+    // names.truncate(50);
 
     let characters: TokenStream = names
         .iter()
-        .map(|&(name, codepoint)| quote!( Character { name: #name, codepoint: #codepoint }, ))
+        .map(|&(name, literal)| quote!( Character { name: #name, literal: #literal }, ))
         .collect();
 
     let out = quote! {
-        use std::convert::TryInto;
-
         #[derive(Copy, Clone)]
         pub struct Character {
             pub name: &'static str,
-            pub codepoint: u32,
-        }
-
-        impl Character {
-            pub fn literal(&self) -> char {
-                self.codepoint.try_into().unwrap()
-            }
+            pub literal: char,
         }
 
         pub type Characters = &'static [Character];

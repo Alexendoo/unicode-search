@@ -1,7 +1,6 @@
 mod characters;
 
-pub use characters::{Character, Characters, CHARACTERS};
-
+use crate::characters::CHARACTERS;
 use fuzzy_matcher::skim::SkimMatcherV2;
 use std::fmt::Write;
 
@@ -137,8 +136,7 @@ pub fn render_search_results(
                 <span class="literal">{}</span>
                 <span class="name">{}</span>
             </div>"#,
-            character.literal(),
-            character.name
+            character.literal, character.name
         )
         .unwrap();
     }
