@@ -15,7 +15,8 @@ jobs:
           ~/.cargo/bin
           ~/.cargo/.crates.toml
           ~/.cargo/.crates2.json
-        key: cargo-bin-cache
+        key: cargo-bin-${{ github.run_id }}
+        restore-keys: cargo-bin-
 
     - run: rustup target add wasm32-unknown-unknown
     - run: cargo install wasm-bindgen-cli
