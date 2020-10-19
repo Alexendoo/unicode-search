@@ -1,3 +1,4 @@
+use shared::render_search_results;
 pub use shared::{SearchResult, Searcher};
 
 use itertools::Itertools;
@@ -70,11 +71,8 @@ impl SearchResults {
         }
     }
 
-    // TODO: create wrapper in JS that minimizes cloning on wasm side
-    // - mem::take and cache on JS side?
-    // - free old search results
-    pub fn get(&self, index: usize) -> SearchResult {
-        self.results[index].clone()
+    pub fn render(&self, page_size: usize, page_number: usize) -> String {
+        render_search_results(&self.results, page_size, page_number)
     }
 
     pub fn length(&self) -> usize {

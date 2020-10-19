@@ -1,30 +1,21 @@
 import { SearchResults } from "../../target/wasm/wasm";
 
-import createResult from "./search/create-result";
-import loadFiles from "./search/load-files";
+import "../css/app.css";
+import loadPool from "./search/pool";
 
 (async function start() {
-    const { codepoints, names, pool } = await loadFiles();
+    const pool = await loadPool();
 
     const searchInput = document.getElementById("search");
+    const resultsDiv = document.getElementById("results");
+
     let oldResults = SearchResults.empty();
 
     searchInput.addEventListener("input", () => {
         pool.search(searchInput.value, (results) => {
-            const resultsDiv = document.createElement("div");
-            resultsDiv.id = "results";
-
-            const oldResultsDiv = document.getElementById("results");
-            document.body.replaceChild(resultsDiv, oldResultsDiv);
-
-            console.time("create pages");
-            const pages = Math.ceil(results.length() / 100);
-            for (let i = 0; i < pages; i++) {
-                const page = document.createElement("div");
-                page.className = "page";
-                resultsDiv.appendChild(page);
-            }
-            console.timeEnd("create pages");
+            console.time("render");
+            resultsDiv.innerHTML = results.render(100, 1);
+            console.timeEnd("render");
 
             oldResults.free();
             oldResults = results;

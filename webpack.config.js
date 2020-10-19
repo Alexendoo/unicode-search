@@ -4,7 +4,6 @@ const path = require("path");
 
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const CssPlugin = require("mini-css-extract-plugin");
-const WorkerPlugin = require("worker-plugin");
 
 /**
  * @type {import("webpack").Configuration}
@@ -15,6 +14,7 @@ module.exports = {
     },
     output: {
         filename: "[name].js",
+        assetModuleFilename: "[name][ext]",
         path: path.join(__dirname, "server/static"),
         publicPath: "/static/",
     },
@@ -23,21 +23,7 @@ module.exports = {
             {
                 test: /\.js$/,
                 exclude: /node_modules/,
-                use: [
-                    "babel-loader",
-
-                    // https://github.com/webpack/webpack/issues/6719
-                    require.resolve("@open-wc/webpack-import-meta-loader"),
-                ],
-            },
-            {
-                test: /\.(txt|bin|wasm)$/,
-                type: "javascript/auto",
-                loader: "file-loader",
-                options: {
-                    name: "[name].[ext]",
-                    esModule: false,
-                },
+                loader: "babel-loader",
             },
             {
                 test: /\.css$/,
@@ -49,12 +35,11 @@ module.exports = {
         new CssPlugin({
             filename: "[name].css",
         }),
-        new WorkerPlugin({
-            globalObject: "self",
-            filename: "worker.js",
-        }),
         new CleanWebpackPlugin(),
     ],
+    optimization: {
+        chunkIds: "named",
+    },
     devtool: "source-map",
     mode: "production",
 };

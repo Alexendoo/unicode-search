@@ -1,7 +1,5 @@
 /* eslint-disable no-param-reassign */
-import splitArray from "../util/split-array";
-
-import { Collector, SearchResults } from "./wasm";
+import initWasm, { Collector, SearchResults } from "./wasm";
 
 class SearchPool {
     /**
@@ -55,9 +53,8 @@ class SearchPool {
 }
 
 function createWorker(number) {
-    return new Worker("../worker", {
-        name: `Worker ${number}`,
-        type: "module",
+    return new Worker(new URL("../worker.js", import.meta.url), {
+        name: `worker:${number}`,
     });
 }
 
@@ -73,22 +70,22 @@ async function loadWorker(worker, initialData) {
     worker.onerror = null;
 }
 
-export default async function loadPool(names, module) {
+export default async function loadPool() {
     const numWorkers = navigator.hardwareConcurrency;
 
     const workers = Array.from({ length: numWorkers }, (_, workerNumber) =>
         createWorker(workerNumber),
     );
 
+    const module = await initWasm();
+
     await Promise.all(
-        splitArray(await names, numWorkers).map(
-            async (nameChunk, workerNumber) =>
-                loadWorker(workers[workerNumber], {
-                    names: nameChunk,
-                    workerNumber,
-                    numWorkers,
-                    module: await module,
-                }),
+        workers.map((worker, workerNumber) =>
+            loadWorker(worker, {
+                workerNumber,
+                numWorkers,
+                module,
+            }),
         ),
     );
 

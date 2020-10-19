@@ -61,6 +61,9 @@ fn main() -> Result<()> {
     // stable sort to keep canonical names first
     names.sort_by_key(|&(_, literal)| literal);
 
+    // TODO: include multiple aliases
+    names.dedup_by_key(|&mut (_, literal)| literal);
+
     // names.truncate(50);
 
     let characters: TokenStream = names
