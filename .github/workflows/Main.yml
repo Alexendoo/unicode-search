@@ -18,6 +18,7 @@ jobs:
         key: cargo-bin-${{ github.run_id }}
         restore-keys: cargo-bin-
 
+    - run: rustup self update
     - run: cargo install wasm-bindgen-cli
 
     - run: yarn install
