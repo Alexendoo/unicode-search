@@ -9,14 +9,14 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
+
     - uses: actions/cache@v2
       with:
         path: |
-          ~/.cargo/bin
-          ~/.cargo/.crates.toml
-          ~/.cargo/.crates2.json
-        key: cargo-bin-${{ github.run_id }}
-        restore-keys: cargo-bin-
+          ~/.cargo
+          target
+        key: cargo-${{ github.run_id }}
+        restore-keys: cargo-
 
     - run: rustup self update
     - run: cargo install wasm-bindgen-cli
