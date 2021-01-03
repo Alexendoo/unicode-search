@@ -4,5 +4,8 @@
 static
 node_modules
 target
-ucd-data
 shared/src/characters.rs
+
+gen/ucd-data/*
+!UnicodeData.txt
+!NameAliases.txt
