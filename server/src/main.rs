@@ -7,6 +7,8 @@ use rocket::{get, routes, State};
 use rocket_contrib::serve::StaticFiles;
 use shared::{render_search_results, Searcher};
 
+mod codepoint;
+
 #[derive(Template)]
 #[template(path = "index.html")]
 struct IndexTemplate;
@@ -37,11 +39,11 @@ fn search(
         .map(|pattern| searcher.search_words(pattern))
         .unwrap_or_default();
 
-
+    // TODO: unify page size stuff
     let num_pages = all_results.len() / PAGE_SIZE + 1;
     let page_number = page.unwrap_or(1).min(1).max(num_pages);
 
-    let results = render_search_results(&all_results, PAGE_SIZE, page_number);
+    let results = render_search_results(&all_results, page_number);
     eprintln!("num_pages = {:#?}", num_pages);
     eprintln!("page_number = {:#?}", page_number);
     eprintln!("results = {:#?}", results);

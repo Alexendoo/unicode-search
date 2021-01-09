@@ -64,8 +64,6 @@ fn main() -> Result<()> {
     // TODO: include multiple aliases
     names.dedup_by_key(|&mut (_, literal)| literal);
 
-    // names.truncate(50);
-
     let characters: TokenStream = names
         .iter()
         .map(|&(name, literal)| quote!( Character { name: #name, literal: #literal }, ))
@@ -84,6 +82,7 @@ fn main() -> Result<()> {
 
     let names_filename = relative_path("../shared/src/characters.rs");
     let mut names_file = out_file(&names_filename)?;
+
 
     write!(
         names_file,

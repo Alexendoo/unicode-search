@@ -115,13 +115,14 @@ impl Searcher {
     }
 }
 
+const PAGE_SIZE: usize = 100;
+
 pub fn render_search_results(
     results: &[SearchResult],
-    page_size: usize,
     page_number: usize,
 ) -> String {
     let characters = results
-        .chunks(page_size)
+        .chunks(PAGE_SIZE)
         .nth(page_number.saturating_sub(1))
         .into_iter()
         .flatten()

@@ -14,7 +14,7 @@ import loadPool from "./search/pool";
     searchInput.addEventListener("input", () => {
         pool.search(searchInput.value, (results) => {
             console.time("render");
-            resultsDiv.innerHTML = results.render(100, 1);
+            resultsDiv.innerHTML = results.render(1);
             console.timeEnd("render");
 
             oldResults.free();

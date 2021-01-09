@@ -71,8 +71,8 @@ impl SearchResults {
         }
     }
 
-    pub fn render(&self, page_size: usize, page_number: usize) -> String {
-        render_search_results(&self.results, page_size, page_number)
+    pub fn render(&self, page_number: usize) -> String {
+        render_search_results(&self.results, page_number)
     }
 
     pub fn length(&self) -> usize {
