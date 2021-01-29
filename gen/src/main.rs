@@ -67,11 +67,13 @@ fn main() -> Result<()> {
     let mut characters = String::new();
 
     for (i, &(name, ch)) in names.iter().enumerate() {
-        let pos = all_names.len() | (name.len() << 24);
+        assert!(name.len() < 0xFF);
+        assert!(all_names.len() < 0xFF_FF_FF);
 
         characters.push_str(&format!(
-            "    Character {{ pos: {}, literal: {} }},\n",
-            pos,
+            "    Character {{ pos: 0x{:02X}_{:06X}, literal: {} }},\n",
+            name.len(),
+            all_names.len(),
             Literal::character(ch),
         ));
 
@@ -100,6 +102,8 @@ fn main() -> Result<()> {
 
             #[derive(Copy, Clone)]
             pub struct Character {{
+                /// 8 MSB = length
+                /// 24 LSB = index
                 pos: u32,
                 pub literal: char,
             }}
@@ -116,6 +120,8 @@ fn main() -> Result<()> {
             }}
 
             pub type Characters = &'static [Character];
+
+            #[allow(clippy::unusual_byte_groupings)]
             pub const CHARACTERS: Characters = &[
             {}];
         ",
