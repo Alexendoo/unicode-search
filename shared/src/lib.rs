@@ -3,11 +3,31 @@ mod characters;
 use crate::characters::CHARACTERS;
 use fuzzy_matcher::skim::SkimMatcherV2;
 use std::fmt::Write;
+use std::mem::transmute;
 
 #[cfg(feature = "wasm")]
 use serde::{Deserialize, Serialize};
 #[cfg(feature = "wasm")]
 use wasm_bindgen::prelude::*;
+
+#[cfg(target_endian = "little")]
+macro_rules! include_u32s {
+    ($file:expr, $len:expr) => {{
+        const BYTES: &[u8; $len] = include_bytes!($file);
+
+        const U32S: &[u32; $len / 4] = unsafe { &transmute(*BYTES) };
+
+        U32S
+    }};
+}
+
+pub const NAMES: &str = include_str!("./names.txt");
+pub const TABLE: &[u32; 1807940] = include_u32s!("./suffix_table.u32", 7231760);
+pub const INDICES: &[u32; 1807940] = include_u32s!("./indices.u32", 7231760);
+
+pub fn search(pattern: &str) {
+    todo!()
+}
 
 #[cfg_attr(feature = "wasm", wasm_bindgen, derive(Serialize, Deserialize))]
 #[derive(Debug, Clone)]
@@ -86,7 +106,7 @@ impl Searcher {
             .enumerate()
             .skip(self.worker_num)
             .step_by(self.total_workers)
-            .filter_map(|(index, name)| self.split_match(name.name, pattern, index))
+            .filter_map(|(index, name)| self.split_match(name.name(), pattern, index))
             .collect();
 
         results.sort_unstable_by_key(|result| result.comparable());
@@ -117,10 +137,7 @@ impl Searcher {
 
 const PAGE_SIZE: usize = 100;
 
-pub fn render_search_results(
-    results: &[SearchResult],
-    page_number: usize,
-) -> String {
+pub fn render_search_results(results: &[SearchResult], page_number: usize) -> String {
     let characters = results
         .chunks(PAGE_SIZE)
         .nth(page_number.saturating_sub(1))
@@ -137,7 +154,8 @@ pub fn render_search_results(
                 <span class="literal">{}</span>
                 <span class="name">{}</span>
             </div>"#,
-            character.literal, character.name
+            character.literal,
+            character.name()
         )
         .unwrap();
     }

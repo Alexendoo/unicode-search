@@ -4,7 +4,10 @@
 static
 node_modules
 target
+
 shared/src/characters.rs
+shared/src/names.txt
+*.u32
 
 gen/ucd-data/*
 !UnicodeData.txt
