@@ -89,6 +89,16 @@ pub fn search(pattern: &str) -> Vec<Character> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use proptest::prelude::*;
+    use proptest::sample::select;
+
+    fn naive_search(pattern: &str) -> Vec<Character> {
+        CHARACTERS
+            .iter()
+            .copied()
+            .filter(|character| character.name().contains(pattern))
+            .collect()
+    }
 
     #[test]
     fn searches() {
@@ -106,6 +116,26 @@ mod tests {
                 "IDEOGRAPHIC TELEGRAPH LINE FEED SEPARATOR SYMBOL"
             ]
         );
+    }
+
+    proptest! {
+        #[test]
+        fn same_result_as_naive_search(s in "[A-Z0-9 -]*") {
+            assert_eq!(search(&s), naive_search(&s));
+        }
+
+        #[test]
+        fn gauranteed_match(ch in select(&CHARACTERS[..]), start: usize, len: usize) {
+            let name = ch.name();
+
+            let name = &name[start % name.len()..];
+            let name = &name[..len % name.len()];
+
+            let results = search(name);
+            assert!(results.contains(&ch));
+
+            assert_eq!(results, naive_search(name));
+        }
     }
 }
 
