@@ -1,164 +1,136 @@
-mod characters;
-
-use crate::characters::CHARACTERS;
-use fuzzy_matcher::skim::SkimMatcherV2;
-use std::fmt::Write;
+use std::collections::HashSet;
+use std::fmt::Debug;
 use std::mem::transmute;
-
-#[cfg(feature = "wasm")]
-use serde::{Deserialize, Serialize};
-#[cfg(feature = "wasm")]
-use wasm_bindgen::prelude::*;
+use std::str;
 
 #[cfg(target_endian = "little")]
 macro_rules! include_u32s {
-    ($file:expr, $len:expr) => {{
-        const BYTES: &[u8; $len] = include_bytes!($file);
+    ($file:expr) => {{
+        const BYTES: &[u8; TABLE_LEN * 4] = include_bytes!($file);
 
-        const U32S: &[u32; $len / 4] = unsafe { &transmute(*BYTES) };
+        const U32S: &[u32; TABLE_LEN] = unsafe { &transmute(*BYTES) };
 
         U32S
     }};
 }
 
+#[derive(Copy, Clone, PartialEq)]
+pub struct Character {
+    /// 8 MSB = length
+    /// 24 LSB = index
+    pos: u32,
+    literal: char,
+}
+
+impl Debug for Character {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?} {}", self.literal, self.name())
+    }
+}
+
+impl Character {
+    fn name(self) -> &'static str {
+        let start = self.pos & 0xFF_FF_FF;
+        let end = start + (self.pos >> 24);
+
+        &NAMES[start as usize..end as usize]
+    }
+}
+
+const CHARS_LEN: usize = 33763;
+const TABLE_LEN: usize = 903970;
+
+pub type Characters = &'static [Character; CHARS_LEN];
+
+#[allow(clippy::unusual_byte_groupings)]
+pub const CHARACTERS: Characters = include!("./characters.rs");
+
 pub const NAMES: &str = include_str!("./names.txt");
-pub const TABLE: &[u32; 1807940] = include_u32s!("./suffix_table.u32", 7231760);
-pub const INDICES: &[u32; 1807940] = include_u32s!("./indices.u32", 7231760);
+pub const SUFFIX_TABLE: &[u32; TABLE_LEN] = include_u32s!("./suffix_array.u32");
+pub const INDICES: &[u32; TABLE_LEN] = include_u32s!("./indices.u32");
 
-pub fn search(pattern: &str) {
-    todo!()
-}
+fn binary_search(mut left: usize, f: impl Fn(&str) -> bool) -> usize {
+    let mut right = TABLE_LEN;
 
-#[cfg_attr(feature = "wasm", wasm_bindgen, derive(Serialize, Deserialize))]
-#[derive(Debug, Clone)]
-pub struct SearchResult {
-    index: usize,
-    score: i32,
-    indices: Vec<usize>,
-}
+    while left < right {
+        let mid = (left + right) / 2;
 
-#[cfg_attr(feature = "wasm", wasm_bindgen)]
-impl SearchResult {
-    pub fn index(&self) -> usize {
-        self.index
-    }
+        let suffix = &NAMES[SUFFIX_TABLE[mid] as usize..];
 
-    pub fn indices(&self) -> Vec<usize> {
-        self.indices.clone()
-    }
-}
-
-impl SearchResult {
-    pub fn comparable(&self) -> impl Ord {
-        (-self.score, self.index)
-    }
-}
-
-#[cfg_attr(feature = "wasm", wasm_bindgen)]
-pub struct Searcher {
-    matcher: SkimMatcherV2,
-
-    worker_num: usize,
-    total_workers: usize,
-}
-
-impl Searcher {
-    pub fn new() -> Self {
-        Self {
-            matcher: SkimMatcherV2::default().ignore_case(),
-
-            worker_num: 0,
-            total_workers: 1,
+        if f(suffix) {
+            left = mid + 1;
+        } else {
+            right = mid;
         }
     }
 
-    fn search_word(&self, name: &str, pattern_word: &str, index: usize) -> Option<SearchResult> {
-        self.matcher
-            .fuzzy(name, pattern_word, true)
-            .map(|(score, indices)| SearchResult {
-                index,
-                score: score as i32,
-                indices,
-            })
-    }
-
-    fn split_match(&self, name: &str, pattern: &str, index: usize) -> Option<SearchResult> {
-        let mut results = pattern
-            .split_ascii_whitespace()
-            .map(|word| self.search_word(name, word, index));
-
-        let mut first_result = results.next()??;
-        let indices = &mut first_result.indices;
-
-        for result in results {
-            indices.extend(result?.indices);
-        }
-
-        indices.sort_unstable();
-        indices.dedup();
-
-        Some(first_result)
-    }
-
-    pub fn search_words(&self, pattern: &str) -> Vec<SearchResult> {
-        let mut results: Vec<SearchResult> = CHARACTERS
-            .iter()
-            .enumerate()
-            .skip(self.worker_num)
-            .step_by(self.total_workers)
-            .filter_map(|(index, name)| self.split_match(name.name(), pattern, index))
-            .collect();
-
-        results.sort_unstable_by_key(|result| result.comparable());
-
-        results
-    }
+    left
 }
 
-#[cfg(feature = "wasm")]
-#[wasm_bindgen]
-impl Searcher {
-    #[wasm_bindgen(constructor)]
-    pub fn constructor(worker_num: usize, total_workers: usize) -> Self {
-        Self {
-            matcher: SkimMatcherV2::default().ignore_case(),
+pub fn search(pattern: &str) -> Vec<Character> {
+    let start = binary_search(0, |suffix| pattern > suffix);
+    let end = binary_search(start, |suffix| suffix.starts_with(pattern));
 
-            worker_num,
-            total_workers,
-        }
-    }
+    let character_indices: HashSet<u32> = SUFFIX_TABLE[start..end]
+        .iter()
+        .map(|&i| INDICES[i as usize])
+        .collect();
 
-    pub fn search(&self, pattern: &str) -> Vec<u8> {
-        let results = self.search_words(pattern);
-
-        bincode::serialize(&results).unwrap()
-    }
-}
-
-const PAGE_SIZE: usize = 100;
-
-pub fn render_search_results(results: &[SearchResult], page_number: usize) -> String {
-    let characters = results
-        .chunks(PAGE_SIZE)
-        .nth(page_number.saturating_sub(1))
+    let mut characters: Vec<Character> = character_indices
         .into_iter()
-        .flatten()
-        .map(|result| CHARACTERS[result.index]);
+        .map(|i| CHARACTERS[i as usize])
+        .collect();
 
-    let mut out = String::new();
-    for character in characters {
-        write!(
-            out,
-            r#"
-            <div class="char">
-                <span class="literal">{}</span>
-                <span class="name">{}</span>
-            </div>"#,
-            character.literal,
-            character.name()
-        )
-        .unwrap();
-    }
+    characters.sort_unstable_by_key(|character| character.literal);
 
-    out
+    characters
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn searches() {
+        let chars = search("LINE FEED");
+        assert_eq!(search("INE FEED"), chars);
+
+        let names: Vec<&str> = chars.iter().map(|ch| ch.name()).collect();
+
+        assert_eq!(
+            names,
+            &[
+                "LINE FEED",
+                "REVERSE LINE FEED",
+                "SYMBOL FOR LINE FEED",
+                "IDEOGRAPHIC TELEGRAPH LINE FEED SEPARATOR SYMBOL"
+            ]
+        );
+    }
+}
+
+// pub fn render_search_results(results: &[SearchResult], page_number: usize) -> String {
+//     let characters = results
+//         .chunks(PAGE_SIZE)
+//         .nth(page_number.saturating_sub(1))
+//         .into_iter()
+//         .flatten()
+//         .map(|result| CHARACTERS[result.index]);
+
+//     let mut out = String::new();
+//     for character in characters {
+//         write!(
+//             out,
+//             r#"
+//             <div class="char">
+//                 <span class="literal">{}</span>
+//                 <span class="name">{}</span>
+//             </div>"#,
+//             character.literal,
+//             character.name()
+//         )
+//         .unwrap();
+//     }
+
+//     out
+// }

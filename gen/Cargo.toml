@@ -8,6 +8,5 @@ edition = "2018"
 
 [dependencies]
 anyhow = "1.0.32"
-indoc = "1.0.3"
 proc-macro2 = "1.0.24"
 ucd-parse = "0.1.8"

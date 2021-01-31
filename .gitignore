@@ -7,7 +7,7 @@ target
 
 shared/src/characters.rs
 shared/src/names.txt
-*.u32
+shared/src/*.u32
 
 gen/ucd-data/*
 !UnicodeData.txt
