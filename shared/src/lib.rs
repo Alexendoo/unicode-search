@@ -1,3 +1,4 @@
+use rustc_hash::FxHashSet;
 use std::collections::HashSet;
 use std::fmt::Debug;
 use std::fmt::Write;
@@ -72,7 +73,7 @@ fn search(pattern: &str) -> Vec<Character> {
     let start = binary_search(0, |suffix| pattern > suffix);
     let end = binary_search(start, |suffix| suffix.starts_with(pattern));
 
-    let character_indices: HashSet<u32> = SUFFIX_TABLE[start..end]
+    let character_indices: FxHashSet<u32> = SUFFIX_TABLE[start..end]
         .iter()
         .map(|&i| INDICES[i as usize])
         .collect();
