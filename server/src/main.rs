@@ -3,9 +3,9 @@
 use anyhow::Result;
 use askama::Template;
 use rocket::response::content::Html;
-use rocket::{get, routes, State};
+use rocket::{get, routes};
 use rocket_contrib::serve::StaticFiles;
-use shared::{render_search_results, Searcher};
+use shared::search_html;
 
 mod codepoint;
 
@@ -29,24 +29,12 @@ struct SearchTemplate {
 }
 
 #[get("/search?<pattern>&<page>")]
-fn search(
-    searcher: State<Searcher>,
-    pattern: Option<String>,
-    page: Option<usize>,
-) -> Result<Html<String>> {
-    let all_results = pattern
-        .as_ref()
-        .map(|pattern| searcher.search_words(pattern))
-        .unwrap_or_default();
-
+fn search(pattern: Option<String>, page: Option<usize>) -> Result<Html<String>> {
     // TODO: unify page size stuff
-    let num_pages = all_results.len() / PAGE_SIZE + 1;
-    let page_number = page.unwrap_or(1).min(1).max(num_pages);
+    // let num_pages = all_results.len() / PAGE_SIZE + 1;
+    // let page_number = page.unwrap_or(1).min(1).max(num_pages);
 
-    let results = render_search_results(&all_results, page_number);
-    eprintln!("num_pages = {:#?}", num_pages);
-    eprintln!("page_number = {:#?}", page_number);
-    eprintln!("results = {:#?}", results);
+    let results = pattern.map(search_html).unwrap_or_default();
 
     let template = SearchTemplate {
         results,
@@ -58,11 +46,9 @@ fn search(
 }
 
 fn main() -> Result<()> {
-    let searcher = Searcher::new();
-
     const STATIC_DIR: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/static");
+
     let err = rocket::ignite()
-        .manage(searcher)
         .mount("/", routes![index, search])
         .mount("/static", StaticFiles::from(STATIC_DIR))
         .launch();

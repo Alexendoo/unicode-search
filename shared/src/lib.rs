@@ -1,5 +1,6 @@
 use std::collections::HashSet;
 use std::fmt::Debug;
+use std::fmt::Write;
 use std::mem::transmute;
 use std::str;
 
@@ -67,7 +68,7 @@ fn binary_search(mut left: usize, f: impl Fn(&str) -> bool) -> usize {
     left
 }
 
-pub fn search(pattern: &str) -> Vec<Character> {
+fn search(pattern: &str) -> Vec<Character> {
     let start = binary_search(0, |suffix| pattern > suffix);
     let end = binary_search(start, |suffix| suffix.starts_with(pattern));
 
@@ -84,6 +85,35 @@ pub fn search(pattern: &str) -> Vec<Character> {
     characters.sort_unstable_by_key(|character| character.literal);
 
     characters
+}
+
+pub fn search_html(mut pattern: String) -> String {
+    if pattern.is_empty() {
+        return String::new();
+    }
+
+    pattern.make_ascii_uppercase();
+
+    let mut characters = search(&pattern);
+    characters.truncate(50);
+
+    let mut out = String::new();
+
+    for character in characters {
+        write!(
+            out,
+            r#"
+            <div class="char">
+                <span class="literal">{}</span>
+                <span class="name">{}</span>
+            </div>"#,
+            character.literal,
+            character.name()
+        )
+        .unwrap();
+    }
+
+    out
 }
 
 #[cfg(test)]
@@ -138,29 +168,3 @@ mod tests {
         }
     }
 }
-
-// pub fn render_search_results(results: &[SearchResult], page_number: usize) -> String {
-//     let characters = results
-//         .chunks(PAGE_SIZE)
-//         .nth(page_number.saturating_sub(1))
-//         .into_iter()
-//         .flatten()
-//         .map(|result| CHARACTERS[result.index]);
-
-//     let mut out = String::new();
-//     for character in characters {
-//         write!(
-//             out,
-//             r#"
-//             <div class="char">
-//                 <span class="literal">{}</span>
-//                 <span class="name">{}</span>
-//             </div>"#,
-//             character.literal,
-//             character.name()
-//         )
-//         .unwrap();
-//     }
-
-//     out
-// }

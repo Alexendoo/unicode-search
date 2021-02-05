@@ -1,24 +1,21 @@
-import { SearchResults } from "../../target/wasm/wasm";
+import init, { search } from "../../target/wasm/wasm";
 
 import "../css/app.css";
-import loadPool from "./search/pool";
 
 (async function start() {
-    const pool = await loadPool();
+    await init(new URL("../../target/wasm/wasm_bg.wasm", import.meta.url));
+    console.log("initialised");
 
     const searchInput = document.getElementById("search");
     const resultsDiv = document.getElementById("results");
 
-    let oldResults = SearchResults.empty();
-
     searchInput.addEventListener("input", () => {
-        pool.search(searchInput.value, (results) => {
-            console.time("render");
-            resultsDiv.innerHTML = results.render(1);
-            console.timeEnd("render");
+        console.time("search");
+        const result = search(searchInput.value);
+        console.timeEnd("search");
 
-            oldResults.free();
-            oldResults = results;
-        });
+        console.time("render");
+        resultsDiv.innerHTML = result;
+        console.timeEnd("render");
     });
 })();
