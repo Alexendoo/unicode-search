@@ -1,5 +1,4 @@
-use rustc_hash::FxHashSet;
-use std::collections::HashSet;
+use fixedbitset::FixedBitSet;
 use std::fmt::Debug;
 use std::fmt::Write;
 use std::mem::transmute;
@@ -73,17 +72,19 @@ fn search(pattern: &str) -> Vec<Character> {
     let start = binary_search(0, |suffix| pattern > suffix);
     let end = binary_search(start, |suffix| suffix.starts_with(pattern));
 
-    let character_indices: FxHashSet<u32> = SUFFIX_TABLE[start..end]
-        .iter()
-        .map(|&i| INDICES[i as usize])
-        .collect();
+    let mut character_indices = FixedBitSet::with_capacity(TABLE_LEN);
 
-    let mut characters: Vec<Character> = character_indices
-        .into_iter()
+    for &suffix in &SUFFIX_TABLE[start..end] {
+        let index = INDICES[suffix as usize];
+
+        character_indices.put(index as usize);
+    }
+
+    let characters: Vec<Character> = character_indices
+        .ones()
         .map(|i| CHARACTERS[i as usize])
         .collect();
 
-    characters.sort_unstable_by_key(|character| character.literal);
 
     characters
 }
