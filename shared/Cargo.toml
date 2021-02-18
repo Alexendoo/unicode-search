@@ -11,3 +11,4 @@ fixedbitset = "0.3.2"
 
 [dev-dependencies]
 proptest = "0.10.1"
+regex = "1.4.3"

@@ -36,6 +36,10 @@ impl Character {
 
         &NAMES[start as usize..end as usize]
     }
+
+    fn codepoint(self) -> u32 {
+        self.literal as u32
+    }
 }
 
 const CHARS_LEN: usize = 33763;
@@ -106,9 +110,11 @@ pub fn search_html(mut pattern: String) -> String {
             out,
             r#"
             <div class="char">
+                <span class="codepoint">U+{:04X}</span>
                 <span class="literal">{}</span>
                 <span class="name">{}</span>
             </div>"#,
+            character.codepoint(),
             character.literal,
             character.name()
         )
@@ -123,6 +129,7 @@ mod tests {
     use super::*;
     use proptest::prelude::*;
     use proptest::sample::select;
+    use regex::Regex;
 
     fn naive_search(pattern: &str) -> Vec<Character> {
         CHARACTERS
@@ -167,6 +174,15 @@ mod tests {
             assert!(results.contains(&ch));
 
             assert_eq!(results, naive_search(name));
+        }
+    }
+
+    #[test]
+    fn html_safe_characters() {
+        let expected = Regex::new("^[A-Z0-9 -]+$").unwrap();
+
+        for character in CHARACTERS {
+            assert!(expected.is_match(character.name()), "{:?}", character);
         }
     }
 }
