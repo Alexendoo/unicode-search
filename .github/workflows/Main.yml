@@ -21,10 +21,10 @@ jobs:
     - run: rustup self update
     - run: cargo install wasm-bindgen-cli
 
-    - run: cargo test --all
-
     - run: yarn install
     - run: yarn gen
     - run: yarn wasm
-    # - run: yarn lint
+    - run: yarn lint
     - run: yarn build
+
+    - run: cargo test --all
