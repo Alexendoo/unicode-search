@@ -1,8 +1,10 @@
-use fixedbitset::FixedBitSet;
-use std::fmt::Debug;
-use std::fmt::Write;
+use std::fmt::{Debug, Write};
 use std::mem::transmute;
 use std::str;
+
+pub use bitset::BitSet;
+
+mod bitset;
 
 #[cfg(target_endian = "little")]
 macro_rules! include_u32s {
@@ -72,35 +74,30 @@ fn binary_search(mut left: usize, f: impl Fn(&str) -> bool) -> usize {
     left
 }
 
-fn search(pattern: &str) -> Vec<Character> {
+fn search(pattern: &str, character_indices: &mut BitSet) -> Vec<Character> {
     let start = binary_search(0, |suffix| pattern > suffix);
     let end = binary_search(start, |suffix| suffix.starts_with(pattern));
-
-    let mut character_indices = FixedBitSet::with_capacity(TABLE_LEN);
 
     for &suffix in &SUFFIX_TABLE[start..end] {
         let index = INDICES[suffix as usize];
 
-        character_indices.put(index as usize);
+        character_indices.insert(index);
     }
 
-    let characters: Vec<Character> = character_indices
-        .ones()
-        .map(|i| CHARACTERS[i as usize])
-        .collect();
-
+    let mut characters = Vec::new();
+    character_indices.drain_ones(|i| characters.push(CHARACTERS[i as usize]));
 
     characters
 }
 
-pub fn search_html(mut pattern: String) -> String {
+pub fn search_html(mut pattern: String, set: &mut BitSet) -> String {
     if pattern.is_empty() {
         return String::new();
     }
 
     pattern.make_ascii_uppercase();
 
-    let mut characters = search(&pattern);
+    let mut characters = search(&pattern, set);
     characters.truncate(50);
 
     let mut out = String::new();
@@ -141,8 +138,10 @@ mod tests {
 
     #[test]
     fn searches() {
-        let chars = search("LINE FEED");
-        assert_eq!(search("INE FEED"), chars);
+        let mut set = BitSet::new();
+
+        let chars = search("LINE FEED", &mut set);
+        assert_eq!(search("INE FEED", &mut set), chars);
 
         let names: Vec<&str> = chars.iter().map(|ch| ch.name()).collect();
 
@@ -160,7 +159,10 @@ mod tests {
     proptest! {
         #[test]
         fn same_result_as_naive_search(s in "[A-Z0-9 -]*") {
-            assert_eq!(search(&s), naive_search(&s));
+            assert_eq!(
+                search(&s, &mut BitSet::new()),
+                naive_search(&s)
+            );
         }
 
         #[test]
@@ -170,7 +172,7 @@ mod tests {
             let name = &name[start % name.len()..];
             let name = &name[..len % name.len()];
 
-            let results = search(name);
+            let results = search(name, &mut BitSet::new());
             assert!(results.contains(&ch));
 
             assert_eq!(results, naive_search(name));

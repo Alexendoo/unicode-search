@@ -1,11 +1,13 @@
 #![feature(proc_macro_hygiene, decl_macro)]
 
+use std::sync::Mutex;
+
 use anyhow::Result;
 use askama::Template;
 use rocket::response::content::Html;
-use rocket::{get, routes};
+use rocket::{get, routes, State};
 use rocket_contrib::serve::StaticFiles;
-use shared::search_html;
+use shared::{search_html, BitSet};
 
 mod codepoint;
 
@@ -29,12 +31,19 @@ struct SearchTemplate {
 }
 
 #[get("/search?<pattern>&<page>")]
-fn search(pattern: Option<String>, page: Option<usize>) -> Result<Html<String>> {
+fn search(
+    pattern: Option<String>,
+    page: Option<usize>,
+    bitset: State<Mutex<BitSet>>,
+) -> Result<Html<String>> {
     // TODO: unify page size stuff
     // let num_pages = all_results.len() / PAGE_SIZE + 1;
     // let page_number = page.unwrap_or(1).min(1).max(num_pages);
 
-    let results = pattern.map(search_html).unwrap_or_default();
+    let mut bitset = bitset.lock().unwrap();
+    let results = pattern
+        .map(|pat| search_html(pat, &mut bitset))
+        .unwrap_or_default();
 
     let template = SearchTemplate {
         results,
@@ -51,6 +60,7 @@ fn main() -> Result<()> {
     let err = rocket::ignite()
         .mount("/", routes![index, search])
         .mount("/static", StaticFiles::from(STATIC_DIR))
+        .manage(Mutex::new(BitSet::new()))
         .launch();
 
     Err(err.into())

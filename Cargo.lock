@@ -222,12 +222,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "fixedbitset"
-version = "0.3.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "45e780567ed7abc415d12fd464571d265eb4a5710ddc97cdb1a31a4c35bb479d"
-
-[[package]]
 name = "fnv"
 version = "1.0.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -989,7 +983,6 @@ dependencies = [
 name = "shared"
 version = "0.1.0"
 dependencies = [
- "fixedbitset",
  "proptest",
  "regex",
 ]

@@ -1,4 +1,4 @@
-use shared::search_html;
+use shared::{BitSet, search_html};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen(start)]
@@ -8,5 +8,8 @@ pub fn start() {
 
 #[wasm_bindgen]
 pub fn search(pattern: String) -> String {
-    search_html(pattern)
+    static mut SET: BitSet = BitSet::new();
+
+    // SAFETY: wasm will be only single threaded
+    search_html(pattern, unsafe { &mut SET })
 }
