@@ -181,7 +181,7 @@ mod tests {
         }
 
         #[test]
-        fn gauranteed_match(ch in select(&CHARACTERS[..]), start: usize, len: usize) {
+        fn guaranteed_match(ch in select(&CHARACTERS[..]), start: usize, len: usize) {
             let name = ch.name();
 
             let name = &name[start % name.len()..];

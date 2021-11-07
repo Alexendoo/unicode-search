@@ -1,6 +1,6 @@
-use crate::TABLE_LEN;
+use crate::CHARS_LEN;
 
-const BITSET_LEN: usize = TABLE_LEN / 32 + 1;
+const BITSET_LEN: usize = CHARS_LEN / 32 + 1;
 
 pub struct BitSet {
     buf: [u32; BITSET_LEN],
@@ -57,11 +57,11 @@ mod tests {
             1,
             2,
             5,
-            700000,
+            7000,
             7,
             12,
             204,
-            TABLE_LEN as u32 - 1,
+            CHARS_LEN as u32 - 1,
             0,
             30200,
             30199,
