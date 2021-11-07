@@ -15,7 +15,7 @@ module.exports = {
     output: {
         filename: "[name].js",
         assetModuleFilename: "[name][ext]",
-        path: path.join(__dirname, "server/static"),
+        path: path.join(__dirname, "client/static"),
         publicPath: "/static/",
     },
     module: {

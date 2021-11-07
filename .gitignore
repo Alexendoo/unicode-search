@@ -1,9 +1,7 @@
-.vscode
-*.log
-*.rs.bk
-static
 node_modules
 target
+
+client/static
 
 src/characters.rs
 src/names.txt
