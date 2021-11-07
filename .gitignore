@@ -5,9 +5,9 @@ static
 node_modules
 target
 
-shared/src/characters.rs
-shared/src/names.txt
-shared/src/*.u32
+src/characters.rs
+src/names.txt
+src/*.u32
 
 gen/ucd-data/*
 !UnicodeData.txt

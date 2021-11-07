@@ -14,7 +14,7 @@ fn relative_path(p: &str) -> PathBuf {
 }
 
 fn out_file(filename: &str) -> Result<BufWriter<File>> {
-    let mut path = relative_path("../shared/src/");
+    let mut path = relative_path("../src/");
     path.push(filename);
 
     let file = File::create(path)?;
