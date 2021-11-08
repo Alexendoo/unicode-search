@@ -1,4 +1,4 @@
-use crate::CHARS_LEN;
+use crate::search::CHARS_LEN;
 
 const BITSET_LEN: usize = CHARS_LEN / 32 + 1;
 

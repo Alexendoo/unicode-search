@@ -84,13 +84,12 @@ fn main() -> Result<()> {
         }
     }
 
-
-    // TODO: exclude \n... suffixes
-    let mut suffix_array: Vec<u32> = (0..all_names.len() as u32).collect();
+    let mut suffix_array: Vec<u32> = (0..all_names.len() as u32)
+        .filter(|&i| !all_names[i as usize..].starts_with('\n'))
+        .collect();
     suffix_array.sort_unstable_by_key(|&i| &all_names[i as usize..]);
 
     assert_eq!(indices.len(), all_names.len());
-    assert_eq!(all_names.len(), suffix_array.len());
     assert!(suffix_array.len() < u32::MAX as usize);
 
     write!(out_file("names.txt")?, "{}", all_names)?;

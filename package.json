@@ -13,6 +13,7 @@
         "prewasm": "cargo build -p wasm --release --target wasm32-unknown-unknown",
         "wasm": "wasm-bindgen --out-dir target/wasm --target web target/wasm32-unknown-unknown/release/wasm.wasm",
         "build": "webpack",
+        "serve": "webpack-dev-server",
         "lint": "eslint .",
         "test": "jest"
     },
@@ -30,6 +31,7 @@
         "mini-css-extract-plugin": "^2.4.4",
         "prettier": "^2.4.1",
         "webpack": "^5.62.1",
-        "webpack-cli": "^4.9.1"
+        "webpack-cli": "^4.9.1",
+        "webpack-dev-server": "^4.4.0"
     }
 }

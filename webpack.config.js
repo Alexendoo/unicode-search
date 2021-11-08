@@ -18,6 +18,12 @@ module.exports = {
         path: path.join(__dirname, "client/static"),
         publicPath: "/static/",
     },
+    devServer: {
+        static: {
+            directory: path.join(__dirname, "client"),
+        },
+        compress: true,
+    },
     module: {
         rules: [
             {
@@ -39,6 +45,9 @@ module.exports = {
     ],
     optimization: {
         chunkIds: "named",
+    },
+    performance: {
+        hints: false,
     },
     devtool: "source-map",
     mode: "production",
