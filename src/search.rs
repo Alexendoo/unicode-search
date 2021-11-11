@@ -74,7 +74,7 @@ fn binary_search(mut left: usize, f: impl Fn(&str) -> bool) -> usize {
     left
 }
 
-pub fn search(pattern: &str, character_indices: &mut BitSet) -> Vec<Character> {
+pub fn search(pattern: &str, characters: &mut Vec<Character>, character_indices: &mut BitSet) {
     let start = binary_search(0, |suffix| pattern > suffix);
     let end = binary_search(start, |suffix| suffix.starts_with(pattern));
 
@@ -84,10 +84,8 @@ pub fn search(pattern: &str, character_indices: &mut BitSet) -> Vec<Character> {
         character_indices.insert(index);
     }
 
-    let mut characters = Vec::new();
+    characters.clear();
     character_indices.drain_ones(|i| characters.push(CHARACTERS[i as usize]));
-
-    characters
 }
 
 #[cfg(test)]
@@ -105,14 +103,23 @@ mod tests {
             .collect()
     }
 
+    fn search(pattern: &str) -> Vec<Character> {
+        let mut set = BitSet::new();
+        let mut chars = Vec::new();
+
+        super::search(pattern, &mut chars, &mut set);
+
+        chars
+    }
+
     #[test]
     fn searches() {
-        let mut set = BitSet::new();
+        assert_eq!(search("LINE FEED"), search("INE FEED"));
 
-        let chars = search("LINE FEED", &mut set);
-        assert_eq!(search("INE FEED", &mut set), chars);
-
-        let names: Vec<&str> = chars.iter().map(|ch| ch.name()).collect();
+        let names: Vec<&str> = search("LINE FEED")
+            .into_iter()
+            .map(|ch| ch.name())
+            .collect();
 
         assert_eq!(
             names,
@@ -129,7 +136,7 @@ mod tests {
         #[test]
         fn same_result_as_naive_search(s in "[A-Z0-9 -]*") {
             assert_eq!(
-                search(&s, &mut BitSet::new()),
+                search(&s),
                 naive_search(&s)
             );
         }
@@ -141,7 +148,7 @@ mod tests {
             let name = &name[start % name.len()..];
             let name = &name[..len % name.len()];
 
-            let results = search(name, &mut BitSet::new());
+            let results = search(name);
             assert!(results.contains(&ch));
 
             assert_eq!(results, naive_search(name));

@@ -1,6 +1,6 @@
 use bitset::BitSet;
 use ranges::{GenericRange, Relation};
-use search::{search, Character, NAMES};
+use search::{search, Character, CHARS_LEN, NAMES};
 use std::mem;
 use std::ops::{Bound, Range, RangeBounds};
 use wasm_bindgen::prelude::*;
@@ -79,7 +79,7 @@ impl Searcher {
     #[wasm_bindgen(constructor)]
     pub fn new() -> Self {
         Self {
-            chars: Vec::new(),
+            chars: Vec::with_capacity(CHARS_LEN),
             current: GenericRange::from(0..0),
         }
     }
@@ -90,7 +90,7 @@ impl Searcher {
         pattern.make_ascii_uppercase();
 
         // SAFETY: wasm will be only single threaded
-        self.chars = search(&pattern, unsafe { &mut SET });
+        search(&pattern, &mut self.chars, unsafe { &mut SET });
         self.current = GenericRange::from(0..0);
     }
 
@@ -174,7 +174,7 @@ impl Searcher {
                 } else {
                     pop_end(disjoint);
                 }
-            },
+            }
             Relation::Ending {
                 disjoint,
                 self_shorter,
@@ -185,7 +185,7 @@ impl Searcher {
                 } else {
                     pop_start(disjoint);
                 }
-            },
+            }
         }
     }
 }
