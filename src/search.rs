@@ -1,5 +1,5 @@
 pub use crate::bitset::BitSet;
-use std::fmt::{Debug, Write};
+use std::fmt::Debug;
 use std::mem::transmute;
 use std::str;
 
@@ -38,7 +38,7 @@ impl Character {
         &NAMES[start as usize..end as usize]
     }
 
-    fn codepoint(self) -> u32 {
+    pub fn codepoint(self) -> u32 {
         self.literal as u32
     }
 }
@@ -88,37 +88,6 @@ pub fn search(pattern: &str, character_indices: &mut BitSet) -> Vec<Character> {
     character_indices.drain_ones(|i| characters.push(CHARACTERS[i as usize]));
 
     characters
-}
-
-pub fn search_html(mut pattern: String, set: &mut BitSet) -> String {
-    if pattern.is_empty() {
-        return String::new();
-    }
-
-    pattern.make_ascii_uppercase();
-
-    let mut characters = search(&pattern, set);
-    // characters.truncate(50);
-
-    let mut out = String::new();
-
-    for character in characters {
-        write!(
-            out,
-            r#"
-            <div class="char">
-                <span class="codepoint">U+{:04X}</span>
-                <span class="literal">{}</span>
-                <span class="name">{}</span>
-            </div>"#,
-            character.codepoint(),
-            character.literal,
-            character.name()
-        )
-        .unwrap();
-    }
-
-    out
 }
 
 #[cfg(test)]

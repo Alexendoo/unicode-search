@@ -1,20 +1,40 @@
 use bitset::BitSet;
-use search::{Character, NAMES, search};
-use std::collections::VecDeque;
+use ranges::{GenericRange, Relation};
+use search::{search, Character, NAMES};
 use std::mem;
-use std::ops::Range;
+use std::ops::{Bound, Range, RangeBounds};
 use wasm_bindgen::prelude::*;
 
 mod bitset;
 mod search;
 
-#[wasm_bindgen(raw_module = "../../client/js/search.js")]
+mod js {
+    use wasm_bindgen::prelude::*;
+    #[wasm_bindgen(raw_module = "../../client/js/search.js")]
+    extern "C" {
+        pub fn clear();
+        #[wasm_bindgen(js_name = "popEnd")]
+        pub fn pop_end();
+        #[wasm_bindgen(js_name = "popStart")]
+        pub fn pop_start();
+        #[wasm_bindgen(js_name = "pushEnd")]
+        pub fn push_end(index: u32, codepoint: u32);
+        #[wasm_bindgen(js_name = "pushStart")]
+        pub fn push_start(index: u32, codepoint: u32);
+    }
+}
+
+#[wasm_bindgen]
 extern "C" {
-    fn clear();
-    fn pop_front();
-    fn pop_back();
-    fn push_front(codepoint: u32);
-    fn push_back(codepoint: u32);
+    #[wasm_bindgen(js_namespace = console)]
+    fn log(s: &str);
+}
+
+#[allow(unused_macros)]
+macro_rules! log {
+    // Note that this is using the `log` function imported above during
+    // `bare_bones`
+    ($($t:tt)*) => (log(&format_args!($($t)*).to_string()))
 }
 
 #[wasm_bindgen(start)]
@@ -32,19 +52,36 @@ pub fn names_len() -> usize {
     NAMES.len()
 }
 
-
 #[wasm_bindgen]
-#[derive(Default)]
 pub struct Searcher {
     chars: Vec<Character>,
-    current: Range<u32>,
+    current: GenericRange<u32>,
+}
+
+fn to_range(generic: GenericRange<u32>) -> Range<u32> {
+    let start = match generic.start_bound() {
+        Bound::Included(&s) => s,
+        Bound::Excluded(&s) => s + 1,
+        Bound::Unbounded => 0,
+    };
+
+    let end = match generic.end_bound() {
+        Bound::Included(&e) => e + 1,
+        Bound::Excluded(&e) => e,
+        Bound::Unbounded => u32::MAX,
+    };
+
+    start..end
 }
 
 #[wasm_bindgen]
 impl Searcher {
     #[wasm_bindgen(constructor)]
     pub fn new() -> Self {
-        Self::default()
+        Self {
+            chars: Vec::new(),
+            current: GenericRange::from(0..0),
+        }
     }
 
     pub fn search(&mut self, mut pattern: String) {
@@ -54,61 +91,101 @@ impl Searcher {
 
         // SAFETY: wasm will be only single threaded
         self.chars = search(&pattern, unsafe { &mut SET });
+        self.current = GenericRange::from(0..0);
+    }
+
+    pub fn len(&self) -> usize {
+        self.chars.len()
     }
 
     pub fn render(&mut self, start: u32, end: u32) {
-        let prev = mem::replace(&mut self.current, start..end);
+        let next = GenericRange::from(start..end);
+        let prev = mem::replace(&mut self.current, next);
 
-        let contains_start = prev.contains(&start);
-        let contains_end = prev.contains(&end);
+        // log!("{} -> {}\t{:?}", prev, next, prev.relation(next));
 
-        if !contains_start && !contains_end {
-            // ~~~~~
-            // ~~~~~
-            //       ->
-            //          ~~~~~
-            //          ~~~~~
-            clear();
-            for i in start..end {
-                push_back(ch);
+        let pop_start = |generic_range| {
+            for _ in to_range(generic_range) {
+                js::pop_start();
             }
-            return;
-        }
+        };
 
-        if contains_start {
-            // 0 ~~~~~
-            // 1 ~~~~~ -> ~~~~~
-            // 2 ~~~~~    ~~~~~
-            let pop = start - prev.start;
-            for _ in 0..pop {
-                pop_front();
+        let pop_end = |generic_range| {
+            for _ in to_range(generic_range) {
+                js::pop_end();
             }
-        } else {
-            // 0          ~~~~~
-            // 1 ~~~~~ -> ~~~~~
-            // 2 ~~~~~    ~~~~~
-            let push = prev.start - start;
-            for i in 0..push {
-                push_front(start - i);
-            }
-        }
+        };
 
-        if contains_end {
-            // 0 ~~~~~    ~~~~~
-            // 1 ~~~~~ -> ~~~~~
-            // 2 ~~~~~
-            let pop = prev.end - end;
-            for _ in 0..pop {
-                pop_back();
+        let push_start = |generic_range| {
+            for i in to_range(generic_range).rev() {
+                let ch = self.chars[i as usize];
+                js::push_start(i, ch.codepoint());
             }
-        } else {
-            // 0 ~~~~~    ~~~~~
-            // 1 ~~~~~ -> ~~~~~
-            // 2          ~~~~~
-            let push = end - prev.end;
-            for i in 0..push {
-                push_back(prev.end + i);
+        };
+
+        let push_end = |generic_range| {
+            for i in to_range(generic_range) {
+                let ch = self.chars[i as usize];
+                js::push_end(i, ch.codepoint());
             }
+        };
+
+        match prev.relation(next) {
+            Relation::Equal(_) => {}
+            Relation::Disjoint { .. } | Relation::Touching { .. } | Relation::Empty { .. } => {
+                js::clear();
+                push_end(next);
+            }
+            Relation::Overlapping {
+                first_disjoint,
+                second_disjoint,
+                self_less,
+                ..
+            } => {
+                if self_less {
+                    pop_start(first_disjoint);
+                    push_end(second_disjoint);
+                } else {
+                    pop_end(second_disjoint);
+                    push_start(first_disjoint);
+                }
+            }
+            Relation::Containing {
+                first_disjoint,
+                second_disjoint,
+                self_shorter,
+                ..
+            } => {
+                if self_shorter {
+                    pop_start(first_disjoint);
+                    pop_end(second_disjoint);
+                } else {
+                    push_start(first_disjoint);
+                    push_end(second_disjoint);
+                }
+            }
+            Relation::Starting {
+                disjoint,
+                self_shorter,
+                ..
+            } => {
+                if self_shorter {
+                    push_end(disjoint);
+                } else {
+                    pop_end(disjoint);
+                }
+            },
+            Relation::Ending {
+                disjoint,
+                self_shorter,
+                ..
+            } => {
+                if self_shorter {
+                    push_start(disjoint);
+                } else {
+                    pop_start(disjoint);
+                }
+            },
         }
     }
 }

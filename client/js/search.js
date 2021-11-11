@@ -7,9 +7,12 @@ const resultsDiv = document.getElementById("results");
 
 let names;
 
-function create(cp) {
+const ROW_HEIGHT = 24;
+
+function create(index, cp) {
     const char = document.createElement("div");
     char.className = "char";
+    char.style = `top: ${ROW_HEIGHT * index}px`;
 
     const codepoint = document.createElement("span");
     codepoint.className = "codepoint";
@@ -22,39 +25,34 @@ function create(cp) {
     literal.textContent = String.fromCodePoint(cp);
     const name = document.createElement("span");
     name.className = "name";
-    name.textContent = "name";
+    name.textContent = names[index];
 
     char.append(codepoint, literal, name);
 
     return char;
 }
 
-export function push_front(cp) {
-    console.log("push_front");
-    resultsDiv.insertBefore(create(cp), resultsDiv.firstChild);
+export function pushStart(index, codepoint) {
+    resultsDiv.insertBefore(create(index, codepoint), resultsDiv.firstChild);
 }
 
-export function push_back(cp) {
-    console.log("push_back");
-    resultsDiv.appendChild(create(cp));
+export function pushEnd(index, codepoint) {
+    resultsDiv.appendChild(create(index, codepoint));
 }
 
-export function pop_front() {
-    console.log("pop_front");
+export function popStart() {
     resultsDiv.removeChild(resultsDiv.firstChild);
 }
 
-export function pop_back() {
-    console.log("pop_back");
+export function popEnd() {
     resultsDiv.removeChild(resultsDiv.lastChild);
 }
 
 export function clear() {
-    console.log("clear");
     while (resultsDiv.lastChild) resultsDiv.removeChild(resultsDiv.lastChild);
 }
 
-(async function start() {
+(async function main() {
     const { memory } = await init(
         new URL("../../target/wasm/wasm_bg.wasm", import.meta.url),
     );
@@ -64,7 +62,24 @@ export function clear() {
     const bytes = new Uint8Array(memory.buffer, names_ptr(), names_len());
     names = new TextDecoder().decode(bytes).split("\n");
 
-    searchInput.addEventListener("input", () => {
+    function update() {
+        const start = Math.floor(Math.max(0, window.scrollY - 50) / ROW_HEIGHT);
+        const rows = Math.ceil(window.innerHeight / ROW_HEIGHT) + 1;
+        const end = Math.min(searcher.len(), start + rows);
+
+        searcher.render(start, end);
+    }
+
+    function onInput() {
         searcher.search(searchInput.value);
-    });
+
+        const total = searcher.len();
+        resultsDiv.style.height = `${total * ROW_HEIGHT}px`;
+
+        update();
+    }
+
+    searchInput.addEventListener("input", onInput);
+    window.addEventListener("scroll", update);
+    window.addEventListener("resize", update);
 })();
