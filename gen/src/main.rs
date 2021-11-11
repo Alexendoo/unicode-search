@@ -27,14 +27,14 @@ fn parse<D: UcdFile>() -> Result<Vec<D>, ucd_parse::Error> {
     ucd_parse::parse(path)
 }
 
-fn write_bytes(filename: &str, xs: &[u32]) -> Result<()> {
-    let mut file = out_file(filename)?;
+macro_rules! write_slice {
+    ($filename:expr, $xs:expr) => {
+        let mut file = out_file($filename)?;
 
-    for x in xs {
-        file.write_all(&x.to_le_bytes())?;
-    }
-
-    Ok(())
+        for x in $xs {
+            file.write_all(&x.to_le_bytes())?;
+        }
+    };
 }
 
 fn main() -> Result<()> {
@@ -80,7 +80,7 @@ fn main() -> Result<()> {
         all_names.push('\n');
 
         for _ in 0..=name.len() {
-            indices.push(i as u32);
+            indices.push(u16::try_from(i).unwrap());
         }
     }
 
@@ -95,8 +95,8 @@ fn main() -> Result<()> {
     write!(out_file("names.txt")?, "{}", all_names)?;
     write!(out_file("characters.rs")?, "&[\n{}]", characters)?;
 
-    write_bytes("suffix_array.u32", &suffix_array)?;
-    write_bytes("indices.u32", &indices)?;
+    write_slice!("suffix_array.u32", &suffix_array);
+    write_slice!("indices.u16", &indices);
 
     Ok(())
 }

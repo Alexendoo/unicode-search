@@ -1,17 +1,17 @@
 pub use crate::bitset::BitSet;
 use std::fmt::Debug;
-use std::mem::transmute;
+use std::mem::{transmute, size_of};
 use std::str;
 
 #[cfg(target_endian = "little")]
-macro_rules! include_u32s {
-    ($name:ident, $size:expr, $file:expr) => {
-        pub const $name: &[u32; $size] = {
-            const BYTES: &[u8; $size * 4] = include_bytes!($file);
+macro_rules! include_slice {
+    ($T:ty, $name:ident, $size:expr, $file:expr) => {
+        pub const $name: &[$T; $size] = {
+            const BYTES: &[u8; $size * size_of::<$T>()] = include_bytes!($file);
 
-            const U32S: &[u32; $size] = unsafe { &transmute(*BYTES) };
+            const TS: &[$T; $size] = unsafe { &transmute(*BYTES) };
 
-            U32S
+            TS
         };
     };
 }
@@ -53,8 +53,8 @@ pub type Characters = &'static [Character; CHARS_LEN];
 pub const CHARACTERS: Characters = include!("./characters.rs");
 
 pub const NAMES: &str = include_str!("./names.txt");
-include_u32s!(SUFFIX_TABLE, TABLE_LEN, "./suffix_array.u32");
-include_u32s!(INDICES, NAMES_LEN, "./indices.u32");
+include_slice!(u32, SUFFIX_TABLE, TABLE_LEN, "./suffix_array.u32");
+include_slice!(u16, INDICES, NAMES_LEN, "./indices.u16");
 
 fn binary_search(mut left: usize, f: impl Fn(&str) -> bool) -> usize {
     let mut right = TABLE_LEN;
@@ -81,7 +81,7 @@ pub fn search(pattern: &str, characters: &mut Vec<Character>, character_indices:
     for &suffix in &SUFFIX_TABLE[start..end] {
         let index = INDICES[suffix as usize];
 
-        character_indices.insert(index);
+        character_indices.insert(index.into());
     }
 
     characters.clear();

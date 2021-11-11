@@ -5,6 +5,7 @@ client/static
 
 src/characters.rs
 src/names.txt
+src/*.u16
 src/*.u32
 
 gen/ucd-data/*
