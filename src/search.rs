@@ -1,6 +1,7 @@
 pub use crate::bitset::BitSet;
 use std::fmt::Debug;
 use std::mem::{transmute, size_of};
+use std::ops::Range;
 use std::str;
 
 #[cfg(target_endian = "little")]
@@ -31,11 +32,15 @@ impl Debug for Character {
 }
 
 impl Character {
-    fn name(self) -> &'static str {
+    pub fn range(&self) -> Range<usize> {
         let start = self.pos & 0xFF_FF_FF;
         let end = start + (self.pos >> 24);
 
-        &NAMES[start as usize..end as usize]
+        start as usize..end as usize
+    }
+
+    fn name(self) -> &'static str {
+        &NAMES[self.range()]
     }
 
     pub fn codepoint(self) -> u32 {

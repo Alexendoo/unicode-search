@@ -18,9 +18,9 @@ mod js {
         #[wasm_bindgen(js_name = "popStart")]
         pub fn pop_start();
         #[wasm_bindgen(js_name = "pushEnd")]
-        pub fn push_end(index: u32, codepoint: u32);
+        pub fn push_end(index: u32, codepoint: u32, start: usize, end: usize);
         #[wasm_bindgen(js_name = "pushStart")]
-        pub fn push_start(index: u32, codepoint: u32);
+        pub fn push_start(index: u32, codepoint: u32, start: usize, end: usize);
     }
 }
 
@@ -119,14 +119,16 @@ impl Searcher {
         let push_start = |generic_range| {
             for i in to_range(generic_range).rev() {
                 let ch = self.chars[i as usize];
-                js::push_start(i, ch.codepoint());
+                let range = ch.range();
+                js::push_start(i, ch.codepoint(), range.start, range.end);
             }
         };
 
         let push_end = |generic_range| {
             for i in to_range(generic_range) {
                 let ch = self.chars[i as usize];
-                js::push_end(i, ch.codepoint());
+                let range = ch.range();
+                js::push_end(i, ch.codepoint(), range.start, range.end);
             }
         };
 

@@ -42,6 +42,7 @@ input {
 
 #results {
     position: relative;
+    min-width: 1000px;
 }
 
 .char {
