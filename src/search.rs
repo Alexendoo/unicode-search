@@ -1,6 +1,6 @@
 pub use crate::bitset::BitSet;
 use std::fmt::Debug;
-use std::mem::{transmute, size_of};
+use std::mem::{size_of, transmute};
 use std::ops::Range;
 use std::str;
 
@@ -37,6 +37,13 @@ impl Character {
         let end = start + (self.pos >> 24);
 
         start as usize..end as usize
+    }
+
+    pub fn from_codepoint(cp: u32) -> Option<Self> {
+        CHARACTERS
+            .binary_search_by_key(&cp, |character| character.codepoint())
+            .map(|pos| CHARACTERS[pos])
+            .ok()
     }
 
     fn name(self) -> &'static str {

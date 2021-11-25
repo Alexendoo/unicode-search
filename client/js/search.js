@@ -81,10 +81,17 @@ export function clear() {
             pattern.matchAll(/(?:U?\+|\\[ux]?{?)([0-9a-f]{1,8})/gi),
             (match) => parseInt(match[1], 16),
         );
+
+        const isSearch = pattern.match(/^[a-z0-9 -]*$/);
+
         if (codepoints.length > 0) {
             searcher.codepoints(codepoints);
-        } else {
+        } else if (isSearch) {
             searcher.search(pattern);
+        } else {
+            searcher.codepoints(
+                Array.from(pattern, (char) => char.codePointAt()),
+            );
         }
 
         const total = searcher.len();
