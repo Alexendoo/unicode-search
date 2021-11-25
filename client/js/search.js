@@ -2,10 +2,11 @@ import init, { names_ptr, names_len, Searcher } from "../../target/wasm/wasm";
 
 import "../css/app.css";
 
+/** @type {HTMLInputElement} */
 const searchInput = document.getElementById("codepoint-search");
 const resultsDiv = document.getElementById("results");
 
-let names;
+let names = "";
 
 const ROW_HEIGHT = 24;
 
@@ -74,7 +75,17 @@ export function clear() {
     }
 
     function onInput() {
-        searcher.search(searchInput.value);
+        const pattern = searchInput.value;
+
+        const codepoints = Array.from(
+            pattern.matchAll(/(?:U?\+|\\[ux]?{?)([0-9a-f]{1,8})/gi),
+            (match) => parseInt(match[1], 16),
+        );
+        if (codepoints.length > 0) {
+            searcher.codepoints(codepoints);
+        } else {
+            searcher.search(pattern);
+        }
 
         const total = searcher.len();
         resultsDiv.style.height = `${total * ROW_HEIGHT}px`;

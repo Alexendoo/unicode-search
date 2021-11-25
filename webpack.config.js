@@ -8,7 +8,7 @@ const CssPlugin = require("mini-css-extract-plugin");
 /**
  * @type {import("webpack").Configuration}
  */
-module.exports = {
+const config = {
     entry: {
         search: "./client/js/search.js",
     },
@@ -16,7 +16,7 @@ module.exports = {
         filename: "[name].js",
         assetModuleFilename: "[name][ext]",
         path: path.join(__dirname, "client/static"),
-        publicPath: "static/",
+        publicPath: "/static/",
     },
     devServer: {
         static: {
@@ -52,3 +52,5 @@ module.exports = {
     devtool: "source-map",
     mode: "production",
 };
+
+module.exports = config;

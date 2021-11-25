@@ -1,6 +1,6 @@
 use bitset::BitSet;
 use ranges::{GenericRange, Relation};
-use search::{search, Character, CHARS_LEN, NAMES};
+use search::{search, Character, CHARACTERS, CHARS_LEN, NAMES};
 use std::mem;
 use std::ops::{Bound, Range, RangeBounds};
 use wasm_bindgen::prelude::*;
@@ -91,6 +91,17 @@ impl Searcher {
 
         // SAFETY: wasm will be only single threaded
         search(&pattern, &mut self.chars, unsafe { &mut SET });
+        self.current = GenericRange::from(0..0);
+    }
+
+    pub fn codepoints(&mut self, codepoints: Vec<u32>) {
+        self.chars.clear();
+        self.chars.extend(codepoints.into_iter().flat_map(|cp| {
+            CHARACTERS
+                .binary_search_by_key(&cp, |character| character.codepoint())
+                .map(|pos| CHARACTERS[pos])
+        }));
+
         self.current = GenericRange::from(0..0);
     }
 
