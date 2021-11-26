@@ -10,7 +10,7 @@ mod search;
 
 mod js {
     use wasm_bindgen::prelude::*;
-    #[wasm_bindgen(raw_module = "../../client/js/search.js")]
+    #[wasm_bindgen(raw_module = "../../src/index.js")]
     extern "C" {
         pub fn clear();
         #[wasm_bindgen(js_name = "popEnd")]

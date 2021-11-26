@@ -9,19 +9,12 @@ const CssPlugin = require("mini-css-extract-plugin");
  * @type {import("webpack").Configuration}
  */
 const config = {
-    entry: {
-        search: "./client/js/search.js",
-    },
     output: {
         filename: "[name].js",
         assetModuleFilename: "[name][ext]",
-        path: path.join(__dirname, "client/static"),
-        publicPath: "/static/",
+        path: path.join(__dirname, "dist"),
     },
     devServer: {
-        static: {
-            directory: path.join(__dirname, "client"),
-        },
         compress: true,
     },
     module: {
@@ -34,6 +27,10 @@ const config = {
             {
                 test: /\.css$/,
                 use: [CssPlugin.loader, "css-loader"],
+            },
+            {
+                test: /\.html$/,
+                type: "asset/resource",
             },
         ],
     },

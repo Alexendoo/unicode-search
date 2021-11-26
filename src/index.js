@@ -1,6 +1,7 @@
-import init, { names_ptr, names_len, Searcher } from "../../target/wasm/wasm";
+import init, { names_ptr, names_len, Searcher } from "../target/wasm/wasm";
 
-import "../css/app.css";
+import "./index.css";
+import "./index.html";
 
 /** @type {HTMLInputElement} */
 const searchInput = document.getElementById("codepoint-search");
@@ -58,7 +59,7 @@ export function clear() {
 
 (async function main() {
     const { memory } = await init(
-        new URL("../../target/wasm/wasm_bg.wasm", import.meta.url),
+        new URL("../target/wasm/wasm_bg.wasm", import.meta.url),
     );
     const searcher = new Searcher();
     window.searcher = searcher;

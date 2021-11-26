@@ -1,7 +1,7 @@
 node_modules
 target
 
-client/static
+dist
 
 src/characters.rs
 src/names.txt
