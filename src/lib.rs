@@ -167,11 +167,11 @@ impl Searcher {
                 ..
             } => {
                 if self_shorter {
-                    pop_start(first_disjoint);
-                    pop_end(second_disjoint);
-                } else {
                     push_start(first_disjoint);
                     push_end(second_disjoint);
+                } else {
+                    pop_start(first_disjoint);
+                    pop_end(second_disjoint);
                 }
             }
             Relation::Starting {
