@@ -49,6 +49,7 @@ input {
     white-space: nowrap;
     position: absolute;
     height: 24px;
+    width: 100%;
 }
 
 .codepoint {

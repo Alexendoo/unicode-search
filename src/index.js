@@ -57,10 +57,7 @@ export function clear() {
     while (resultsDiv.lastChild) resultsDiv.removeChild(resultsDiv.lastChild);
 }
 
-(async function main() {
-    const { memory } = await init(
-        new URL("../target/wasm/wasm_bg.wasm", import.meta.url),
-    );
+function main({ memory }) {
     const searcher = new Searcher();
     window.searcher = searcher;
 
@@ -104,4 +101,6 @@ export function clear() {
     searchInput.addEventListener("input", onInput);
     window.addEventListener("scroll", update);
     window.addEventListener("resize", update);
-})();
+}
+
+init().then(main);
