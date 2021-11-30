@@ -10,6 +10,7 @@ const resultsDiv = document.getElementById("results");
 let names = "";
 
 const ROW_HEIGHT = 24;
+const OFFSET = resultsDiv.offsetTop;
 
 function create(index, cp, start, end) {
     const char = document.createElement("div");
@@ -65,9 +66,14 @@ function main({ memory }) {
     names = new TextDecoder().decode(bytes);
 
     function update() {
-        const start = Math.floor(Math.max(0, window.scrollY - 50) / ROW_HEIGHT);
-        const rows = Math.ceil(window.innerHeight / ROW_HEIGHT) + 1;
-        const end = Math.min(searcher.len(), start + rows);
+        const top = window.scrollY - OFFSET;
+        const bottom = top + window.innerHeight;
+
+        const start = Math.max(0, Math.floor(top / ROW_HEIGHT));
+        const end = Math.min(
+            searcher.len(),
+            Math.floor(bottom / ROW_HEIGHT) + 1,
+        );
 
         searcher.render(start, end);
     }
