@@ -1,5 +1,5 @@
 {
-    "name": "utf",
+    "name": "unicode-search",
     "version": "1.0.0",
     "description": "Display information about Unicode characters",
     "author": "Alex Macleod <alex@macleod.io>",
