@@ -6,11 +6,11 @@ import "./index.html";
 /** @type {HTMLInputElement} */
 const searchInput = document.getElementById("codepoint-search");
 const resultsDiv = document.getElementById("results");
+const description = document.getElementById("description");
 
 let names = "";
 
 const ROW_HEIGHT = 24;
-const OFFSET = resultsDiv.offsetTop;
 
 function create(index, cp, start, end) {
     const char = document.createElement("div");
@@ -66,7 +66,7 @@ function main({ memory }) {
     names = new TextDecoder().decode(bytes);
 
     function update() {
-        const top = window.scrollY - OFFSET;
+        const top = window.scrollY - resultsDiv.offsetTop;
         const bottom = top + window.innerHeight;
 
         const start = Math.max(0, Math.floor(top / ROW_HEIGHT));
@@ -81,12 +81,21 @@ function main({ memory }) {
     function onInput() {
         const pattern = searchInput.value;
 
+        if (pattern) {
+            description.hidden = true;
+        } else {
+            description.hidden = false;
+            searcher.clear();
+            clear();
+            return;
+        }
+
         const codepoints = Array.from(
             pattern.matchAll(/(?:U?\+|\\[ux]?{?)([0-9a-f]{1,8})/gi),
             (match) => parseInt(match[1], 16),
         );
 
-        const isSearch = pattern.match(/^[a-z0-9 -]*$/);
+        const isSearch = pattern.match(/^[a-z0-9 -]*$/i);
 
         if (codepoints.length > 0) {
             searcher.codepoints(codepoints);

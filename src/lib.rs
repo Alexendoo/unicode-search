@@ -95,10 +95,13 @@ impl Searcher {
     }
 
     pub fn codepoints(&mut self, codepoints: Vec<u32>) {
-        self.chars.clear();
+        self.clear();
         self.chars
             .extend(codepoints.into_iter().filter_map(Character::from_codepoint));
+    }
 
+    pub fn clear(&mut self) {
+        self.chars.clear();
         self.current = GenericRange::from(0..0);
     }
 
