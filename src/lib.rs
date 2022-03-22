@@ -56,6 +56,7 @@ pub fn names_len() -> usize {
 pub struct Searcher {
     chars: Vec<Character>,
     current: GenericRange<u32>,
+    bitset: BitSet,
 }
 
 fn to_range(generic: GenericRange<u32>) -> Range<u32> {
@@ -81,27 +82,20 @@ impl Searcher {
         Self {
             chars: Vec::with_capacity(CHARS_LEN),
             current: GenericRange::from(0..0),
+            bitset: BitSet::new(),
         }
     }
 
     pub fn search(&mut self, mut pattern: String) {
-        static mut SET: BitSet = BitSet::new();
-
         pattern.make_ascii_uppercase();
-
-        // SAFETY: wasm will be only single threaded
-        search(&pattern, &mut self.chars, unsafe { &mut SET });
+        search(&pattern, &mut self.chars, &mut self.bitset);
         self.current = GenericRange::from(0..0);
     }
 
     pub fn codepoints(&mut self, codepoints: Vec<u32>) {
-        self.clear();
+        self.chars.clear();
         self.chars
             .extend(codepoints.into_iter().filter_map(Character::from_codepoint));
-    }
-
-    pub fn clear(&mut self) {
-        self.chars.clear();
         self.current = GenericRange::from(0..0);
     }
 

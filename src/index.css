@@ -31,9 +31,10 @@ body {
 }
 
 #codepoint-search {
+    height: 50px;
     font-size: 32px;
     margin: 20px;
-    height: 50px;
+    max-width: calc(100vw - 40px);
 }
 
 #description {

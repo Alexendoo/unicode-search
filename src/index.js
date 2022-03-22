@@ -85,7 +85,6 @@ function main({ memory }) {
             description.hidden = true;
         } else {
             description.hidden = false;
-            searcher.clear();
             clear();
             return;
         }
