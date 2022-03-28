@@ -86,17 +86,22 @@ impl Searcher {
         }
     }
 
-    pub fn search(&mut self, mut pattern: String) {
-        pattern.make_ascii_uppercase();
-        search(&pattern, &mut self.chars, &mut self.bitset);
+    fn clear(&mut self) {
+        self.chars.clear();
         self.current = GenericRange::from(0..0);
     }
 
+    pub fn search(&mut self, pattern: String) {
+        self.clear();
+        if !pattern.is_empty() {
+            search(&pattern, &mut self.chars, &mut self.bitset);
+        }
+    }
+
     pub fn codepoints(&mut self, codepoints: Vec<u32>) {
-        self.chars.clear();
+        self.clear();
         self.chars
             .extend(codepoints.into_iter().filter_map(Character::from_codepoint));
-        self.current = GenericRange::from(0..0);
     }
 
     pub fn len(&self) -> usize {
@@ -104,7 +109,8 @@ impl Searcher {
     }
 
     pub fn render(&mut self, start: u32, end: u32) {
-        let next = GenericRange::from(start..end);
+        debug_assert!(start <= end);
+        let next = GenericRange::from(start.min(end)..end);
         let prev = mem::replace(&mut self.current, next);
 
         // log!("{} -> {}\t{:?}", prev, next, prev.relation(next));

@@ -35,6 +35,11 @@ function create(index, cp, start, end) {
     return char;
 }
 
+function hashChange() {
+    searchInput.value = decodeURIComponent(location.hash.slice(1));
+}
+hashChange();
+
 export function pushStart(index, codepoint, start, end) {
     resultsDiv.insertBefore(
         create(index, codepoint, start, end),
@@ -80,14 +85,11 @@ function main({ memory }) {
 
     function onInput() {
         const pattern = searchInput.value;
+        description.hidden = !!pattern;
 
-        if (pattern) {
-            description.hidden = true;
-        } else {
-            description.hidden = false;
-            clear();
-            return;
-        }
+        const url = new URL(location);
+        url.hash = pattern;
+        history.replaceState(null, "", url);
 
         const codepoints = Array.from(
             pattern.matchAll(/(?:U?\+|\\[ux]?{?)([0-9a-f]{1,8})/gi),
@@ -99,7 +101,7 @@ function main({ memory }) {
         if (codepoints.length > 0) {
             searcher.codepoints(codepoints);
         } else if (isSearch) {
-            searcher.search(pattern);
+            searcher.search(pattern.toUpperCase());
         } else {
             searcher.codepoints(
                 Array.from(pattern, (char) => char.codePointAt()),
@@ -111,10 +113,15 @@ function main({ memory }) {
 
         update();
     }
+    onInput();
 
     searchInput.addEventListener("input", onInput);
     window.addEventListener("scroll", update);
     window.addEventListener("resize", update);
+    window.addEventListener("hashchange", () => {
+        hashChange();
+        onInput();
+    });
 }
 
 init().then(main);

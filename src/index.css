@@ -41,11 +41,6 @@ body {
     margin: 20px;
 }
 
-.example {
-    background-color: aliceblue;
-    border-radius: 2px;
-}
-
 #results {
     position: relative;
     min-width: 1000px;

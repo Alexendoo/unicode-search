@@ -14,8 +14,7 @@
         "wasm": "wasm-bindgen --out-dir target/wasm --target web target/wasm32-unknown-unknown/release/wasm.wasm",
         "build": "webpack",
         "serve": "webpack-dev-server",
-        "lint": "eslint .",
-        "test": "jest"
+        "lint": "eslint ."
     },
     "dependencies": {
         "clean-webpack-plugin": "^4.0.0",

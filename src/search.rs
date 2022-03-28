@@ -96,7 +96,6 @@ pub fn search(pattern: &str, characters: &mut Vec<Character>, character_indices:
         character_indices.insert(index.into());
     }
 
-    characters.clear();
     character_indices.drain_ones(|i| characters.push(CHARACTERS[i as usize]));
 }
 
