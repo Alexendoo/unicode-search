@@ -40,10 +40,13 @@ impl Character {
     }
 
     pub fn from_codepoint(cp: u32) -> Option<Self> {
-        CHARACTERS
-            .binary_search_by_key(&cp, |character| character.codepoint())
-            .map(|pos| CHARACTERS[pos])
-            .ok()
+        if let Ok(pos) = CHARACTERS.binary_search_by_key(&cp, |character| character.codepoint()) {
+            Some(CHARACTERS[pos])
+        } else if let Ok(literal) = cp.try_into() {
+            Some(Character { pos: 0, literal })
+        } else {
+            None
+        }
     }
 
     fn name(self) -> &'static str {
