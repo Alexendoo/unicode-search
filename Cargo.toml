@@ -9,7 +9,7 @@ crate-type = ["cdylib", "lib"]
 
 [dependencies]
 console_error_panic_hook = "0.1.7"
-ranges = "0.3.3"
+ranges = "0.4.0"
 wasm-bindgen = "0.2.79"
 
 [dev-dependencies]
