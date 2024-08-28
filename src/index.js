@@ -124,4 +124,4 @@ function main({ memory }) {
     });
 }
 
-init().then(main);
+init({}).then(main);
