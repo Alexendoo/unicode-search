@@ -4,26 +4,17 @@ on: push
 
 jobs:
   build:
-
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v1
-
-    - uses: actions/cache@v2
-      with:
-        path: |
-          ~/.cargo
-        key: cargo-${{ github.run_id }}
-        restore-keys: |
-          cargo-
+    - uses: actions/checkout@v4
 
     - run: cargo install wasm-bindgen-cli
 
-    - run: yarn install
-    - run: yarn gen
-    - run: yarn wasm
-    - run: yarn lint
-    - run: yarn build
+    - run: npm ci
+    - run: npm run gen
+    - run: npm run wasm
+    - run: npm run lint
+    - run: npm run build
 
     - run: cargo test --all
