@@ -58,9 +58,9 @@ impl Character {
     }
 }
 
-pub const CHARS_LEN: usize = 34592;
-const TABLE_LEN: usize = 893901;
-const NAMES_LEN: usize = 928493;
+pub const CHARS_LEN: usize = 40078;
+const TABLE_LEN: usize = 4124552 / 4;
+const NAMES_LEN: usize = 2142432 / 2;
 
 pub type Characters = &'static [Character; CHARS_LEN];
 
