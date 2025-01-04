@@ -32,7 +32,7 @@ impl Debug for Character {
 }
 
 impl Character {
-    pub fn range(&self) -> Range<usize> {
+    pub fn range(self) -> Range<usize> {
         let start = self.pos & 0xFF_FF_FF;
         let end = start + (self.pos >> 24);
 
